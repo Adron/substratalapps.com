@@ -1,0 +1,45 @@
+---
+layout: none
+sitemap: false
+---
+# Substratal Apps — Platform API
+
+> The system of record for how Substratal manages users, roles, per-app access
+> (the "turn an app on/off for a user" switch), profiles, and settings across
+> every product in the Substratal Apps catalog. This API is the hub a customer
+> lands on to reach every app, product, and service they've purchased from
+> Substratal. It is API-first: no user-facing interface is specified here —
+> that is a separate, later project that will consume this API.
+
+This site is the living specification. Treat it as authoritative over any
+older single-file draft found elsewhere in the repository's history.
+
+## Start here
+
+- [Home]({{ site.url }}{{ site.baseurl }}/): what Substratal Apps is and how this site is organized.
+- [Getting Started]({{ site.url }}{{ site.baseurl }}/getting-started/): the fastest path to understanding the system before writing code against it.
+- [Domain Model]({{ site.url }}{{ site.baseurl }}/domain-model/): the entities — User, Organization, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
+- [Access Control]({{ site.url }}{{ site.baseurl }}/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request.
+
+## API reference
+
+- [Conventions]({{ site.url }}{{ site.baseurl }}/api-reference/conventions/): base URL, auth, pagination, idempotency, error shape, ID format.
+- [Auth]({{ site.url }}{{ site.baseurl }}/api-reference/auth/)
+- [Users]({{ site.url }}{{ site.baseurl }}/api-reference/users/)
+- [Profiles]({{ site.url }}{{ site.baseurl }}/api-reference/profiles/)
+- [Settings]({{ site.url }}{{ site.baseurl }}/api-reference/settings/)
+- [Applications]({{ site.url }}{{ site.baseurl }}/api-reference/applications/)
+- [Entitlements]({{ site.url }}{{ site.baseurl }}/api-reference/entitlements/): the on/off switch for a user's access to an app.
+- [Roles & Permissions]({{ site.url }}{{ site.baseurl }}/api-reference/roles-and-permissions/)
+- [Organizations]({{ site.url }}{{ site.baseurl }}/api-reference/organizations/)
+- [Audit]({{ site.url }}{{ site.baseurl }}/api-reference/audit/)
+- [Webhooks]({{ site.url }}{{ site.baseurl }}/api-reference/webhooks/)
+
+## Also useful
+
+- [Workflows]({{ site.url }}{{ site.baseurl }}/workflows/): purchase-to-access, admin revokes access, role changes, end to end.
+- [Trust Model]({{ site.url }}{{ site.baseurl }}/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.
+- [Non-Functional Requirements]({{ site.url }}{{ site.baseurl }}/non-functional-requirements/)
+- [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
+- [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
+- [Glossary]({{ site.url }}{{ site.baseurl }}/glossary/)

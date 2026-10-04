@@ -1,0 +1,49 @@
+title: Substratal Apps — Platform API
+description: >-
+  The system of record for how Substratal manages users, roles, per-app
+  access, profiles, and settings across every product in the Substratal
+  Apps catalog. API-first specification and documentation.
+
+# Project page on the default github.io URL. If a custom domain is added
+# later (see docs/README or repo Settings > Pages), update both of these
+# and add a CNAME file.
+url: "https://adron.github.io"
+baseurl: "/substratalapps.com"
+
+permalink: pretty
+
+remote_theme: just-the-docs/just-the-docs@v0.12.0
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+color_scheme: substratal
+search_enabled: true
+heading_anchors: true
+back_to_top: true
+back_to_top_text: "Back to top"
+
+callouts_level: quiet
+callouts:
+  note:
+    title: Note
+    color: blue
+  decision:
+    title: Decision needed
+    color: yellow
+  important:
+    title: Important
+    color: red
+
+footer_content: >-
+  Substratal Apps Platform API — living specification. This site is the
+  system of record; see git history for how it has changed over time.
+
+exclude:
+  - specs
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - node_modules
+  - README.md

@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+# Pinned to the exact version GitHub Pages' classic build currently runs
+# (checked against https://rubygems.org/api/v1/gems/github-pages.json).
+# Keep this in sync if GitHub bumps their build image, so local builds
+# never diverge from what actually gets deployed.
+gem "github-pages", "232", group: :jekyll_plugins
