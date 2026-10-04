@@ -22,6 +22,7 @@ Resource-oriented REST, JSON, versioned at `/v1`. Read [Conventions](conventions
 | [Entitlements](entitlements/) | Grant, toggle, revoke access to an app — the on/off switch. |
 | [Roles & Permissions](roles-and-permissions/) | Assign/remove roles; resolve effective permissions. |
 | [Organizations](organizations/) | Team/seat management. |
+| [Tenancy](tenancy/) | Where a Tenant's data lives, and the (support-only) process to change it. |
 | [Audit](audit/) | Query the audit log. |
 | [Webhooks](webhooks/) | Subscribe to access-change events. |
 | [API Keys](api-keys/) | Service-to-service credentials — how billing or an app's own backend authenticates. |

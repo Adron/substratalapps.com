@@ -25,24 +25,32 @@ These are independent on purpose. A support agent can hold a platform Role that 
 
 ```
 allow(user, application, permission) :=
-    entitlement(user, application).status == "active"
+    resolved_entitlement_status(user, application) == "active"
     AND permission ∈ effective_permissions(user, application)
 ```
 
 Where:
 
 ```
+resolved_entitlement_status(user, application) :=
+    "active" if personal_entitlement(user, application).status == "active"
+    "active" if ∃ org ∈ organizations(user) :
+                   org_entitlement(org, application).status == "active"
+                   AND member_included(org_entitlement(org, application), user)
+    else the most relevant non-active status found, or "none" if no path exists at all
+
 effective_permissions(user, application) :=
     permissions(platform_roles(user))
     ∪ permissions(app_roles(user, application))
-    ∪ org_override_permissions(organization(user), application)   # if orgs are in scope, see §Org overrides below
 ```
+
+`resolved_entitlement_status` is a union across every path the user has to this one Application — their own personal Entitlement, plus every Organization they belong to that holds an org-wide grant that includes them — not a single row lookup. See [Step 1](#step-1-entitlement-status) for why this is a union rather than a single answer, and [Organization vs. User precedence](#organization-vs-user-precedence) for how a conflict between an Organization's decision and a User's own standing resolves. `effective_permissions` itself is unaffected by any of this — Role is a separate axis from *how* the entitlement was resolved.
 
 This is the function exposed directly as [`GET /v1/users/{id}/applications/{appId}/effective-permissions`](../api-reference/roles-and-permissions/) — any service, including a downstream app, can ask the hub for the resolved answer instead of re-implementing the union above.
 
 ## Step 1: Entitlement status
 
-An [Entitlement](../domain-model/entitlements/) is the join between a User (or Organization) and an Application, carrying a `status`:
+An [Entitlement](../domain-model/entitlements/) is the join between a User (or Organization) and an Application, carrying a `status`. A given User can have more than one *path* to the same Application at once — their own personal Entitlement, and/or an org-wide grant through any Organization they belong to — so "the entitlement" for a (user, application) pair is really the union of every path, not guaranteed to be a single row. Each individual path still carries one of these statuses:
 
 | Status | Meaning | Can the user reach the app? |
 |---|---|---|
@@ -77,9 +85,25 @@ Calling `allow(user, app_timetrack, "app.timetrack.export")` → entitlement is 
 
 Calling `allow(user, app_invoicer, "app.invoicer.view")` → entitlement is `disabled` → **denied**, regardless of the role held. The role assignment is untouched and will apply again the moment support re-enables the entitlement.
 
-## Org overrides
+## Organization vs. User precedence
 
-If [Organizations](../domain-model/users-and-organizations/) are in scope (see [Decisions](../decisions/)), an org admin's role can widen or narrow what members inherit by default — e.g. an org-level `app.invoicer.view` grant applied to every seat, independent of each member's individual app role. This layer is additive to, not a replacement for, the per-user roles above; the full union is what `effective_permissions` returns.
+[Organizations](../domain-model/users-and-organizations/) are in scope from [Phase 2](../roadmap/#phase-2) onward (see [Decisions](../decisions/#2-organizations)). Once a User can belong to an Organization that itself holds an org-wide Entitlement, a real question follows: if the Organization's decision and the User's own standing could point different ways, which wins? Resolved in [Decisions → Organization-vs-User entitlement precedence](../decisions/#13-organization-vs-user-entitlement-precedence):
+
+1. **Within one Organization's own grant, the Organization's decision is final.** An org admin's `member_scope` (see [Entitlements → Org-wide entitlements](../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out)) decides who among the org's members actually receives that grant — a member can't opt themselves in or out of it.
+2. **A User's own personal Entitlement to the same Application is a separate, untouched path.** Being excluded from one Organization's seat grant never revokes a personal Entitlement held some other way — see the worked example below.
+3. **Effective access is the union of every active path**, so a User in multiple Organizations never hits a real conflict between them — each Organization's grant only ever speaks for itself. `resolved_entitlement_status` above *is* this union, formally.
+4. **Attribution is always visible**: a User's own entitlements list shows which Organization a given `org_seat` path came from, and whether `member_scope` included or excluded them — never a bare allow/deny with no source. See [Entitlements → Attribution](../domain-model/entitlements/#attribution).
+
+### Worked example: multi-org, one Application
+
+User `usr_jordan` is:
+- A member of `org_acme`, which holds an active org-wide Entitlement to `app_invoicer` with `member_scope: all_members` (no exclusions).
+- A member of `org_beta`, which holds an active org-wide Entitlement to `app_invoicer` with `member_scope: denylist`, and `usr_jordan` is on that list.
+- The holder of their own personal (`source: admin_grant`) Entitlement to `app_timetrack` — unrelated to either Organization.
+
+Resolving `allow(usr_jordan, app_invoicer, "app.invoicer.view")`: `org_beta` excludes them from *its* grant, but that only removes `org_beta`'s path — `org_acme`'s grant still includes them, so `resolved_entitlement_status` is `active` via `org_acme`, and the call is **allowed**. There's no "which Organization wins" conflict to resolve, because `org_beta`'s exclusion was never a global deny — it only ever governed `org_beta`'s own grant.
+
+If `usr_jordan` were *not* a member of `org_acme` at all, the same call would resolve to **denied** — `org_beta`'s exclusion is the only path to `app_invoicer`, and it says no. Their personal Entitlement to `app_timetrack` is unaffected either way; it was never part of either Organization's decision.
 
 ## What apps should actually call
 

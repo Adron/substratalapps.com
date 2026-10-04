@@ -44,6 +44,10 @@ When the hub redirects a user into an app (SSO-style launch from the dashboard, 
 - Verified locally by the app (standard JWT signature check) — cheap, no network call, no dependency on the hub being reachable for every request.
 - `exp` should be short — minutes, not hours — because the claims are a snapshot. If an admin revokes the entitlement one minute after this token was issued, the app has no way to know until the token expires and the user re-authenticates.
 - Good fit for: read-mostly requests, UI rendering, anything where being a few minutes stale is an acceptable risk.
+- `org_id` is which *one* Organization context this particular launch resolved through (or `null` for a personal, non-org-sourced launch) — not a list of every Organization the user belongs to. See [Domain Model → Users & Organizations → OrganizationMembership](../domain-model/users-and-organizations/#organizationmembership) for why a User can hold more than one.
+
+{: .note }
+Deliberately absent from this claim: anything about [Tenant](../domain-model/tenancy/) placement (`tier`/`region`). Tenancy is set once per Application by its owner, not computed per end-user per request — an app that wants to know its own placement reads it from `GET /v1/applications/{id}` or `GET /v1/tenants/{id}`, not from a launch token. See [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure).
 
 ## 2. Live introspection
 

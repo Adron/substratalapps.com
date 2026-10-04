@@ -19,7 +19,8 @@ The entity pages describe *what* each field means to an API caller. This page is
 ## Conventions used below
 
 - Every table's primary key is the entity's own prefixed id (`usr_…`, `ent_…`, …) stored as `text`, not a surrogate `bigint` — the prefix convention in [Conventions → IDs](../../api-reference/conventions/#ids) *is* the primary key, not a display layer on top of one.
-- Every multi-tenant table carries `organization_id text null references organizations(id)`, per [Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy), with a Row-Level Security policy — not repeated per-table below.
+- Every end-user-scoped table carries `organization_id text null references organizations(id)`, per [Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy), with a Row-Level Security policy — not repeated per-table below. This is **team/seat grouping**, not infrastructure placement.
+- Every table scoped to one Application also carries `tenant_id text not null references tenants(id)`, denormalized from `applications.tenant_id` at write time — a **second, independent** RLS dimension used to route a row to the right physical cluster (see [Tenancy](../tenancy/) and [Deployment Architecture → Tenancy tiers](../../deployment-architecture/#tenancy-tiers--where-they-run)). Don't conflate this with `organization_id` above — a row can carry both, either, or neither.
 - Every table carries `created_at timestamptz not null default now()`; tables with mutable fields also carry `updated_at timestamptz not null default now()`, maintained by a trigger, not application code (so it's correct even for a direct `UPDATE` run by a migration or a support script).
 - Soft-deletable tables carry `deleted_at timestamptz null` rather than a boolean — `null` means active, a timestamp means both *that* it's deleted and *when*, which a boolean throws away.
 
@@ -31,12 +32,11 @@ The entity pages describe *what* each field means to an API caller. This page is
 | `email` | `citext` | `unique`, not null |
 | `email_verified` | `boolean` | not null, default `false` |
 | `status` | `text` | not null, `check (status in ('active','invited','suspended','deleted'))` |
-| `organization_id` | `text` | nullable, `references organizations(id)` |
 | `auth` | `jsonb` | shape depends on [Decisions → Identity provider](../../decisions/#1-identity-provider) |
 | `created_at`, `last_login_at` | `timestamptz` | `last_login_at` nullable |
 | `deleted_at` | `timestamptz` | nullable — soft-delete |
 
-**Indexes:** `unique (email) where deleted_at is null` (a deleted user's email should be reusable by a new signup — a plain unique index would block that); `(organization_id)` for member listing; `(status)` for admin filtering.
+**Indexes:** `unique (email) where deleted_at is null` (a deleted user's email should be reusable by a new signup — a plain unique index would block that); `(status)` for admin filtering. No `organization_id` here — see `organization_memberships` below; a single column on `users` would cap a User at one Organization.
 
 ## organizations
 
@@ -46,7 +46,34 @@ The entity pages describe *what* each field means to an API caller. This page is
 | `name` | `text` | not null |
 | `status` | `text` | not null, `check (status in ('active','suspended'))` |
 
-No surprising constraints — small table, no high-cardinality query pattern beyond primary key lookup and the `users.organization_id` index above.
+No surprising constraints — small table, lookup is by primary key and via `organization_memberships` below.
+
+## organization_memberships
+
+```sql
+organization_memberships (
+  user_id text not null references users(id),
+  organization_id text not null references organizations(id),
+  role text not null check (role in ('org_admin','member')),
+  joined_at timestamptz not null default now(),
+  primary key (user_id, organization_id)
+);
+```
+
+**Index:** `(organization_id)` for member-listing queries — the inverse of the primary key's natural lookup direction (by user). This is what makes a User's membership many-to-many: no `organization_id` column on `users` to collide with.
+
+## tenants
+
+| Column | Type | Constraint |
+|---|---|---|
+| `id` | `text` | primary key |
+| `owner_user_id` | `text` | nullable, `references users(id)` |
+| `owner_organization_id` | `text` | nullable, `references organizations(id)` |
+| `tier` | `text` | not null, default `'shared'`, `check (tier in ('shared','isolated','dedicated_region'))` |
+| `region` | `text` | nullable — set only when `tier = 'dedicated_region'` |
+| `status` | `text` | not null, default `'active'`, `check (status in ('active','migrating','suspended'))` |
+
+**Constraint:** `check (owner_user_id is null or owner_organization_id is null)` and `check (owner_user_id is not null or owner_organization_id is not null)` — exactly one owner, same pattern as `applications.owner_*` below. **Indexes:** `unique (owner_user_id) where owner_user_id is not null`, `unique (owner_organization_id) where owner_organization_id is not null` — one Tenant per owner, not a list. See [Tenancy](../tenancy/).
 
 ## applications
 
@@ -61,8 +88,9 @@ No surprising constraints — small table, no high-cardinality query pattern bey
 | `owner_user_id` | `text` | nullable, `references users(id)` |
 | `owner_organization_id` | `text` | nullable, `references organizations(id)` |
 | `review_status` | `text` | not null, default `'approved'`, `check (review_status in ('approved','pending_review','suspended'))` |
+| `tenant_id` | `text` | not null, `references tenants(id)` — resolved from whichever owner column is set at insert time, see [Tenancy](../tenancy/) |
 
-**Constraint:** `check (owner_user_id is null or owner_organization_id is null)` — an Application has at most one kind of owner, never both. **Index:** `(owner_user_id)`, `(owner_organization_id)` for "my apps" queries; `(visibility, review_status) where review_status = 'approved'` for the public catalog listing.
+**Constraint:** `check (owner_user_id is null or owner_organization_id is null)` — an Application has at most one kind of owner, never both. **Index:** `(owner_user_id)`, `(owner_organization_id)` for "my apps" queries; `(visibility, review_status) where review_status = 'approved'` for the public catalog listing; `(tenant_id)` for a support/ops query of "every Application on this Tenant" during a tier-change migration.
 
 ## entitlements
 
@@ -72,13 +100,16 @@ No surprising constraints — small table, no high-cardinality query pattern bey
 | `user_id` | `text` | nullable, `references users(id)` |
 | `organization_id` | `text` | nullable, `references organizations(id)` — the org-seat grant, not the general multi-tenancy column |
 | `application_id` | `text` | not null, `references applications(id)` |
+| `tenant_id` | `text` | not null, `references tenants(id)` — denormalized from `applications.tenant_id`, see [conventions above](#conventions-used-below) |
 | `status` | `text` | not null, `check (status in ('active','disabled','expired','revoked'))` |
 | `source` | `text` | not null, `check (source in ('purchase','trial','admin_grant','org_seat'))` |
 | `order_id` | `text` | nullable |
 | `starts_at`, `ends_at` | `timestamptz` | `ends_at` nullable |
 | `disabled_reason` | `text` | nullable |
+| `member_scope` | `text` | nullable, `check (member_scope in ('all_members','allowlist','denylist'))` — only set when `organization_id` is set, see [Entitlements → Org-wide entitlements](../entitlements/#org-wide-entitlements-scoping-members-in-or-out) |
+| `member_overrides` | `text[]` | nullable — `user_id`s this grant's default is flipped for, only meaningful alongside `member_scope in ('allowlist','denylist')` |
 
-**Constraint:** `check (user_id is not null or organization_id is not null)`. **Indexes:** `(user_id, application_id) where status = 'active'` partial-unique — this is what [`entitlement_already_exists`](../../api-reference/entitlements/#errors-specific-to-this-resource) enforces at the database level, not just in application code; `(application_id, status)` for `GET /v1/entitlements` filtering (see [API Reference → Entitlements](../../api-reference/entitlements/)); `(organization_id)` for org-seat listing.
+**Constraint:** `check (user_id is not null or organization_id is not null)`. **Indexes:** `(user_id, application_id) where status = 'active'` partial-unique — this is what [`entitlement_already_exists`](../../api-reference/entitlements/#errors-specific-to-this-resource) enforces at the database level, not just in application code; `(application_id, status)` for `GET /v1/entitlements` filtering (see [API Reference → Entitlements](../../api-reference/entitlements/)); `(organization_id)` for org-seat listing; `member_overrides` is read with `= any(member_overrides)` at resolution time rather than its own index — the row count per org-wide grant is small enough that a sequential scan of one array is cheaper than maintaining a GIN index for it.
 
 ## roles, user_role_assignments
 
@@ -110,11 +141,31 @@ Four small tables, same shape pattern — global vs. per-app, each keyed by `use
 app_settings (
   user_id text not null references users(id),
   application_id text not null references applications(id),
+  tenant_id text not null references tenants(id),
   overrides jsonb not null default '{}',
   updated_at timestamptz not null default now(),
   primary key (user_id, application_id)
 );
 ```
+
+`app_profiles` carries the same `tenant_id`, denormalized from `applications.tenant_id` the same way — both are per-Application data, so both are placed by that Application's Tenant.
+
+### Typed fields: generated columns over jsonb
+
+Per [Decisions → Storage primitive scope](../../decisions/#8-storage-primitive-scope), `overrides` (and `custom`, on `app_profiles`) stays `jsonb` — but every property an Application has actually declared in its `settings_schema` also gets a Postgres [generated column](https://www.postgresql.org/docs/current/ddl-generated-columns.html), added (and dropped) by the same code path that validates a `PATCH .../settings` write against that schema:
+
+```sql
+alter table app_settings
+  add column week_start text
+    generated always as (overrides->>'week_start') stored;
+
+create index on app_settings (application_id, week_start)
+  where week_start is not null;
+```
+
+The cast in the generated column's expression matches the schema's declared type (`->>'...'` plus an explicit `::boolean`/`::integer`/`::timestamptz` cast for anything non-text) — this is what makes the field queryable and sortable with a normal index, instead of every read needing a `jsonb` containment or path operator. `overrides` itself is never rewritten; the generated column is a read-optimized projection of one key in it, recomputed by Postgres automatically on every write, never drifting from the source.
+
+This only applies to fields an Application has declared — an arbitrary, undeclared key written into `overrides` lives in the `jsonb` only, exactly as flexible (and exactly as unindexed) as before.
 
 ## audit_events
 
@@ -125,10 +176,11 @@ app_settings (
 | `action` | `text` | not null, `check` against the [Action catalog](../orders-and-audit/#action-catalog) |
 | `target_user_id` | `text` | not null |
 | `application_id` | `text` | nullable |
+| `tenant_id` | `text` | nullable — set whenever `application_id` is, denormalized the same way as other per-Application tables; `null` for platform-level events (e.g. `user.created`) with no single Application to place |
 | `before`, `after` | `jsonb` | |
 | `timestamp` | `timestamptz` | not null, default `now()` |
 
-No `updated_at`, no soft-delete column — this table is append-only by design (see [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit)); revoke `UPDATE`/`DELETE` grants on this table for the application's own database role, so an application-layer bug can't violate the "never edited" guarantee even accidentally. **Indexes:** `(target_user_id, timestamp desc)`, `(application_id, timestamp desc)`, `(actor_user_id, timestamp desc)` — one per documented filter in [API Reference → Audit](../../api-reference/audit/).
+No `updated_at`, no soft-delete column — this table is append-only by design (see [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit)); revoke `UPDATE`/`DELETE` grants on this table for the application's own database role, so an application-layer bug can't violate the "never edited" guarantee even accidentally. **Indexes:** `(target_user_id, timestamp desc)`, `(application_id, timestamp desc)`, `(actor_user_id, timestamp desc)`, `(tenant_id, timestamp desc)` — one per documented filter in [API Reference → Audit](../../api-reference/audit/), the last one being what a tier-change migration uses to pull "every event for this Tenant" without scanning the whole table.
 
 ## api_keys
 

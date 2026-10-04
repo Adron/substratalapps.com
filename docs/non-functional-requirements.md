@@ -29,7 +29,12 @@ The hub is the **only** writer of Entitlement and Role state. Apps read (via JWT
 
 ## Multi-tenancy
 
-Every record that can belong to an Organization is scoped by `organization_id`, enforced at the data-access layer — concretely, **Postgres Row-Level Security policies** on every multi-tenant table, keyed off a session variable the API layer sets per request (`SET LOCAL app.current_org_id = ...`), not application-code `WHERE` clauses a future query can forget to add. This matters even before Organizations ship as a user-facing feature (see [Decisions](../decisions/#2-organizations)) — the column and the policy should exist and be enforced from day one so neither is a migration later. A query that omits the session variable should fail closed (return nothing) by policy default, not fail open.
+Two independent axes, both enforced the same way — **Postgres Row-Level Security policies**, not application-code `WHERE` clauses a future query can forget to add — but answering different questions, and easy to conflate if read too quickly:
+
+- **`organization_id`** — team/seat grouping. Every record that can belong to an [Organization](../domain-model/users-and-organizations/#organization) is scoped by it, keyed off a session variable the API layer sets per request (`SET LOCAL app.current_org_id = ...`). This matters even before Organizations are customer-facing everywhere (see [Decisions](../decisions/#2-organizations)) — the column and the policy exist and are enforced from day one so neither is a migration later.
+- **`tenant_id`** — infrastructure placement. Every record scoped to one [Application](../domain-model/applications/) carries it, denormalized from that Application's own `tenant_id` (see [Tenancy](../domain-model/tenancy/)), keyed off a second session variable (`SET LOCAL app.current_tenant_id = ...`). For a `shared`-tier [Tenant](../domain-model/tenancy/#tiers) this policy is the *only* isolation in place; for `isolated`/`dedicated_region`, the row additionally never lives on the same physical cluster as another Tenant's rows at all — the RLS policy and the physical placement are deliberately redundant, not an either/or.
+
+A query that omits either session variable should fail closed (return nothing) by policy default, not fail open. See [Decisions → Tenant vs. Organization](../decisions/#11-tenant-vs-organization) for why these are two columns and two policies, not one.
 
 ## Concurrency control
 

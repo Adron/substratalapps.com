@@ -46,6 +46,8 @@ Every resource ID is prefixed by type. Most are opaque ULIDs — generated, neve
 |---|---|
 | `usr_` | User |
 | `org_` | Organization |
+| `tnt_` | Tenant — see [Domain Model → Tenancy](../../domain-model/tenancy/) |
+| `tcr_` | Tenant tier-change request — see [Tenancy](../tenancy/) |
 | `app_` | Application |
 | `role_` | Role |
 | `ent_` | Entitlement |

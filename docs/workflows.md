@@ -65,6 +65,23 @@ The "kill switch" flow — a support agent or admin disabling one user's access 
 2. The user acquires an app — either a purchase (see above) or an admin/invite grant (`source: admin_grant` on the Entitlement, no `order_id`).
 3. The first time the user opens that app, an `AppProfile` and `AppSettings` record is created lazily, seeded from the Application's declared defaults — there's no separate "provision this user in this app" step to orchestrate; reading or writing either resource for a user who doesn't have one yet creates it with defaults.
 
+## A customer needs dedicated or regional infrastructure
+
+Support-run today — see [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure) for why this isn't self-service yet.
+
+1. A customer (an Application owner) asks support for dedicated infrastructure, or a specific region for data residency.
+2. Support calls `POST /v1/tenants/{id}/tier-change-requests` — see [API Reference → Tenancy](../api-reference/tenancy/).
+3. Support schedules a brief maintenance window, flips the [Tenant](../domain-model/tenancy/)'s `status` to `migrating`, and runs the snapshot/restore cutover described in [Deployment Architecture → Tenancy tiers](../deployment-architecture/#tenancy-tiers--where-they-run) — every [Entitlement](../domain-model/entitlements/), [AppProfile](../domain-model/profiles/#appprofile), and [AppSettings](../domain-model/settings/#appsettings) row carrying that `tenant_id` moves to the new infrastructure.
+4. `tier`/`region`/`status` are updated back to `active`; an [Audit Event](../domain-model/orders-and-audit/#audit-event) (`tenant.tier_changed`) records it.
+5. Nothing about the customer's Applications, Entitlements, or any end-user's access changes shape — this workflow only ever moves *where* the same rows live, never *what* they say.
+
+## An org admin narrows who an org-wide grant reaches
+
+1. An org admin (`OrganizationMembership.role: org_admin`) calls `PATCH /v1/entitlements/{id}` on their Organization's `org_seat` Entitlement to an Application, setting `member_scope: allowlist` or `denylist` and `member_overrides`.
+2. The hub writes an [Audit Event](../domain-model/orders-and-audit/#audit-event) (`entitlement.member_scope_changed`) — not `entitlement.disabled`/`entitlement.granted`, since the grant's own `status` didn't change.
+3. Every affected member's `resolved_entitlement_status` for that Application is recomputed at read time, not backfilled — there's no per-member row to update. A member excluded this way keeps any separate, personally-sourced Entitlement to the same app untouched — see [Access Control → Organization vs. User precedence](../access-control/#organization-vs-user-precedence).
+4. Downstream, this is picked up the same way a Role change is — next introspection call or token refresh, not necessarily mid-session unless the app subscribes to the matching webhook.
+
 ## Settings resolution, in practice
 
 When an app needs to know a setting's value for a user (e.g. notification channel preference), the read order is always:

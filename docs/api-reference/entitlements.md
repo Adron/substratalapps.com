@@ -50,11 +50,23 @@ The on/off switch for a user's access to an app. See [Domain Model → Entitleme
       "order_id": "ord_01JAG8B3N4M5K6J7H8G9F0D1S2",
       "starts_at": "2026-03-02T09:00:00Z",
       "ends_at": null
+    },
+    {
+      "id": "ent_01JAGD4E5F6G7H8J9K0L1M2N3O",
+      "application_id": "app_payroll",
+      "status": "active",
+      "source": "org_seat",
+      "order_id": null,
+      "starts_at": "2026-04-02T10:00:00Z",
+      "ends_at": null,
+      "granted_via": { "organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P", "member_decision": "included" }
     }
   ],
   "page": { "next_cursor": null, "has_more": false }
 }
 ```
+
+`granted_via` appears only on an `org_seat`-sourced row — see [Domain Model → Entitlements → Attribution](../../domain-model/entitlements/#attribution) for what `member_decision` (`included`/`excluded`) means and why it's computed per member rather than stored on the org-wide grant itself.
 
 ## `POST /v1/users/{id}/entitlements`
 
@@ -142,7 +154,12 @@ Self (for one's own entitlement), or a platform role with `entitlements.manage`.
 { "status": "active", "disabled_reason": null }
 ```
 
-Requires a platform role with `entitlements.manage` (e.g. `support` or `superadmin` — see [Roles & Permissions](../roles-and-permissions/)). Writes an [Audit Event](../audit/) and emits `entitlement.disabled` / `entitlement.granted` on the matching transition — see [Webhooks](../webhooks/) and [Workflows → Admin turns an app off for a user](../../workflows/#admin-turns-an-app-off-for-a-user).
+```json
+// Request — on an org-wide grant, narrow who it applies to
+{ "member_scope": "denylist", "member_overrides": ["usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"] }
+```
+
+Requires a platform role with `entitlements.manage` (e.g. `support` or `superadmin` — see [Roles & Permissions](../roles-and-permissions/)), or — for an `org_seat` row specifically — org-admin standing on that Organization (see [Organizations → Delegated admin](../organizations/#delegated-admin)). Writes an [Audit Event](../audit/) and emits `entitlement.disabled` / `entitlement.granted` on a `status` transition. Changing only `member_scope`/`member_overrides` (no `status` change) is a distinct, narrower write — it emits `entitlement.member_scope_changed` instead, since no member's resolved access path was necessarily added or removed by this call alone; see [Domain Model → Orders & Audit → Action catalog](../../domain-model/orders-and-audit/#action-catalog).
 
 {: .important }
 `status` transitions are not unrestricted — `revoked` is terminal; you cannot `PATCH` a `revoked` entitlement back to `active`. Grant a new one instead. See [Domain Model → Entitlements → Status transitions](../../domain-model/entitlements/#status-transitions).

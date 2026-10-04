@@ -25,6 +25,7 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 - [Entitlement](../domain-model/entitlements/) — grant, revoke, and the on/off toggle. This is the feature the rest of the MVP exists to support.
 - Platform [Roles](../domain-model/roles-and-permissions/) only — no app-scoped roles yet; every entitled user is an implicit full member of the app they own.
 - Basic [Audit Event](../domain-model/orders-and-audit/) log for entitlement changes.
+- [Tenant](../domain-model/tenancy/) ships structurally — every Application owner gets one automatically, at `tier: shared`, the moment they register their first Application. No tier change is reachable yet (that's Phase 2); the `tenant_id` column and its Row-Level Security policy exist and are enforced from day one, same reasoning as `organization_id` below.
 
 **Ships:** a dashboard-ready API — list a user's apps, their status, and let an admin flip that status — plus the data model other phases build on without a migration.
 
@@ -34,7 +35,8 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 - Per-app [Profile](../domain-model/profiles/) and [Settings](../domain-model/settings/), with schema validation against what each Application declares.
 - [Webhooks](../api-reference/webhooks/) — `entitlement.*`, `role.*` — so downstream apps can react instead of poll.
 - The live introspection endpoint (`effective-permissions`) — see [Trust Model](../trust-model/).
-- [Organizations](../domain-model/users-and-organizations/) / seats — team plans, delegated admin (an org admin manages their own members without needing platform-admin rights). Pulled forward from a later phase: end users are expected to be both individuals and teams from early on, not teams-later — see [Decisions → Organizations](../decisions/#2-organizations).
+- [Organizations](../domain-model/users-and-organizations/) / seats — team plans, delegated admin via `OrganizationMembership.role: org_admin` (an org admin manages their own members without needing platform-admin rights), and org-wide Entitlements' `member_scope` allowlist/denylist. Pulled forward from a later phase: end users are expected to be both individuals and teams from early on, not teams-later — see [Decisions → Organizations](../decisions/#2-organizations).
+- Support-run [Tenancy](../domain-model/tenancy/) tier changes become operationally available — `isolated` and `dedicated_region` are real, reachable tiers via the support-gated `POST /v1/tenants/{id}/tier-change-requests` flow, even though there's still no customer self-serve path. See [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure).
 
 **Ships:** the full per-app customization model, team accounts, and the mechanics apps need to actually trust the hub in production rather than trusting it "eventually, on next login."
 
@@ -45,6 +47,10 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 - Self-service Application registration and review queue for third-party developers — the marketplace phase. See [Decisions → App developer/publisher model](../decisions/#9-app-developerpublisher-model).
 
 **Ships:** the features that only matter once there are customers (or outside developers) big enough to need them — deliberately not pulled earlier, since building any of these before there's a real need tends to guess the shape wrong.
+
+## Tenancy automation isn't phase-gated — it's revenue-gated
+
+Self-service, customer-triggered [Tenancy](../domain-model/tenancy/) tier changes (no support ticket, no human running the migration) deliberately don't have a phase number above. It's not a feature-scope decision like the rest of this page — it's a decision to accept a real amount of migration risk (a failed cutover with no human checking each step) in exchange for support time, and that trade only makes sense once tier-change request volume justifies it. Track it against actual demand, not a calendar phase — see [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure).
 
 ## What's explicitly not on this roadmap
 

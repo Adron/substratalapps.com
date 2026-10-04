@@ -87,6 +87,7 @@ Every value `action` can take. Entries marked **admin-only** never fire for a se
 | `entitlement.disabled` | An Entitlement's `status` is set to `disabled` |
 | `entitlement.revoked` | An Entitlement's `status` is set to `revoked` |
 | `entitlement.expired` | An Entitlement transitions to `expired` automatically |
+| `entitlement.member_scope_changed` | An org-wide Entitlement's `member_scope`/`member_overrides` changes with no `status` transition — see [Entitlements → Org-wide entitlements](../entitlements/#org-wide-entitlements-scoping-members-in-or-out) |
 | `role.assigned` | `POST /v1/users/{id}/roles/{roleId}` |
 | `role.removed` | `DELETE /v1/users/{id}/roles/{roleId}` |
 | `profile.updated` | An admin changes another user's Profile or AppProfile — **admin-only** |

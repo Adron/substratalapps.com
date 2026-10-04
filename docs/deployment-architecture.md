@@ -23,7 +23,7 @@ Scope: this page is about the **platform API** specified throughout this site �
 Four rules this architecture is built around, in priority order:
 
 1. **No resource bills by the hour regardless of traffic.** No always-on EC2 instance, no Fargate task, no NAT Gateway. If nobody's calling the API, the API costs close to nothing.
-2. **Every component with a cost has a known floor and a known ceiling.** "Serverless" alone isn't the goal — some AWS serverless products (Aurora Serverless v2's minimum capacity, for one) still have a non-zero floor. The goal is that the floor is a small, named number in this document, not a surprise on a bill.
+2. **Every component with a cost has a known floor and a known ceiling.** "Serverless" isn't automatically cheaper — some AWS serverless products (Aurora Serverless v2's minimum capacity, for one) have a *higher* floor than the plain fixed-price alternative, and that trade is only worth it when something else about the product earns it back. See [Database engine: AWS options compared](#database-engine-aws-options-compared) for the actual comparison rather than assuming either answer.
 3. **A hard budget alarm exists before the first resource does.** Guardrails are step one of the build checklist below, not a follow-up task.
 4. **Scale-out is a later, deliberate decision, not a default.** Nothing in Tier 0 auto-scales into real money without a human decision — see [Scale-out](#scale-out) for what actually triggers each upgrade.
 
@@ -54,6 +54,18 @@ flowchart LR
 | Static assets (avatars, etc.) | **S3** + **CloudFront** | Pay-per-use; negligible at Tier 0 volume. |
 | Logs | **CloudWatch Logs**, retention capped at 30 days | Explicit retention is the fix for the single most common "why is my CloudWatch bill growing every month" surprise — logs left at *never expire* by default. |
 | Cost guardrail | **AWS Budgets** (two thresholds) + **Cost Anomaly Detection** | See [Cost guardrails](#cost-guardrails) — this exists before the first Lambda does. |
+
+### Database engine: AWS options compared
+
+Postgres is the storage engine — resolved in [Decisions → Storage primitive scope](../decisions/#8-storage-primitive-scope): the domain model is relational, and [Database Schema](../domain-model/database-schema/) depends on real foreign keys, `check` constraints, and Row-Level Security that a document store doesn't give for free. The open question was *which* AWS Postgres product, evaluated specifically for the lowest predictable starting price:
+
+| Option | Starting price | Trade-off |
+|---|---|---|
+| **RDS for PostgreSQL**, single-AZ `db.t4g.micro` | ~$12–13/month, storage separate — the cheapest *fixed* number AWS offers | No Data API — Lambda needs a direct Postgres connection, which means VPC attachment, which reopens the NAT question this page spent a whole section avoiding. Also no multi-cluster story: every [Tenancy](../domain-model/tenancy/) tier would need its own bespoke connection-routing code, not just a lookup-table value. |
+| **Aurora Provisioned (PostgreSQL-compatible)**, smallest instance | ~$55–60/month single-AZ — Aurora's smallest instance class is larger than RDS's smallest | Pricier than Serverless v2's floor for a low-traffic start, with none of Serverless v2's scale-with-load benefit. Not competitive against either other option at Tier 0 volume. |
+| **Aurora Serverless v2 (PostgreSQL-compatible)**, 0.5 ACU minimum — **chosen** | ~$43/month floor, scales up with load | Costs more than bare RDS at idle. What it buys back: the **Data API**, which is why Tier 0 has no VPC at all (see [below](#why-no-vpc-and-specifically-no-nat-gateway)), and why [Tenancy tiers](#tenancy-tiers--where-they-run) can route a request to any of several clusters — shared, or a specific customer's `isolated`/`dedicated_region` one — via one lookup-table value, with every tier using the identical connection mechanism. |
+
+**The ~$30/month gap between RDS and Aurora Serverless v2 is a real, named cost** — not hand-waved away — paid specifically for not having to build and maintain two different database-connection code paths (one VPC-bound for a cheap shared tier, one Data-API-based for dedicated tenants) or a NAT Gateway. At Tier 0's actual scale (see [Growth trajectory](#growth-trajectory)) that $30/month is a smaller cost than the engineering time either alternative would take to build and keep correct. Revisit this specific trade if [Scale-out](#scale-out)'s connection-count trigger ever makes Aurora's own overhead the bigger line item.
 
 ### Why no VPC, and specifically no NAT Gateway
 
@@ -102,6 +114,28 @@ The stated plan: dozens of users and a handful of Applications in the first 6-12
 
 The point of naming these horizons isn't to pre-build for them — per [Cost principles](#cost-principles), scale-out stays a deliberate, triggered decision — it's so "is it time yet" has a concrete number to check against instead of being a guess.
 
+## Tenancy tiers & where they run
+
+[Tenancy](../domain-model/tenancy/) is a second, independent scale-out axis from [Growth trajectory](#growth-trajectory) above — it's triggered by one customer's requirement, not by aggregate volume, and can happen on day one for a single large customer well before the traffic-driven triggers below are anywhere close. See [Decisions → Tenancy tiers & dedicated infrastructure](../decisions/#12-tenancy-tiers--dedicated-infrastructure) for how the three tiers and the support-gated process were decided.
+
+| Tier | Infrastructure | Relationship to Tier 0 above |
+|---|---|---|
+| `shared` | Exactly [Tier 0](#first-deployment-tier-0) as specified — the same Aurora cluster every other `shared`-tier Tenant uses, isolated by the `tenant_id` Row-Level Security policy from [Non-Functional Requirements → Multi-tenancy](../non-functional-requirements/#multi-tenancy). | Is Tier 0. No separate infrastructure exists for this tier. |
+| `isolated` | A second (third, fourth, …) Aurora Serverless v2 cluster, its own Secrets Manager secret, same AWS account and region as Tier 0. The API Lambda's Data API calls are routed to the right cluster via a small `tenants` lookup table (see [Database Schema](../domain-model/database-schema/#tenants)) kept in the primary/shared cluster — no new Lambda functions, no code fork. | One extra Aurora floor (~$45–55/month, see [the table above](#illustrative-tier-0-floor-cost)) per `isolated` Tenant. Priced as a paid add-on for exactly that reason. |
+| `dedicated_region` | Like `isolated`, but the dedicated cluster — and, if latency to that region matters, a regional API Gateway + Lambda deployment in front of it — sits in the customer's chosen AWS region. | The `isolated` floor again, in a second region. The most expensive tier, reserved for a genuine data-residency requirement. |
+
+### Migration mechanics
+
+A tier change (`shared → isolated`, or either `→ dedicated_region`) is support-run, during a brief scheduled maintenance window — see [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure) for why a short announced downtime, rather than zero-downtime logical replication, is the right first implementation:
+
+1. Provision the destination cluster (new Aurora Serverless v2 cluster; for `dedicated_region`, in the target region) via the same [Build checklist](#build-checklist) steps used for Tier 0 itself.
+2. Set the source Tenant's `status` to `migrating` — the API layer treats this as read-only for that Tenant's rows specifically, not a global outage.
+3. Snapshot and restore (RDS snapshot copy, or `pg_dump`/`pg_restore` at this data volume) every row carrying that `tenant_id` into the destination cluster.
+4. Update the `tenants` lookup row's cluster endpoint, flip `tier`/`region`/`status` back to `active`, decommission the old rows once the cutover is confirmed.
+5. Record an [Audit Event](../domain-model/orders-and-audit/#audit-event) (`tenant.tier_changed`).
+
+Because [Entitlement](../domain-model/entitlements/), [AppProfile](../domain-model/profiles/#appprofile), and [AppSettings](../domain-model/settings/#appsettings) rows all denormalize `tenant_id` (see [Database Schema](../domain-model/database-schema/#conventions-used-below)), step 3 is a `WHERE tenant_id = ...` export per table — no cross-table join needed to find everything that has to move.
+
 ## Scale-out
 
 Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, triggered by a specific, named condition, not a default growth path.
@@ -115,6 +149,7 @@ Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, trigger
 | [Trust Model](../trust-model/)'s "hub availability is a dependency for every app" becomes a real incident risk, not a theoretical one | Multi-region active-passive — deliberately not a Tier 0/1 concern; premature multi-region is itself a cost and complexity risk. |
 | Webhook delivery volume grows enough to need isolation from the main API's blast radius | Split the worker Lambda's concurrency/alerting from the API handlers' (it already runs as a separate function — this is a monitoring/limits change, not a redesign). |
 | More than one engineer shipping concurrently | A second AWS account (via AWS Organizations) for staging, separate from production — Tier 0 runs on a single account with a `dev`/`prod` naming convention, which is enough until this trigger. |
+| A specific customer requires dedicated or regional infrastructure | Run the [Tenancy tiers](#tenancy-tiers--where-they-run) migration for that one customer's [Tenant](../domain-model/tenancy/) — the one scale-out trigger in this table that's customer-specific rather than aggregate-volume-driven, and can fire at any traffic level. |
 
 ## Build checklist
 

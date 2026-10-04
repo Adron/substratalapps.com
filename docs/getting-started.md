@@ -17,7 +17,7 @@ This page is the fast path into the spec — for a human engineer picking this u
 
 ## Read these three pages first
 
-1. **[Domain Model](../domain-model/)** — the nouns. Nine entities, most of them small. Skim the overview table, then come back to individual entity pages as you need them.
+1. **[Domain Model](../domain-model/)** — the nouns. Ten entities, most of them small. Skim the overview table, then come back to individual entity pages as you need them.
 2. **[Access Control](../access-control/)** — the one algorithm that matters: `allow(user, application, permission)`. Every endpoint in the API reference ultimately defers to this.
 3. **[API Reference → Conventions](../api-reference/conventions/)** — ID format, auth header, pagination, idempotency, error shape. Read this once so every other API reference page can skip repeating it.
 

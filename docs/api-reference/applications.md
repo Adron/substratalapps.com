@@ -68,9 +68,12 @@ List responses return a trimmed view (no `settings_schema`, no `launch_url`) —
   "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000",
   "owner_organization_id": null,
   "review_status": "approved",
+  "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
   "created_at": "2025-11-03T00:00:00Z"
 }
 ```
+
+`tenant_id` is read-only here — it's resolved from the owner at creation, not settable via this call. See [Tenancy](../../domain-model/tenancy/) and [API Reference → Tenancy](../tenancy/) for the owner's own view of their Tenant, including its `tier` and `region`.
 
 ## `POST /v1/applications`
 

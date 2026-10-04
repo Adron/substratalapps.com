@@ -41,7 +41,6 @@ See [Domain Model → Users & Organizations](../../domain-model/users-and-organi
   "email": "jordan@example.com",
   "email_verified": false,
   "status": "invited",
-  "organization_id": null,
   "created_at": "2026-10-03T12:00:00Z",
   "last_login_at": null
 }
@@ -60,11 +59,12 @@ Self, or a platform role with `users.list`.
   "email": "jordan@example.com",
   "email_verified": true,
   "status": "active",
-  "organization_id": null,
   "created_at": "2026-01-14T18:02:11Z",
   "last_login_at": "2026-10-02T09:41:03Z"
 }
 ```
+
+A User's Organization memberships aren't a field here — see `GET /v1/organizations` (self-scoped) in [API Reference → Organizations](../organizations/), which lists every Organization the caller belongs to.
 
 ## `PATCH /v1/users/{id}`
 

@@ -39,6 +39,7 @@ The full set of platform-scoped permission keys. App-scoped keys (`app.<slug>.*`
 | `audit.view` | Query the Audit log for any user. |
 | `webhooks.manage` | Manage this caller's own webhook subscriptions — every caller implicitly has this for their own subscriptions; the permission only matters for managing another caller's. |
 | `api_keys.manage` | Create, rotate, and revoke API Keys — see [API Keys](../../api-reference/api-keys/). |
+| `tenants.manage` | View any Tenant and request a tier change on a customer's behalf — see [Tenancy](../tenancy/). Deliberately held by `support`: tier changes are gatekept by support today, not a self-service customer action, so this is the one permission a Tenant's own owner never holds, even for their own Tenant. |
 
 ### Platform role grants
 
@@ -47,7 +48,7 @@ The exact permission set behind each built-in [PlatformRole](#platformrole):
 | Role | Permissions |
 |---|---|
 | `superadmin` | All of the above. |
-| `support` | `users.list`, `entitlements.manage`, `audit.view` |
+| `support` | `users.list`, `entitlements.manage`, `audit.view`, `tenants.manage` |
 | `billing_admin` | `billing.manage`, `billing.refund`, `audit.view` |
 | `member` | None — the default on signup; every permission a `member` effectively has comes from self-service endpoints (`me`), not from a granted permission. |
 

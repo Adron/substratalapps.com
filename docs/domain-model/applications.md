@@ -35,6 +35,7 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
 | `owner_user_id` | string, nullable | The developer who registered and manages this Application. Null only for Applications with no single human owner (rare — effectively a system app). |
 | `owner_organization_id` | string, nullable | Set instead of `owner_user_id` when an [Organization](../users-and-organizations/#organization), not an individual, owns the app. |
 | `review_status` | enum | `approved` \| `pending_review` \| `suspended`. Every Application created today is admin-created and defaults to `approved` — see [below](#who-can-manage-an-applications-catalog-entry). This exists now specifically so self-service submission doesn't need a breaking schema change later. |
+| `tenant_id` | string | Denormalized from the owner's [Tenant](../tenancy/) at creation — resolves (and creates, at `tier: shared`, if the owner doesn't have one yet) from whichever of `owner_user_id`/`owner_organization_id` is set. Determines where this Application's Entitlements, AppProfile, and AppSettings rows physically live. See [Tenancy](../tenancy/). |
 | `created_at` | timestamp | |
 
 ## Example
@@ -59,6 +60,7 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
   "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000",
   "owner_organization_id": null,
   "review_status": "approved",
+  "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
   "created_at": "2025-11-03T00:00:00Z"
 }
 ```
@@ -74,4 +76,4 @@ Today, with every Application first-party, these two rights are usually held by 
 
 ## Relationship to everything else
 
-An Application is the scope for: [AppRole](../roles-and-permissions/#approle) (what roles it defines), [AppProfile](../profiles/#appprofile) and [AppSettings](../settings/#appsettings) (per-user, per-app data), and [Entitlement](../entitlements/) (what a user actually owns). It doesn't hold any per-user state itself — it's the catalog definition, not a tenant record.
+An Application is the scope for: [AppRole](../roles-and-permissions/#approle) (what roles it defines), [AppProfile](../profiles/#appprofile) and [AppSettings](../settings/#appsettings) (per-user, per-app data), [Entitlement](../entitlements/) (what a user actually owns), and [Tenant](../tenancy/) (where all of the above physically lives). It doesn't hold any per-user state itself — it's the catalog definition, placed on infrastructure by its owner's Tenant.

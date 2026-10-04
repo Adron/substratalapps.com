@@ -24,9 +24,12 @@ The open questions this spec currently depends on. This page is a log, not a one
 | 5 | [Settings schema ownership](#5-settings-schema-ownership) | 🟡 Open |
 | 6 | [Session model for revocation](#6-session-model-for-revocation) | 🟡 Open |
 | 7 | [AWS account and region](#7-aws-account-and-region) | 🟡 Open |
-| 8 | [Storage primitive scope](#8-storage-primitive-scope) | 🟡 Open |
+| 8 | [Storage primitive scope](#8-storage-primitive-scope) | 🟢 Resolved |
 | 9 | [App developer/publisher model](#9-app-developerpublisher-model) | 🟡 Open |
 | 10 | [Compliance scope](#10-compliance-scope) | 🟡 Open |
+| 11 | [Tenant vs. Organization](#11-tenant-vs-organization) | 🟢 Resolved |
+| 12 | [Tenancy tiers & dedicated infrastructure](#12-tenancy-tiers--dedicated-infrastructure) | 🟢 Resolved |
+| 13 | [Organization-vs-User entitlement precedence](#13-organization-vs-user-entitlement-precedence) | 🟢 Resolved |
 
 ---
 
@@ -43,6 +46,8 @@ This changes what [`User.auth`](../domain-model/users-and-organizations/) actual
 ~~Is multi-seat/team access a day-one requirement~~ — **resolved: both individual and team/business end users are expected**, so Organizations isn't a someday-maybe feature. It's pulled forward to [Phase 2](../roadmap/#phase-2) rather than [Phase 3](../roadmap/#phase-3) — not the MVP itself (the first dozens of users are expected to be mostly individual early adopters), but needed well before the 10x/100x growth horizon in [Deployment Architecture → Growth trajectory](../deployment-architecture/#growth-trajectory) hits, where team accounts are assumed to matter.
 
 `organization_id` being load-bearing in the schema from day one (per [Non-Functional Requirements](../non-functional-requirements/#multi-tenancy)) was the right call regardless of timing — this just confirms it wasn't a hedge against a hypothetical.
+
+Note this `organization_id` (end-user team/seat grouping, scoped *within* one Application) is a different axis from the infrastructure-placement `tenant_id` introduced in [Decision #11](#11-tenant-vs-organization) — don't conflate the two when reading [Database Schema](../domain-model/database-schema/).
 
 ## 3. Downstream app architecture
 
@@ -84,7 +89,11 @@ Doesn't change anything in [Deployment Architecture](../deployment-architecture/
 
 The product pitch names "storage" as one of the five things a developer shouldn't have to build (alongside user, settings, organization, tenancy) — but the spec as written only has two narrow storage primitives: [AppProfile](../domain-model/profiles/#appprofile)'s `custom` field and [AppSettings](../domain-model/settings/#appsettings)' `overrides`, both flat JSON blobs with no server-side structure beyond the Application's own `settings_schema`. Is that actually what "storage" means, or does a developer need something more general — arbitrary collections, file/blob storage — before this product does what it says on the label?
 
-**Leans toward:** ship with the existing JSON-blob primitives for now — they're already built, already [cost-modeled](../deployment-architecture/) into Tier 0, and may well be enough for a flag/preference/small-record use case. Treat a general-purpose storage API (key-value collections, or file storage via S3) as a real Phase 2+ candidate the moment a real Application — including the three-plus the platform's own developer is building — actually hits the limit of a flat JSON blob, rather than guessing the shape of a more general primitive speculatively.
+**Resolved: Postgres-backed, and typed where it's declared.** The engine is Postgres (see [Deployment Architecture → Database engine](../deployment-architecture/#database-engine-aws-options-compared)), so the storage primitive follows that directly rather than needing a separate decision:
+
+- **The source of truth stays `jsonb`** — `AppProfile.custom` and `AppSettings.overrides` remain flexible JSON blobs, so a developer never has to pre-declare a migration to store a new field.
+- **Every field a developer *has* declared in their `settings_schema` gets a real Postgres type, not just JSON.** The implementation backs each declared schema property with a Postgres [generated column](../domain-model/database-schema/#typed-fields-generated-columns-over-jsonb) (`GENERATED ALWAYS AS (overrides->>'week_start') STORED`, cast to the schema's declared type — `text`, `boolean`, `integer`, `timestamptz`, whatever it specifies) and an index on it. This is what "map to a respective PostgreSQL data type" means concretely: the JSON is where a value *lives*, the generated column is how it's *queried and type-checked* once a developer has told the platform what shape to expect.
+- **A general-purpose storage API (arbitrary collections, file/blob storage) is still not in scope today** — the above is enough for the flag/preference/small-record use case every Application needs, and it's the same mechanism regardless of how large that use case grows, since adding a new declared field just adds another generated column rather than requiring a new kind of storage object. Revisit only if a real Application — including the three-plus the platform's own developer is building — hits something a typed JSON field genuinely can't represent (e.g. actual file bytes).
 
 ## 9. App developer/publisher model
 
@@ -97,3 +106,33 @@ Third-party developers registering their own Applications is an explicit later p
 Which of SOC 2, HIPAA, GDPR, and CCPA actually get pursued, and on what timeline?
 
 See [Compliance & Data Protection](../compliance/) for the full recommendation — GDPR/CCPA mechanisms built now (not optional), SOC 2 posture built now with the formal audit deferred until a customer requires it, and HIPAA deliberately not pursued unless and until a healthcare-vertical Application actually wants onto the platform. This row exists to track the one decision that page can't make on its own: confirming that recommendation (or overriding it) is a real legal/business call, not an engineering one.
+
+This page's [Data residency](../compliance/#gdpr-and-ccpa--build-for-it-now) row, previously open, is now resolved by [Decision #12](#12-tenancy-tiers--dedicated-infrastructure) — a customer needing EU residency gets a `dedicated_region` [Tenant](../domain-model/tenancy/), not a platform-wide region change.
+
+## 11. Tenant vs. Organization
+
+Does "tenancy" — named in the product pitch alongside user/settings/organization/storage (see [Home](../#what-substratal-apps-actually-is)) — mean the same thing as [Organization](../domain-model/users-and-organizations/#organization), or is it a separate concept?
+
+**Resolved: separate, and tied to different things.** `Organization` is a domain/grouping object — a company, or a group within a company — used to organize which Users share admin standing and which Applications a group is granted access to as a whole. It carries no infrastructure meaning. `Tenant` is new: the infrastructure-placement and data-isolation boundary, tied to **the subscription** — concretely, to whoever owns an Application's catalog entry (`owner_user_id` or `owner_organization_id`, see [Applications](../domain-model/applications/)), since that's the only subscription relationship Substratal has directly (see [Decision #4](#4-billing-system-of-record): a developer's own end-user billing is their own concern, not this API's).
+
+Practically: a User or Organization can hold membership in many Organizations (even, now, across multiple Tenants — a person building one app and also using a seat on someone else's app), but there is exactly one Tenant governing where a given Application's data physically lives. See [Domain Model → Tenancy](../domain-model/tenancy/) for the full entity and [Decision #13](#13-organization-vs-user-entitlement-precedence) for how `Organization`-level access decisions interact with individual Users — a related but orthogonal question.
+
+## 12. Tenancy tiers & dedicated infrastructure
+
+Some customers (Application owners) want — or need, for compliance — their own dedicated infrastructure rather than the shared Tier 0 database, and some need a specific geographic region for their data. Four sub-questions, all resolved together:
+
+- **How many tiers?** Three: `shared` (default — [Tier 0](../deployment-architecture/#first-deployment-tier-0), logical isolation only), `isolated` (a dedicated Aurora Serverless v2 cluster, same region), `dedicated_region` (a dedicated cluster in a customer-chosen AWS region — real data residency). See [Domain Model → Tenancy](../domain-model/tenancy/) and [Deployment Architecture → Tenancy tiers](../deployment-architecture/#tenancy-tiers--where-they-run).
+- **Self-serve or gatekept?** Gatekept by support today — no public API lets a customer trigger their own migration. `tenants.manage` (support/superadmin only) is required even to request a tier change. Automated, customer-initiated tier changes are a later, explicitly revenue-gated step, not a roadmap-phase trigger: it means accepting a real amount of migration risk (a failed cutover, a narrower support safety net) that a human currently absorbs step by step, and that trade only makes sense once the volume of tier-change requests justifies building it.
+- **Downtime during a tier change?** A brief, scheduled maintenance window is acceptable — this is support-run and infrequent at current scale, so a snapshot/restore cutover is enough. Zero-downtime (logical replication) migration is a legitimate future upgrade once this is self-serve and frequent enough to need it, not a day-one requirement.
+- **Does this reach downstream Applications?** No — tenancy governs where *this API's own* data lives (Entitlements, AppProfile, AppSettings, the relevant Audit Events), never an Application's own separately-hosted infrastructure. An Application's `tenant_id`/`tier`/`region` are exposed as static metadata on the [Tenant](../domain-model/tenancy/) and [Application](../domain-model/applications/) resources, for the owning developer's own benefit — not as a live JWT claim on every request, since placement is set once per Application, not computed per end-user per request the way `effective_permissions` is.
+
+## 13. Organization-vs-User entitlement precedence
+
+When an end-user [Organization](../domain-model/users-and-organizations/#organization) holds an org-wide (`org_seat`) [Entitlement](../domain-model/entitlements/) to an Application, and a member of that Organization also holds (or could hold) their own individual standing for the same app, which wins?
+
+**Resolved**, with one deliberate scoping refinement flagged below:
+
+- **Within one Organization's own grant, the Organization's decision is authoritative.** A member cannot opt themselves in or out of their org's seat grant — see [Entitlements → Org-wide entitlements](../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out) for the `member_scope` mechanism (`all_members` / `allowlist` / `denylist`) that lets an org admin include or exclude specific members.
+- **A User's own personal Entitlement to the same Application (purchased or granted independently of any Organization) is a separate, untouched access path.** An Organization's exclusion of a member from its own org-wide grant does not reach into and revoke a personal Entitlement that member holds some other way. This is the one place this resolution departs from a literal "Organization always overrides User" rule — the alternative (an org silently revoking something a member individually holds) creates a real billing/legal defensibility problem ("the company turned off access to something I personally paid for"), and the scoped version below still satisfies the actual goal — an org's decision about its own grant is final — without that side effect. Revisit this if it doesn't match intent.
+- **A User's effective access to an Application is the union of every active path**: their own personal Entitlement (if any) OR any Organization they belong to whose grant includes them. Because each Organization's grant is independently evaluated, a User in multiple Organizations (even across different Tenants) never hits a real "Org A says yes, Org B says no" conflict — Org B's answer only ever governs Org B's own grant.
+- **Attribution is always surfaced.** Reading a User's entitlement to an app that came from (or was blocked by) an Organization's grant shows `source: org_seat`, the `organization_id`, and whether `member_scope` included or excluded this specific member — so anyone pulling a User's access record can see which Organization is responsible, rather than seeing a bare allow/deny. See [Entitlements](../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out) for the exact shape.

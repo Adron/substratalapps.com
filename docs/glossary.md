@@ -40,7 +40,10 @@ Shorthand used throughout this site for Substratal Apps itself — the platform 
 (also "Subscription") The commerce record an Entitlement traces back to. Owned by billing; referenced, not duplicated, here. See [Decisions → Billing system of record](../decisions/#4-billing-system-of-record).
 
 #### Organization
-A billing/access group of Users — e.g. a team plan. Optional in the current draft; see [Decisions → Organizations](../decisions/#2-organizations).
+A domain/grouping object for Users — a company, or a group within a company — used to organize shared admin standing and group-wide Application access. Decoupled from infrastructure placement; see [Tenant](#tenant) and [Decisions → Tenant vs. Organization](../decisions/#11-tenant-vs-organization). Pulled into [Phase 2](../roadmap/#phase-2); see [Decisions → Organizations](../decisions/#2-organizations).
+
+#### OrganizationMembership
+The join record between a User and an Organization, carrying that User's standing *within* that one Organization (`org_admin` or `member`) — a User can hold this for any number of Organizations at once. See [Domain Model → Users & Organizations](../domain-model/users-and-organizations/#organizationmembership).
 
 #### Permission
 An atomic, checkable capability, written as a dotted key (`billing.manage`, `app.timetrack.export`). Never assigned directly to a user — always granted through a [Role](#role).
@@ -56,6 +59,9 @@ A named bundle of [Permissions](#permission). Either a [PlatformRole](#platformr
 
 #### Settings
 Global, cross-app configuration for a User — locale, timezone, notification preferences. Distinct from [AppSettings](#appsettings).
+
+#### Tenant
+The infrastructure-placement and data-isolation boundary for one of Substratal's own paying customers — the owner of an Application's catalog entry. `shared` (default), `isolated`, or `dedicated_region`. Not the same thing as [Organization](#organization) — see [Decisions → Tenant vs. Organization](../decisions/#11-tenant-vs-organization). See [Domain Model → Tenancy](../domain-model/tenancy/).
 
 #### User
 A person with an account on Substratal. One identity, used everywhere in the hub and, via the [Trust Model](../trust-model/), in every app they launch from it.

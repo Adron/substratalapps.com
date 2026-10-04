@@ -8,7 +8,7 @@ has_children: true
 # Domain Model
 {: .no_toc }
 
-Nine entities. Most are small on purpose — the complexity in this system is in how they relate, not in any single one's field list.
+Ten entities. Most are small on purpose — the complexity in this system is in how they relate, not in any single one's field list.
 {: .fs-6 .fw-300 }
 
 ## Overview
@@ -16,7 +16,8 @@ Nine entities. Most are small on purpose — the complexity in this system is in
 | Entity | What it represents |
 |---|---|
 | [User](users-and-organizations/) | A person with an account on Substratal. One identity, used everywhere. |
-| [Organization](users-and-organizations/#organization) | A billing/access group of Users. Optional — see [Decisions](../decisions/#2-organizations). |
+| [Organization](users-and-organizations/#organization) | A domain/grouping object — a company, or a group within one — for Users. Decoupled from infrastructure placement; see [Tenancy](tenancy/). Pulled into [Phase 2](../roadmap/#phase-2). |
+| [Tenant](tenancy/) | The infrastructure-placement and data-isolation boundary for one Application owner's data — shared, isolated, or dedicated-region. See [Decisions](../decisions/#11-tenant-vs-organization). |
 | [Application](applications/) | A catalog entry for a developer's app, built on this platform for its user/org/tenancy/settings/storage layer. |
 | [Role](roles-and-permissions/) / [Permission](roles-and-permissions/#permission) | A named bundle of capabilities, scoped to the platform or to one app. |
 | [Entitlement](entitlements/) | The on/off record: does a User own an Application, and is it currently switched on. |
@@ -30,11 +31,14 @@ Nine entities. Most are small on purpose — the complexity in this system is in
 ```mermaid
 erDiagram
     USER ||--o{ ENTITLEMENT : holds
-    ORGANIZATION ||--o{ USER : contains
+    ORGANIZATION ||--o{ USER : "has members (many:many)"
     ORGANIZATION ||--o{ ENTITLEMENT : "holds (org-wide)"
     APPLICATION ||--o{ ENTITLEMENT : "granted via"
     USER ||--o{ APPLICATION : owns
     ORGANIZATION ||--o{ APPLICATION : "owns (alt.)"
+    USER ||--o| TENANT : "owns (alt.)"
+    ORGANIZATION ||--o| TENANT : "owns (alt.)"
+    TENANT ||--o{ APPLICATION : places
     ENTITLEMENT ||--o| ORDER : "traces to"
     USER ||--|| PROFILE : "has (global)"
     USER ||--o{ APP_PROFILE : "has, per app"
@@ -53,6 +57,6 @@ The relationship worth internalizing before reading further: **Entitlement and R
 
 ## ID format
 
-Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `org_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
+Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `org_`, `tnt_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
 
 Building the actual database, not just calling the API? [Database Schema](database-schema/) has the Postgres-level types, constraints, and indexes behind every entity above.

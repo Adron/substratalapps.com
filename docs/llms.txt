@@ -25,8 +25,9 @@ older single-file draft found elsewhere in the repository's history.
 - [Home]({{ site.url }}{{ site.baseurl }}/): what Substratal Apps is and how this site is organized.
 - [Getting Started]({{ site.url }}{{ site.baseurl }}/getting-started/): the fastest path to understanding the system before writing code against it.
 - [Quickstart]({{ site.url }}{{ site.baseurl }}/quickstart/): a runnable curl walkthrough of the core access model.
-- [Domain Model]({{ site.url }}{{ site.baseurl }}/domain-model/): the entities — User, Organization, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
-- [Access Control]({{ site.url }}{{ site.baseurl }}/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request.
+- [Domain Model]({{ site.url }}{{ site.baseurl }}/domain-model/): the entities — User, Organization, Tenant, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
+- [Tenancy]({{ site.url }}{{ site.baseurl }}/domain-model/tenancy/): the infrastructure-placement/data-isolation boundary for an Application owner — shared, isolated, or dedicated-region. Distinct from Organization.
+- [Access Control]({{ site.url }}{{ site.baseurl }}/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request, including Organization-vs-User precedence when an org-wide grant and a User's own standing could otherwise conflict.
 - [Database Schema]({{ site.url }}{{ site.baseurl }}/domain-model/database-schema/): Postgres types, constraints, and indexes behind every entity — for implementers, not API callers.
 
 ## API reference
@@ -40,6 +41,7 @@ older single-file draft found elsewhere in the repository's history.
 - [Entitlements]({{ site.url }}{{ site.baseurl }}/api-reference/entitlements/): the on/off switch for a user's access to an app.
 - [Roles & Permissions]({{ site.url }}{{ site.baseurl }}/api-reference/roles-and-permissions/)
 - [Organizations]({{ site.url }}{{ site.baseurl }}/api-reference/organizations/)
+- [Tenancy]({{ site.url }}{{ site.baseurl }}/api-reference/tenancy/): fetch a Tenant and request a tier change — support-only today, no customer self-service.
 - [Audit]({{ site.url }}{{ site.baseurl }}/api-reference/audit/)
 - [Webhooks]({{ site.url }}{{ site.baseurl }}/api-reference/webhooks/)
 - [API Keys]({{ site.url }}{{ site.baseurl }}/api-reference/api-keys/): service-to-service credentials.

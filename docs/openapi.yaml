@@ -32,6 +32,7 @@ tags:
   - name: Entitlements
   - name: Roles & Permissions
   - name: Organizations
+  - name: Tenancy
   - name: Audit
   - name: Webhooks
   - name: API Keys
@@ -491,18 +492,21 @@ paths:
               schema: { $ref: "#/components/schemas/Entitlement" }
     patch:
       tags: [Entitlements]
-      summary: "Change status — the on/off toggle"
-      description: "Requires a platform role with `entitlements.manage`. `revoked` is terminal."
+      summary: "Change status (the on/off toggle), or narrow an org-wide grant's member_scope"
+      description: "Requires a platform role with `entitlements.manage`, or — for an org_seat row — org-admin standing on that Organization. `revoked` is terminal. Neither field is required on its own; a call changing only member_scope/member_overrides emits entitlement.member_scope_changed instead of a status-transition event."
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [status]
               properties:
                 status: { $ref: "#/components/schemas/EntitlementStatus" }
                 disabled_reason: { type: [string, "null"] }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides:
+                  type: array
+                  items: { type: string }
       responses:
         "200":
           description: Updated Entitlement
@@ -682,6 +686,7 @@ paths:
               properties:
                 user_id: { type: string }
                 email: { type: string, format: email }
+                role: { $ref: "#/components/schemas/OrganizationMemberRole" }
       responses:
         "201":
           description: Member added
@@ -723,7 +728,7 @@ paths:
     post:
       tags: [Organizations]
       summary: Grant an app to the whole org
-      description: "Requires a platform role with `organizations.manage`."
+      description: "Requires a platform role with `organizations.manage`, or org-admin standing on this Organization."
       requestBody:
         content:
           application/json:
@@ -734,12 +739,90 @@ paths:
                 application_id: { type: string }
                 source: { $ref: "#/components/schemas/EntitlementSource" }
                 order_id: { type: [string, "null"] }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides:
+                  type: array
+                  items: { type: string }
       responses:
         "201":
           description: Org-wide Entitlement created
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Entitlement" }
+
+  /tenants:
+    get:
+      tags: [Tenancy]
+      summary: List Tenants
+      description: "Requires `tenants.manage`."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of Tenants
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantPage" }
+
+  /tenants/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Tenancy]
+      summary: Fetch one Tenant
+      description: "Its owner, or a platform role with `tenants.manage`."
+      responses:
+        "200":
+          description: A Tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "404":
+          description: "tenant_not_found"
+
+  /tenants/{id}/tier-change-requests:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Tenancy]
+      summary: List tier-change requests for a Tenant
+      description: "Its owner, or a platform role with `tenants.manage`."
+      responses:
+        "200":
+          description: A page of tier-change requests
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequestPage" }
+    post:
+      tags: [Tenancy]
+      summary: Request a tier change on a customer's behalf
+      description: "Requires `tenants.manage` — support places this request, not the customer. See Decisions #12."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requested_tier]
+              properties:
+                requested_tier: { $ref: "#/components/schemas/TenantTier" }
+                requested_region: { type: [string, "null"] }
+                reason: { type: string }
+      responses:
+        "201":
+          description: Tier-change request created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+        "409":
+          description: "tier_change_already_pending"
 
   /audit-events:
     get:
@@ -973,7 +1056,6 @@ components:
         email: { type: string, format: email }
         email_verified: { type: boolean }
         status: { $ref: "#/components/schemas/UserStatus" }
-        organization_id: { type: [string, "null"] }
         created_at: { type: string, format: date-time }
         last_login_at: { type: [string, "null"], format: date-time }
 
@@ -1057,6 +1139,10 @@ components:
               type: array
               items: { $ref: "#/components/schemas/ApplicationSummary" }
 
+    ApplicationReviewStatus:
+      type: string
+      enum: [approved, pending_review, suspended]
+
     ApplicationWrite:
       type: object
       properties:
@@ -1070,6 +1156,8 @@ components:
           type: array
           items: { type: string }
         visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
 
     Application:
       allOf:
@@ -1077,6 +1165,8 @@ components:
         - type: object
           properties:
             id: { type: string }
+            review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
+            tenant_id: { type: string, description: "Read-only. Resolved from the owner's Tenant at creation — see Decisions #11." }
             created_at: { type: string, format: date-time }
 
     EntitlementStatus:
@@ -1086,6 +1176,17 @@ components:
     EntitlementSource:
       type: string
       enum: [purchase, trial, admin_grant, org_seat]
+
+    EntitlementMemberScope:
+      type: string
+      enum: [all_members, allowlist, denylist]
+
+    EntitlementGrantedVia:
+      type: object
+      description: "Computed per member at read time, not stored — present only when reading a specific member's resolved entitlement, never on the raw org-wide grant."
+      properties:
+        organization_id: { type: string }
+        member_decision: { type: string, enum: [included, excluded] }
 
     Entitlement:
       type: object
@@ -1100,6 +1201,11 @@ components:
         starts_at: { type: string, format: date-time }
         ends_at: { type: [string, "null"], format: date-time }
         disabled_reason: { type: [string, "null"] }
+        member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+        member_overrides:
+          type: array
+          items: { type: string }
+        granted_via: { $ref: "#/components/schemas/EntitlementGrantedVia" }
 
     EntitlementPage:
       allOf:
@@ -1195,11 +1301,16 @@ components:
               type: array
               items: { $ref: "#/components/schemas/Organization" }
 
+    OrganizationMemberRole:
+      type: string
+      enum: [org_admin, member]
+
     OrganizationMember:
       type: object
       properties:
         user_id: { type: string }
         email: { type: string, format: email }
+        role: { $ref: "#/components/schemas/OrganizationMemberRole" }
         joined_at: { type: string, format: date-time }
 
     OrganizationMemberPage:
@@ -1222,6 +1333,7 @@ components:
         - entitlement.disabled
         - entitlement.revoked
         - entitlement.expired
+        - entitlement.member_scope_changed
         - role.assigned
         - role.removed
         - profile.updated
@@ -1230,6 +1342,66 @@ components:
         - application.updated
         - organization.member_added
         - organization.member_removed
+        - tenant.tier_change_requested
+        - tenant.tier_changed
+
+    TenantOwnerType:
+      type: string
+      enum: [user, organization]
+
+    TenantTier:
+      type: string
+      enum: [shared, isolated, dedicated_region]
+
+    TenantStatus:
+      type: string
+      enum: [active, migrating, suspended]
+
+    Tenant:
+      type: object
+      properties:
+        id: { type: string }
+        owner_type: { $ref: "#/components/schemas/TenantOwnerType" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
+        tier: { $ref: "#/components/schemas/TenantTier" }
+        region: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/TenantStatus" }
+        created_at: { type: string, format: date-time }
+
+    TenantPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Tenant" }
+
+    TenantTierChangeRequestStatus:
+      type: string
+      enum: [pending, in_progress, completed, cancelled]
+
+    TenantTierChangeRequest:
+      type: object
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        requested_tier: { $ref: "#/components/schemas/TenantTier" }
+        requested_region: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/TenantTierChangeRequestStatus" }
+        requested_by: { type: string }
+        created_at: { type: string, format: date-time }
+        completed_at: { type: [string, "null"], format: date-time }
+
+    TenantTierChangeRequestPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/TenantTierChangeRequest" }
 
     AuditEvent:
       type: object
