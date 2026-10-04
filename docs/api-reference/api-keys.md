@@ -26,6 +26,7 @@ A long-lived credential scoped to either one Application (for an app's own backe
 | `name` | string | Human label, e.g. `"billing-webhook-handler"`. |
 | `scope` | string | `"platform"` or an `application_id` — same shape as [Role scope](../../domain-model/roles-and-permissions/#role). |
 | `permissions` | array of strings | Permission keys this key carries. For an app-scoped key, limited to that Application's own `app.<slug>.*` keys plus a fixed read-only platform permission (`entitlements.manage` is never grantable to an app-scoped key — see below). |
+| `mode` | enum | `live` \| `test` — see [Test vs. live](#test-vs-live) below. Fixed at creation; a key can't switch modes, only be replaced. |
 | `last_used_at` | timestamp, nullable | |
 | `created_at` | timestamp | |
 | `revoked_at` | timestamp, nullable | |
@@ -48,7 +49,8 @@ All four require a platform role with `api_keys.manage` — creating a credentia
 {
   "name": "timetrack-backend",
   "scope": "app_timetrack",
-  "permissions": ["app.timetrack.export"]
+  "permissions": ["app.timetrack.export"],
+  "mode": "live"
 }
 ```
 ```json
@@ -58,6 +60,7 @@ All four require a platform role with `api_keys.manage` — creating a credentia
   "name": "timetrack-backend",
   "scope": "app_timetrack",
   "permissions": ["app.timetrack.export"],
+  "mode": "live",
   "secret": "satk_live_9f2a1c7e4b3d8f0a2c5e7b1d9f3a6c8e",
   "last_used_at": null,
   "created_at": "2026-10-04T09:30:00Z",
@@ -66,6 +69,16 @@ All four require a platform role with `api_keys.manage` — creating a credentia
 ```
 
 `secret` is returned **only** in this response — store it immediately; it's not retrievable afterward, only rotatable. The key is used exactly like a user access token: `Authorization: Bearer satk_live_...`.
+
+## Test vs. live
+
+`mode: "test"` produces a `satk_test_…` secret instead of `satk_live_…` — same permissions and scope, but every resource it creates (Users, Entitlements, anything) is tagged `test_mode: true`:
+
+- Excluded from `GET` list endpoints by default, same as [soft-deleted records](../conventions/#filtering) — pass `?include_test=true` to see them.
+- Webhook deliveries from test-mode data only reach webhook subscriptions that were themselves created with a `test` key — a `live` integration never receives test traffic.
+- Subject to periodic cleanup (test data isn't held to the same [retention](../../non-functional-requirements/#data-retention) requirements as live data).
+
+This is how an Application's developer integration-tests against the real API without a separate sandbox deployment or risk to live data — see [Conventions → Authentication](../conventions/#authentication).
 
 {: .important }
 An app-scoped key can never carry `entitlements.manage`, `users.manage`, or any other identity/access-control permission, even though those exist in the platform catalog — it's restricted to its own `app.<slug>.*` keys plus read access to the specific per-user data its scope implies (its own users' AppProfile, AppSettings, and effective-permissions). This is what makes it safe for an Application's backend to hold one: a compromised app-scoped key can't be used to grant itself access to a different app, or disable another app's entitlements.

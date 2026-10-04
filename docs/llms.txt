@@ -4,12 +4,18 @@ sitemap: false
 ---
 # Substratal Apps — Platform API
 
-> The system of record for how Substratal manages users, roles, per-app access
-> (the "turn an app on/off for a user" switch), profiles, and settings across
-> every product in the Substratal Apps catalog. This API is the hub a customer
-> lands on to reach every app, product, and service they've purchased from
-> Substratal. It is API-first: no user-facing interface is specified here —
-> that is a separate, later project that will consume this API.
+> Substratal Apps is the user/organization/tenancy/settings/storage layer an
+> app developer would otherwise have to build themselves — comparable in
+> shape to Auth0, Clerk, or WorkOS, scoped around everything a multi-tenant
+> app needs: accounts, roles and permissions, per-app settings, team/tenancy
+> structure, and per-user storage, all behind one API. This site is the
+> system of record for that API: users, roles, per-app access (the "turn an
+> app on/off for a user" switch), profiles, and settings across every
+> Application built on the platform. It is API-first: no user-facing
+> interface is specified here — a dashboard for easier onboarding is
+> planned, but it is a separate, later client of this API. Billing is each
+> Application developer's own concern; this API tracks entitlement state,
+> it does not process payments.
 
 This site is the living specification. Treat it as authoritative over any
 older single-file draft found elsewhere in the repository's history.
@@ -21,6 +27,7 @@ older single-file draft found elsewhere in the repository's history.
 - [Quickstart]({{ site.url }}{{ site.baseurl }}/quickstart/): a runnable curl walkthrough of the core access model.
 - [Domain Model]({{ site.url }}{{ site.baseurl }}/domain-model/): the entities — User, Organization, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
 - [Access Control]({{ site.url }}{{ site.baseurl }}/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request.
+- [Database Schema]({{ site.url }}{{ site.baseurl }}/domain-model/database-schema/): Postgres types, constraints, and indexes behind every entity — for implementers, not API callers.
 
 ## API reference
 
@@ -43,6 +50,7 @@ older single-file draft found elsewhere in the repository's history.
 - [Workflows]({{ site.url }}{{ site.baseurl }}/workflows/): purchase-to-access, admin revokes access, role changes, end to end.
 - [Trust Model]({{ site.url }}{{ site.baseurl }}/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.
 - [Non-Functional Requirements]({{ site.url }}{{ site.baseurl }}/non-functional-requirements/)
+- [Compliance & Data Protection]({{ site.url }}{{ site.baseurl }}/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.
 - [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
 - [Deployment Architecture]({{ site.url }}{{ site.baseurl }}/deployment-architecture/): the cost-capped first deployment on AWS, and the path to scale.
 - [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.

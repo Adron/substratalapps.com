@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Roadmap
-nav_order: 10
+nav_order: 11
 ---
 
 # Roadmap
@@ -34,16 +34,17 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 - Per-app [Profile](../domain-model/profiles/) and [Settings](../domain-model/settings/), with schema validation against what each Application declares.
 - [Webhooks](../api-reference/webhooks/) — `entitlement.*`, `role.*` — so downstream apps can react instead of poll.
 - The live introspection endpoint (`effective-permissions`) — see [Trust Model](../trust-model/).
+- [Organizations](../domain-model/users-and-organizations/) / seats — team plans, delegated admin (an org admin manages their own members without needing platform-admin rights). Pulled forward from a later phase: end users are expected to be both individuals and teams from early on, not teams-later — see [Decisions → Organizations](../decisions/#2-organizations).
 
-**Ships:** the full per-app customization model, and the mechanics apps need to actually trust the hub in production rather than trusting it "eventually, on next login."
+**Ships:** the full per-app customization model, team accounts, and the mechanics apps need to actually trust the hub in production rather than trusting it "eventually, on next login."
 
 ## Phase 3
 
-- [Organizations](../domain-model/users-and-organizations/) / seats — team plans, delegated admin (an org admin manages their own members without needing platform-admin rights).
-- Richer audit/compliance views — filtering, export, retention policy enforcement.
+- Richer audit/compliance views — filtering, export, retention policy enforcement; see [Compliance & Data Protection](../compliance/) for what's driving this (SOC 2 readiness, GDPR data-subject requests).
 - SCIM-style provisioning for larger customers who want their own IdP to push user lifecycle events into the hub automatically.
+- Self-service Application registration and review queue for third-party developers — the marketplace phase. See [Decisions → App developer/publisher model](../decisions/#9-app-developerpublisher-model).
 
-**Ships:** the features that only matter once there are customers big enough to need them — deliberately not pulled earlier, since building Organizations before there's a real multi-seat customer tends to guess the shape wrong.
+**Ships:** the features that only matter once there are customers (or outside developers) big enough to need them — deliberately not pulled earlier, since building any of these before there's a real need tends to guess the shape wrong.
 
 ## What's explicitly not on this roadmap
 

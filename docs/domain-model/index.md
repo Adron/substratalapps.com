@@ -17,7 +17,7 @@ Nine entities. Most are small on purpose — the complexity in this system is in
 |---|---|
 | [User](users-and-organizations/) | A person with an account on Substratal. One identity, used everywhere. |
 | [Organization](users-and-organizations/#organization) | A billing/access group of Users. Optional — see [Decisions](../decisions/#2-organizations). |
-| [Application](applications/) | A catalog entry for a product Substratal sells. |
+| [Application](applications/) | A catalog entry for a developer's app, built on this platform for its user/org/tenancy/settings/storage layer. |
 | [Role](roles-and-permissions/) / [Permission](roles-and-permissions/#permission) | A named bundle of capabilities, scoped to the platform or to one app. |
 | [Entitlement](entitlements/) | The on/off record: does a User own an Application, and is it currently switched on. |
 | [Profile](profiles/) / AppProfile | Identity/display data — global, and per-app. |
@@ -33,6 +33,8 @@ erDiagram
     ORGANIZATION ||--o{ USER : contains
     ORGANIZATION ||--o{ ENTITLEMENT : "holds (org-wide)"
     APPLICATION ||--o{ ENTITLEMENT : "granted via"
+    USER ||--o{ APPLICATION : owns
+    ORGANIZATION ||--o{ APPLICATION : "owns (alt.)"
     ENTITLEMENT ||--o| ORDER : "traces to"
     USER ||--|| PROFILE : "has (global)"
     USER ||--o{ APP_PROFILE : "has, per app"
@@ -51,4 +53,6 @@ The relationship worth internalizing before reading further: **Entitlement and R
 
 ## ID format
 
-Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `org_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`. IDs are never reused and never encode meaning beyond the type prefix. See [API Reference → Conventions](../api-reference/conventions/#ids).
+Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `org_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
+
+Building the actual database, not just calling the API? [Database Schema](database-schema/) has the Postgres-level types, constraints, and indexes behind every entity above.

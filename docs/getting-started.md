@@ -27,7 +27,7 @@ Everything past that is detail you'll reach for as needed, not a reading order. 
 
 - Find the resource in the [API Reference](../api-reference/) nav. Each page has a request/response example you can copy.
 - Check [Workflows](../workflows/) for the end-to-end sequence your feature is probably a step in — most features are one step in a flow that's already documented there, not a new flow.
-- If your feature needs a downstream app (something outside this hub) to know a user's access, read [Trust Model](../trust-model/) before inventing your own session/token scheme.
+- If your feature needs a downstream app (one of the Applications built on this platform, hosted independently) to know a user's access, read [Trust Model](../trust-model/) before inventing your own session/token scheme.
 
 ## If you're an AI coding tool
 
@@ -41,4 +41,4 @@ Everything past that is detail you'll reach for as needed, not a reading order. 
 This is an **API-first** specification. There is no UI, no page layout, no client framework decision made anywhere in this site — that's out of scope by design, planned as a separate project once the API exists. Don't infer a UI shape from anything here.
 
 {: .note }
-Billing/payment processing and app-specific business logic are adjacent systems this API talks *to* (via Orders and webhooks), not systems this API replaces. Don't design payment flows here.
+Billing/payment processing is each Application developer's own concern, not something this API runs — see [Decisions → Billing system of record](../decisions/#4-billing-system-of-record). App-specific business logic lives in the Application itself, outside this API entirely. Don't design payment flows or app business logic here.

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment Architecture
-nav_order: 11
+nav_order: 12
 ---
 
 # Deployment Architecture
@@ -90,6 +90,18 @@ Rough, region-dependent, **not a quote** — the point is that every line is a k
 
 The Aurora minimum is the floor's dominant term and the one genuine fixed cost in this design — accepted deliberately as a known number in exchange for a real relational database, rather than chasing a theoretical $0 floor with a data model that doesn't fit the access-control domain.
 
+## Growth trajectory
+
+The stated plan: dozens of users and a handful of Applications in the first 6-12 months, roughly 10x from there over the following 6-12 months, and another 10x (100x from today) beyond that. Mapped against Tier 0 and the triggers below:
+
+| Horizon | Rough scale | What this means for the architecture |
+|---|---|---|
+| 0–6/12 months | Dozens of users, a few Applications | **Tier 0 as specified, unchanged.** The floor cost table above is sized for exactly this — nothing here should need touching. |
+| 6–12 months out (~10x) | Low hundreds of users | Watch [Rate limiting](../non-functional-requirements/#rate-limiting) defaults and the Aurora ACU ceiling (not just the floor) — this is when the *first* [Scale-out](#scale-out) triggers are plausible (read load, cold-start latency), not when they're guaranteed. Check the table below against real metrics rather than upgrading preemptively. |
+| 12+ months (~100x) | Low thousands of users | This is the horizon [Scale-out](#scale-out)'s read-replica, Provisioned Concurrency, and RDS Proxy rows are realistically aimed at. Also the point multi-tenancy load (more Organizations, more concurrent Applications) makes the [Multi-tenancy](../non-functional-requirements/#multi-tenancy) RLS policies' query performance worth profiling specifically, not just trusting by design. |
+
+The point of naming these horizons isn't to pre-build for them — per [Cost principles](#cost-principles), scale-out stays a deliberate, triggered decision — it's so "is it time yet" has a concrete number to check against instead of being a guess.
+
 ## Scale-out
 
 Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, triggered by a specific, named condition, not a default growth path.
@@ -116,6 +128,14 @@ The order this gets stood up in, once API implementation begins:
 6. SQS queue + webhook worker Lambda; EventBridge Scheduler rules for trial expiry and idempotency-key cleanup.
 7. CloudWatch Logs with explicit retention on every log group; a small set of alarms (error rate, Lambda throttling, Aurora ACU near max) in addition to the billing guardrails from step 1.
 8. CI/CD via OIDC federation (GitHub Actions → an AWS deploy role) — no long-lived IAM user access keys committed anywhere.
+
+## Local development
+
+The RDS Data API choice that keeps Tier 0 NAT-free (see [above](#why-no-vpc-and-specifically-no-nat-gateway)) has a real cost: it doesn't have a clean open-source local emulator, so a developer can't just point the production data-access code at "Data API, but local" the way they could with a plain Postgres driver.
+
+The fix is to not let that choice leak into the application code in the first place: put all database access behind a small repository/data-access interface (whatever the implementation language's equivalent of a repository pattern is), with two implementations — one using the Data API (what Lambda runs in every real environment), one using a direct Postgres driver against a local `docker-compose` Postgres (what runs on a laptop and in CI). Business logic, [Access Control](../access-control/) resolution, and request handlers all talk to the interface and never know which implementation is underneath.
+
+This is a small amount of extra structure for a large payoff: it's also exactly the seam [Testing strategy](../non-functional-requirements/#testing-strategy)'s integration tests need to run against a real local Postgres without needing AWS credentials, a VPN, or network access at all to develop and test.
 
 ## Open questions this depends on
 

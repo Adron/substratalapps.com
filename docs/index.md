@@ -2,20 +2,26 @@
 layout: default
 title: Home
 nav_order: 1
-description: "Substratal Apps is the hub customers use to reach every app, product, and service they've purchased from Substratal. This is the API-first specification for that hub."
+description: "Substratal Apps is the API that gives app developers user accounts, settings, organizations/tenancy, and per-user storage, so they can focus on their own app instead of rebuilding that layer. This is the API-first specification."
 permalink: /
 ---
 
 # Substratal Apps — Platform API
 {: .fs-9 }
 
-Substratal Apps is the hub a customer lands on to reach every app, product, and service they've purchased from Substratal, sign into all of them with one identity, and manage their account across the whole catalog.
+When your business is building applications, Substratal Apps removes the user-management burden: one API for user accounts, settings, organizations/tenancy, and per-user storage, so a developer can focus entirely on the app they're actually trying to build.
 {: .fs-6 .fw-300 }
 
-This site specifies the **API** behind that hub: who a user is, what they're allowed to touch, and how each app they own is configured for them. It is **API-first** — no end-user interface is specified here. The interface (dashboard, admin console, whatever shape it takes) is a separate, later project that will be built as a client of this API.
+This site specifies that **API**: who a user is, what they're allowed to touch within a given app, and how each app's own settings and data are stored and scoped. It is **API-first** — no end-user interface is specified here. A dashboard that makes onboarding easier is planned, but it's a client of this API, built later, not a requirement to use it today.
 {: .fs-5 .fw-300 }
 
 ---
+
+## What Substratal Apps actually is
+
+Think of it as the user/organization/tenancy layer that an app developer would otherwise have to build themselves — comparable in shape to Auth0, Clerk, or WorkOS, but scoped around the full set of things a multi-tenant app needs from day one, not just login: accounts, per-app and per-org settings, team/tenancy structure, and a place to store the app's own per-user data, all behind one API.
+
+An **Application** in this spec is one developer's app, built on top of Substratal Apps for that layer. Today, every Application is built by Substratal itself; a marketplace where outside developers register and manage their own Applications is an explicit later phase — see [Decisions → App developer/publisher model](decisions/#9-app-developerpublisher-model). The **Entitlement** that gates a user's access to an app, and the billing relationship behind it, belongs to that app's own developer — Substratal Apps tracks entitlement state, it doesn't run payments; see [Decisions → Billing system of record](decisions/#4-billing-system-of-record).
 
 ## What this site is
 
@@ -35,6 +41,7 @@ It's written to be read by people building the API **and** by AI coding tools as
 | [Workflows](workflows/) | How do the pieces move together for real scenarios — a purchase, an admin revoking access, a role change? |
 | [Trust Model](trust-model/) | How does a separately-hosted app verify a user's access without maintaining its own user table? |
 | [Non-Functional Requirements](non-functional-requirements/) | Security, multi-tenancy, audit, rate limits, versioning. |
+| [Compliance & Data Protection](compliance/) | Which of SOC 2, HIPAA, GDPR, and CCPA apply, and when to act on each. |
 | [Roadmap](roadmap/) | What ships in the MVP vs. later phases. |
 | [Deployment Architecture](deployment-architecture/) | Where this runs — the cost-capped first deployment, and the path to scale. |
 | [Decisions](decisions/) | The open questions this spec depends on, and their current status. |

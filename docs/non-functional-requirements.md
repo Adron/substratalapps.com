@@ -29,7 +29,15 @@ The hub is the **only** writer of Entitlement and Role state. Apps read (via JWT
 
 ## Multi-tenancy
 
-Every record that can belong to an Organization is scoped by `organization_id`, enforced at the data-access layer (row-level isolation), not just filtered in application code. This matters even before Organizations ship as a user-facing feature (see [Decisions](../decisions/#2-organizations)) — the column should exist and be enforced from day one so it isn't a migration later.
+Every record that can belong to an Organization is scoped by `organization_id`, enforced at the data-access layer — concretely, **Postgres Row-Level Security policies** on every multi-tenant table, keyed off a session variable the API layer sets per request (`SET LOCAL app.current_org_id = ...`), not application-code `WHERE` clauses a future query can forget to add. This matters even before Organizations ship as a user-facing feature (see [Decisions](../decisions/#2-organizations)) — the column and the policy should exist and be enforced from day one so neither is a migration later. A query that omits the session variable should fail closed (return nothing) by policy default, not fail open.
+
+## Concurrency control
+
+Entitlement, Role assignment, and Settings writes can race — two support agents acting on the same user, or a webhook retry landing alongside a manual edit. Mutating endpoints on these resources accept an `If-Match` header carrying the resource's current version (returned as an `ETag` on every `GET`); a write with a stale or missing `ETag` where one was expected returns `409` with `code: "version_conflict"` rather than silently applying a last-write-wins update. Endpoints where this matters most: `PATCH /v1/entitlements/{id}`, `PATCH /v1/users/{id}/apps/{appId}/settings`, `POST`/`DELETE` on role assignments.
+
+## Transaction boundaries
+
+Any write described as "also creates" or "also assigns" elsewhere in this spec — most notably `POST /v1/users` creating a default Profile, Settings, and `member` Role assignment in one call — is one database transaction. A partial failure (e.g. the Role assignment insert fails) rolls back the whole call; the client sees a single error, not a half-created User. The same rule applies to `PATCH /v1/entitlements/{id}` and its [Audit Event](../domain-model/orders-and-audit/#audit-event): the state change and the audit record are written together or not at all — an Audit Event that doesn't actually correspond to a committed change is worse than no Audit Event.
 
 ## Audit
 
@@ -56,6 +64,18 @@ These are starting defaults, not a promise — tune them against real traffic on
 - `/v1` now. Additive, backward-compatible changes (new optional fields, new endpoints) ship without a version bump.
 - A breaking change gets a new version prefix. The old version keeps working for a minimum 6-month deprecation window, announced in the [Changelog](../changelog/) the day the replacement ships, with a `Deprecation` and `Sunset` response header (RFC 8594) added to every response the old version serves from that point on.
 - Webhook payload versions are versioned independently of the URL version, since webhook consumers can't negotiate a version the way a request-time client can.
+- **Enums can grow new values without a version bump.** `EntitlementStatus`, `UserStatus`, and similar closed-looking lists in [openapi.yaml](../openapi.yaml) are allowed to gain new members as additive, non-breaking changes. Clients — and any implementation — must treat an unrecognized enum value as "handle generically / no special case," never as an error to reject the response over. This is a contract, not just a suggestion: don't write a `switch` with no default case against any enum in this spec.
+
+## Request tracing
+
+Every response carries an `X-Request-Id` (server-generated if the caller didn't send one in the request). Log it at every layer a request touches. This is what turns "a user says something failed around 2pm" into a specific, searchable trace — cheap to add at the start, expensive to retrofit once there's production traffic to correlate.
+
+## Testing strategy
+
+- **Contract tests** validate the implementation's actual responses against [openapi.yaml](../openapi.yaml) — this is what keeps the machine-readable spec from silently drifting from reality, which is the normal failure mode for hand-maintained API docs.
+- **Unit tests** on the [Access Control](../access-control/) resolution logic (`effective_permissions`) specifically — it's the one piece of logic every single request depends on, and it's pure/deterministic enough to be cheap to test exhaustively (every combination of entitlement status × platform role × app role).
+- **Integration tests** run against a real local Postgres (see [Deployment Architecture → Local development](../deployment-architecture/#local-development)), not a mocked data layer — the Row-Level Security policies in [Multi-tenancy](#multi-tenancy) are exactly the kind of thing a mock would let silently pass while actually being broken.
+- **Seed/fixture data** for local and test environments should be generated from the same request/response examples already in the [API Reference](../api-reference/) — one source of realistic data, not a second hand-maintained copy that drifts from the docs.
 
 ## Data retention
 

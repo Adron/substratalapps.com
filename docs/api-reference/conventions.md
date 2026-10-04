@@ -34,7 +34,9 @@ Provisional — the real host is whatever gets decided alongside [Decisions → 
 Authorization: Bearer <token>
 ```
 
-User-facing requests carry a user access token (issued at login, see [Auth](../auth/)). Service-to-service requests (billing, an app's backend) carry a scoped API key. Both go in the same header — the token type is distinguishable server-side by prefix, not by a different header name.
+User-facing requests carry a user access token (issued at login, see [Auth](../auth/)). Service-to-service requests (billing, an app's backend) carry a scoped [API Key](../api-keys/). Both go in the same header — the token type is distinguishable server-side by prefix, not by a different header name.
+
+**Test vs. live:** every API Key is created with `satk_test_…` or `satk_live_…` (see [API Keys](../api-keys/)) — there is no separate sandbox deployment to point at. A `test` key operates against the same database, but every record it creates is tagged `test_mode: true`, excluded from webhooks firing to any other caller's `live` subscriptions, and from rate-limit/analytics counters. This is cheaper to build and run than a parallel environment, and it's the right call at the current scale (see [Deployment Architecture](../../deployment-architecture/)) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.
 
 ## IDs
 
@@ -77,6 +79,8 @@ Pass `next_cursor` back as `cursor` to get the next page. `has_more: false` mean
 
 List endpoints that support filtering take plain query parameters named after the field being matched (`?status=active`, `?application_id=app_timetrack`) — there's no separate filter DSL. Each resource page's endpoint table states which fields are filterable; passing an unsupported filter parameter is ignored rather than erroring, so adding a new filterable field later is never a breaking change.
 
+**Soft-deleted and terminal-state records are excluded by default.** A list endpoint doesn't return a soft-deleted User, a `revoked` Entitlement, or a `suspended` API Key unless the caller explicitly asks for it (`?status=revoked`, or a resource-specific `?include_deleted=true` where noted on that page). This is the default precisely so "list my entitlements" doesn't require every caller to remember to filter out the ones that don't matter anymore.
+
 ## Single-resource responses
 
 A single resource is returned as a bare JSON object — no envelope:
@@ -97,7 +101,26 @@ A single resource is returned as a bare JSON object — no envelope:
 }
 ```
 
-`code` is a stable, machine-matchable string — build logic against it, not against `message`, which is for humans and can change wording without notice. HTTP status follows normal semantics (`400` malformed request, `401` missing/invalid auth, `403` authenticated but not permitted, `404` not found, `409` conflict — e.g. idempotency key reuse with a different body, `429` rate limited).
+`code` is a stable, machine-matchable string — build logic against it, not against `message`, which is for humans and can change wording without notice. HTTP status follows normal semantics (`400` malformed request, `401` missing/invalid auth, `403` authenticated but not permitted, `404` not found, `409` conflict — e.g. idempotency key reuse with a different body, or a [concurrency conflict](../../non-functional-requirements/#concurrency-control), `422` semantically invalid — e.g. a `settings_schema` violation, `429` rate limited).
+
+**Multiple field errors** (a `422` from a request that fails validation on more than one field at once) use a structured `details.fields` array instead of forcing the client to parse `message`:
+
+```json
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "2 fields failed validation.",
+    "details": {
+      "fields": [
+        { "field": "email", "code": "invalid_format" },
+        { "field": "available_app_roles", "code": "too_long", "max": 20 }
+      ]
+    }
+  }
+}
+```
+
+A single-field error (like `entitlement_not_active` above) skips the array and puts the relevant IDs directly in `details` — the array form is specifically for "more than one thing wrong with this request body."
 
 ## Idempotency
 
@@ -108,6 +131,8 @@ Idempotency-Key: <client-generated UUID>
 ```
 
 A repeated key with an identical body returns the original response (same status code, same body) instead of creating a duplicate. A repeated key with a *different* body returns `409`. Keys are remembered for 24 hours, scoped per API key/caller — after that window a repeated key is treated as new. See [Non-Functional Requirements → Idempotency & retries](../../non-functional-requirements/#idempotency--retries) for why this is mandatory rather than optional on those endpoints — billing webhooks retry, and a duplicate Entitlement is a real-money bug, not a cosmetic one.
+
+**Implementation note:** store `(caller_id, idempotency_key) → (request_body_hash, response_status, response_body, expires_at)`, written in the same transaction as the mutation it guards (see [Non-Functional Requirements → Transaction boundaries](../../non-functional-requirements/#transaction-boundaries)) so a crash between "wrote the Entitlement" and "recorded the idempotency key" can't produce a duplicate on retry. Compare the stored hash, not the raw body, to decide same-vs-different.
 
 ## Health check
 

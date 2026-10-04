@@ -78,3 +78,13 @@ Most apps will want JWT for general use plus introspection before anything destr
 **Guarantees:** the hub is the only writer of Entitlement and Role state. `effective_permissions`, however computed (JWT claim or live call), always reflects the hub's current records at the moment it was computed.
 
 **Doesn't guarantee:** that every app enforces it correctly or promptly. A JWT with a 15-minute TTL means a revoked user can act for up to 15 minutes inside that one app. That's a choice each app makes by picking its TTL and whether it subscribes to webhooks — not something the hub can enforce on the app's behalf.
+
+## Trust runs the other direction too
+
+Everything above is about an app trusting the hub's claims about a user. Once a third-party developer can register their own Application (see [Decisions → App developer/publisher model](../decisions/#9-app-developerpublisher-model)), the hub also needs to limit how much it trusts the app:
+
+- An app-scoped [API Key](../api-reference/api-keys/) can never hold `entitlements.manage`, `users.manage`, or any other identity/access-control permission — only its own `app.<slug>.*` keys and read access implied by its own scope. A malicious or compromised third-party app's key can corrupt data within its own app, never grant itself access to another app or escalate a user's platform-wide standing.
+- An Application's `review_status` (see [Applications](../domain-model/applications/)) gates whether it's discoverable and launchable at all — `pending_review` keeps a newly self-registered app off the catalog until someone at Substratal looks at it.
+- The webhook signing secret (see [Webhooks → Delivery](../api-reference/webhooks/#delivery)) exists specifically so an app receiving a webhook can prove it came from the hub — the same mechanism, aimed the other way, is why the hub signs the launch JWT rather than just passing a bare user id.
+
+None of this is new machinery bolted on for the marketplace phase — it's why the API Key scoping and JWT/webhook signing were designed this way from the start, even while every Application is still first-party.
