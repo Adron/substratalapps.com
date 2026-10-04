@@ -29,3 +29,5 @@ Resource-oriented REST, JSON, versioned at `/v1`. Read [Conventions](conventions
 
 {: .note }
 These pages specify the target contract for an API that does not yet exist. If you're implementing against this, these are the shapes to build toward — check the repository's actual code for what's already real before assuming a page here is live.
+
+Calling this from an AI agent rather than writing HTTP calls by hand? See [MCP Server](../mcp-server/) — a tool-call interface generated from [openapi.yaml](../openapi.yaml), not a separate contract from the one on this page.

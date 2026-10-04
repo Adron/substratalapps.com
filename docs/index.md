@@ -40,9 +40,11 @@ It's written to be read by people building the API **and** by AI coding tools as
 | [API Reference](api-reference/) | What are the actual resources, endpoints, and payloads? |
 | [Workflows](workflows/) | How do the pieces move together for real scenarios — a purchase, an admin revoking access, a role change? |
 | [Trust Model](trust-model/) | How does a separately-hosted app verify a user's access without maintaining its own user table? |
+| [MCP Server](mcp-server/) | How does an AI agent call this API directly, as a tool-using client rather than writing HTTP calls by hand? |
 | [Non-Functional Requirements](non-functional-requirements/) | Security, multi-tenancy, audit, rate limits, versioning. |
 | [Compliance & Data Protection](compliance/) | Which of SOC 2, HIPAA, GDPR, and CCPA apply, and when to act on each. |
 | [Roadmap](roadmap/) | What ships in the MVP vs. later phases. |
+| [Pricing](pricing/) | Starter, Team, and Enterprise — what Substratal itself charges the developer. |
 | [Deployment Architecture](deployment-architecture/) | Where this runs — the cost-capped first deployment, and the path to scale. |
 | [Decisions](decisions/) | The open questions this spec depends on, and their current status. |
 | [Changelog](changelog/) | What's changed in this spec over time. |

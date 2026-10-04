@@ -41,6 +41,7 @@ tags:
 paths:
   /health:
     get:
+      operationId: health.check
       tags: [Meta]
       summary: Health check
       security: []
@@ -56,6 +57,7 @@ paths:
 
   /auth/login:
     post:
+      operationId: auth.login
       tags: [Auth]
       summary: Exchange credentials for a session
       security: []
@@ -79,6 +81,7 @@ paths:
 
   /auth/token/refresh:
     post:
+      operationId: auth.refreshToken
       tags: [Auth]
       summary: Exchange a refresh token for a new access token
       security: []
@@ -101,6 +104,7 @@ paths:
 
   /auth/sso/{provider}/callback:
     post:
+      operationId: auth.ssoCallback
       tags: [Auth]
       summary: Complete an SSO login
       security: []
@@ -123,6 +127,7 @@ paths:
 
   /auth/logout:
     post:
+      operationId: auth.logout
       tags: [Auth]
       summary: Invalidate the current session
       responses:
@@ -130,6 +135,7 @@ paths:
 
   /users:
     get:
+      operationId: users.list
       tags: [Users]
       summary: List users
       description: "Requires a platform role with `users.list`."
@@ -147,6 +153,7 @@ paths:
               schema: { $ref: "#/components/schemas/UserPage" }
         "403": { $ref: "#/components/responses/Forbidden" }
     post:
+      operationId: users.create
       tags: [Users]
       summary: Create a user
       description: "Requires a platform role with `users.manage`. Also creates a default Profile and Settings record and assigns the default `member` platform role."
@@ -172,6 +179,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     get:
+      operationId: users.get
       tags: [Users]
       summary: Fetch one user
       description: "Self, or a platform role with `users.list`."
@@ -183,6 +191,7 @@ paths:
               schema: { $ref: "#/components/schemas/User" }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
+      operationId: users.update
       tags: [Users]
       summary: Update mutable fields
       description: "Self may update `email`. Changing `status` requires a platform role with `users.manage`."
@@ -201,6 +210,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
     delete:
+      operationId: users.delete
       tags: [Users]
       summary: Soft-delete a user
       description: "Requires a platform role with `users.manage`, or self."
@@ -211,6 +221,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     post:
+      operationId: users.suspend
       tags: [Users]
       summary: Suspend a user
       description: "Requires a platform role with `users.manage`. Shortcut for PATCH {status: suspended}."
@@ -225,6 +236,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     get:
+      operationId: profiles.get
       tags: [Profiles]
       summary: Fetch global Profile
       description: "Self, or a platform role with `users.manage`."
@@ -235,6 +247,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Profile" }
     patch:
+      operationId: profiles.update
       tags: [Profiles]
       summary: Update global Profile
       description: "Self, or a platform role with `users.manage`."
@@ -253,6 +266,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     get:
+      operationId: settings.get
       tags: [Settings]
       summary: Fetch global Settings
       description: "Self, or a platform role with `users.manage`."
@@ -263,6 +277,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Settings" }
     patch:
+      operationId: settings.update
       tags: [Settings]
       summary: Update global Settings
       description: "Self, or a platform role with `users.manage`."
@@ -282,6 +297,7 @@ paths:
       - $ref: "#/components/parameters/UserIdOrMe"
       - $ref: "#/components/parameters/AppId"
     get:
+      operationId: appProfiles.get
       tags: [Profiles]
       summary: Fetch per-app AppProfile
       description: "Caller may be the app's own service API key, the user themselves, or an admin. Creates a default record on first read."
@@ -294,6 +310,7 @@ paths:
         "404":
           description: "entitlement_required — user has no active Entitlement to this app"
     patch:
+      operationId: appProfiles.update
       tags: [Profiles]
       summary: Update per-app AppProfile
       requestBody:
@@ -316,6 +333,7 @@ paths:
       - $ref: "#/components/parameters/UserIdOrMe"
       - $ref: "#/components/parameters/AppId"
     get:
+      operationId: appSettings.get
       tags: [Settings]
       summary: Fetch fully-resolved per-app settings
       responses:
@@ -325,6 +343,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/AppSettingsResolved" }
     patch:
+      operationId: appSettings.update
       tags: [Settings]
       summary: Write per-app overrides
       description: "Validated against the Application's settings_schema. Send a key as null to clear an override back to inherited."
@@ -346,6 +365,7 @@ paths:
 
   /applications:
     get:
+      operationId: applications.list
       tags: [Applications]
       summary: List the catalog
       description: Open to any authenticated user.
@@ -362,6 +382,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ApplicationSummaryPage" }
     post:
+      operationId: applications.create
       tags: [Applications]
       summary: Add a catalog entry
       description: "Requires a platform role with `applications.manage`."
@@ -384,6 +405,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: applications.get
       tags: [Applications]
       summary: Fetch one Application
       responses:
@@ -393,6 +415,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Application" }
     patch:
+      operationId: applications.update
       tags: [Applications]
       summary: Update a catalog entry
       description: "Requires a platform role with `applications.manage`. `slug` is immutable."
@@ -413,6 +436,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     get:
+      operationId: entitlements.listForUser
       tags: [Entitlements]
       summary: List a user's entitlements
       responses:
@@ -422,6 +446,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/EntitlementPage" }
     post:
+      operationId: entitlements.grant
       tags: [Entitlements]
       summary: Grant access to an app
       description: "Requires `Idempotency-Key`. Requires a platform role with `entitlements.manage` for source=admin_grant."
@@ -449,6 +474,7 @@ paths:
 
   /entitlements:
     get:
+      operationId: entitlements.list
       tags: [Entitlements]
       summary: List entitlements across all users (admin/support)
       description: "Requires a platform role with `entitlements.manage`."
@@ -481,6 +507,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: entitlements.get
       tags: [Entitlements]
       summary: Fetch one entitlement
       description: "Self, or a platform role with `entitlements.manage`."
@@ -491,6 +518,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Entitlement" }
     patch:
+      operationId: entitlements.update
       tags: [Entitlements]
       summary: "Change status (the on/off toggle), or narrow an org-wide grant's member_scope"
       description: "Requires a platform role with `entitlements.manage`, or — for an org_seat row — org-admin standing on that Organization. `revoked` is terminal. Neither field is required on its own; a call changing only member_scope/member_overrides emits entitlement.member_scope_changed instead of a status-transition event."
@@ -516,6 +544,7 @@ paths:
         "409":
           description: "invalid_status_transition"
     delete:
+      operationId: entitlements.delete
       tags: [Entitlements]
       summary: Hard-remove a grant made in error
       description: "Requires a platform role with `entitlements.manage`. Distinct from PATCH status=revoked — see prose spec."
@@ -524,6 +553,7 @@ paths:
 
   /permissions:
     get:
+      operationId: permissions.list
       tags: [Roles & Permissions]
       summary: List every known Permission key
       parameters:
@@ -538,6 +568,7 @@ paths:
 
   /roles:
     get:
+      operationId: roles.list
       tags: [Roles & Permissions]
       summary: List Roles
       parameters:
@@ -554,6 +585,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/RolePage" }
     post:
+      operationId: roles.create
       tags: [Roles & Permissions]
       summary: Define a new Role
       description: "Requires a platform role with `roles.manage`."
@@ -575,6 +607,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
     get:
+      operationId: roles.listForUser
       tags: [Roles & Permissions]
       summary: List a user's Role assignments
       responses:
@@ -592,6 +625,7 @@ paths:
         required: true
         schema: { type: string }
     post:
+      operationId: roles.assign
       tags: [Roles & Permissions]
       summary: Assign a Role to a user
       description: "Requires a platform role with `roles.manage`."
@@ -604,6 +638,7 @@ paths:
         "409":
           description: "role_scope_mismatch"
     delete:
+      operationId: roles.remove
       tags: [Roles & Permissions]
       summary: Remove a Role assignment
       description: "Requires a platform role with `roles.manage`. Idempotent."
@@ -615,6 +650,7 @@ paths:
       - $ref: "#/components/parameters/UserIdOrMe"
       - $ref: "#/components/parameters/AppId"
     get:
+      operationId: permissions.getEffective
       tags: [Roles & Permissions]
       summary: The live access check
       description: Resolves Entitlement status and Role grants into one answer. Always 200.
@@ -627,6 +663,7 @@ paths:
 
   /organizations:
     get:
+      operationId: organizations.list
       tags: [Organizations]
       summary: List organizations
       description: "Self-scoped by default; a platform role with `organizations.manage` sees all."
@@ -640,6 +677,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/OrganizationPage" }
     post:
+      operationId: organizations.create
       tags: [Organizations]
       summary: Create an organization
       description: "Requires a platform role with `organizations.manage`."
@@ -666,6 +704,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: organizations.listMembers
       tags: [Organizations]
       summary: List member users
       responses:
@@ -675,6 +714,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/OrganizationMemberPage" }
     post:
+      operationId: organizations.addMember
       tags: [Organizations]
       summary: Add a member
       description: "Requires org-admin standing or a platform role with `organizations.manage`."
@@ -704,6 +744,7 @@ paths:
         required: true
         schema: { type: string }
     delete:
+      operationId: organizations.removeMember
       tags: [Organizations]
       summary: Remove a member
       description: "Requires org-admin standing or a platform role with `organizations.manage`."
@@ -717,6 +758,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: organizations.listEntitlements
       tags: [Organizations]
       summary: List org-wide (seat) entitlements
       responses:
@@ -726,6 +768,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/EntitlementPage" }
     post:
+      operationId: organizations.grantEntitlement
       tags: [Organizations]
       summary: Grant an app to the whole org
       description: "Requires a platform role with `organizations.manage`, or org-admin standing on this Organization."
@@ -752,6 +795,7 @@ paths:
 
   /tenants:
     get:
+      operationId: tenants.list
       tags: [Tenancy]
       summary: List Tenants
       description: "Requires `tenants.manage`."
@@ -772,6 +816,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: tenants.get
       tags: [Tenancy]
       summary: Fetch one Tenant
       description: "Its owner, or a platform role with `tenants.manage`."
@@ -791,6 +836,7 @@ paths:
         required: true
         schema: { type: string }
     get:
+      operationId: tenants.listTierChangeRequests
       tags: [Tenancy]
       summary: List tier-change requests for a Tenant
       description: "Its owner, or a platform role with `tenants.manage`."
@@ -801,6 +847,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/TenantTierChangeRequestPage" }
     post:
+      operationId: tenants.requestTierChange
       tags: [Tenancy]
       summary: Request a tier change on a customer's behalf
       description: "Requires `tenants.manage` — support places this request, not the customer. See Decisions #12."
@@ -826,6 +873,7 @@ paths:
 
   /audit-events:
     get:
+      operationId: audit.list
       tags: [Audit]
       summary: Query the audit log
       description: "Requires a platform role with `audit.view`, or self via target_user_id=me."
@@ -859,6 +907,7 @@ paths:
 
   /webhooks:
     get:
+      operationId: webhooks.list
       tags: [Webhooks]
       summary: List this caller's webhook subscriptions
       responses:
@@ -868,6 +917,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/WebhookPage" }
     post:
+      operationId: webhooks.create
       tags: [Webhooks]
       summary: Subscribe a URL to one or more event types
       requestBody:
@@ -898,6 +948,7 @@ paths:
         required: true
         schema: { type: string }
     delete:
+      operationId: webhooks.delete
       tags: [Webhooks]
       summary: Unsubscribe
       responses:
@@ -905,6 +956,7 @@ paths:
 
   /api-keys:
     get:
+      operationId: apiKeys.list
       tags: [API Keys]
       summary: List keys in scope for the caller
       description: "Requires a platform role with `api_keys.manage`."
@@ -915,6 +967,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ApiKeyPage" }
     post:
+      operationId: apiKeys.create
       tags: [API Keys]
       summary: Create a key
       description: "Requires a platform role with `api_keys.manage`."
@@ -939,6 +992,7 @@ paths:
         required: true
         schema: { type: string }
     post:
+      operationId: apiKeys.rotate
       tags: [API Keys]
       summary: Issue a new secret for the same key record
       description: "Requires a platform role with `api_keys.manage`. No overlap window."
@@ -956,6 +1010,7 @@ paths:
         required: true
         schema: { type: string }
     delete:
+      operationId: apiKeys.delete
       tags: [API Keys]
       summary: Revoke permanently
       description: "Requires a platform role with `api_keys.manage`."

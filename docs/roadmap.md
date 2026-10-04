@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Roadmap
-nav_order: 11
+nav_order: 12
 ---
 
 # Roadmap
@@ -51,6 +51,10 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 ## Tenancy automation isn't phase-gated — it's revenue-gated
 
 Self-service, customer-triggered [Tenancy](../domain-model/tenancy/) tier changes (no support ticket, no human running the migration) deliberately don't have a phase number above. It's not a feature-scope decision like the rest of this page — it's a decision to accept a real amount of migration risk (a failed cutover with no human checking each step) in exchange for support time, and that trade only makes sense once tier-change request volume justifies it. Track it against actual demand, not a calendar phase — see [Decisions → Tenancy tiers](../decisions/#12-tenancy-tiers--dedicated-infrastructure).
+
+## The MCP server tracks the REST API automatically
+
+[MCP Server](../mcp-server/) also doesn't have a phase number, for the opposite reason from Tenancy automation above: it needs none, because its tool surface is generated directly from [openapi.yaml](../openapi.yaml) (see [MCP Server → Tool surface is generated, not hand-authored](../mcp-server/#tool-surface-is-generated-not-hand-authored)). Whatever of the REST API is live at MVP is agent-callable at MVP; whatever Phase 2/3 adds becomes agent-callable the same day, with no separate MCP work item to schedule. The only real build step — adding `operationId` to new operations as they're written — is already folded into writing the endpoint, not a follow-up task.
 
 ## What's explicitly not on this roadmap
 

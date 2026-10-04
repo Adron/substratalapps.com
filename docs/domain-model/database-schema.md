@@ -70,10 +70,11 @@ organization_memberships (
 | `owner_user_id` | `text` | nullable, `references users(id)` |
 | `owner_organization_id` | `text` | nullable, `references organizations(id)` |
 | `tier` | `text` | not null, default `'shared'`, `check (tier in ('shared','isolated','dedicated_region'))` |
+| `plan` | `text` | not null, default `'starter'`, `check (plan in ('starter','team','enterprise'))` — see [Pricing](../../pricing/) |
 | `region` | `text` | nullable — set only when `tier = 'dedicated_region'` |
 | `status` | `text` | not null, default `'active'`, `check (status in ('active','migrating','suspended'))` |
 
-**Constraint:** `check (owner_user_id is null or owner_organization_id is null)` and `check (owner_user_id is not null or owner_organization_id is not null)` — exactly one owner, same pattern as `applications.owner_*` below. **Indexes:** `unique (owner_user_id) where owner_user_id is not null`, `unique (owner_organization_id) where owner_organization_id is not null` — one Tenant per owner, not a list. See [Tenancy](../tenancy/).
+**Constraint:** `check (owner_user_id is null or owner_organization_id is null)` and `check (owner_user_id is not null or owner_organization_id is not null)` — exactly one owner, same pattern as `applications.owner_*` below. `check (plan = 'enterprise' or tier = 'shared')` — enforces [Pricing](../../pricing/#enterprise-tenancy-tier-options)'s rule that `isolated`/`dedicated_region` are Enterprise-only at the database level, not just in application code. **Indexes:** `unique (owner_user_id) where owner_user_id is not null`, `unique (owner_organization_id) where owner_organization_id is not null` — one Tenant per owner, not a list. See [Tenancy](../tenancy/).
 
 ## applications
 

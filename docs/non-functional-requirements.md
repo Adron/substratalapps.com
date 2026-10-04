@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Non-Functional Requirements
-nav_order: 9
+nav_order: 10
 ---
 
 # Non-Functional Requirements
@@ -18,6 +18,7 @@ nav_order: 9
 - **Service-to-service:** billing → hub, app → hub, and any other backend caller authenticates with scoped API keys or mTLS, not user credentials.
 - **MFA:** supported at the identity-provider layer; not re-implemented in this API.
 - **Bootstrapping:** the very first `superadmin` cannot be created through the public API — nothing can call `POST /v1/users/{id}/roles/{roleId}` with `roles.manage` before a `superadmin` exists to grant it. It's seeded directly against the database (or via a one-time, non-API admin CLI command) as part of standing up a new environment, not specified as an endpoint.
+- **MCP:** the [MCP Server](../mcp-server/) is not a separate auth surface — it carries and forwards the same Bearer credential (user token or API Key) as any other caller. No new rule in this section applies to it that doesn't already apply here.
 
 ## CORS
 
@@ -62,13 +63,14 @@ Per-API-key token bucket, returning `429` with a `Retry-After` header on exhaust
 | `POST /v1/entitlements`, `POST /v1/users` | 20 requests/minute — tighter, since these are the endpoints scripted abuse would hit first |
 | `GET /v1/users/{id}/applications/{appId}/effective-permissions` | 300 requests/minute — expected to be called on a hot path by downstream apps (see [Trust Model](../trust-model/)), so it's deliberately not bottlenecked at the default rate |
 
-These are starting defaults, not a promise — tune them against real traffic once the API is live, and raise per-key limits for high-volume service integrations (billing) rather than exempting them from limiting entirely.
+These are starting defaults, not a promise — tune them against real traffic once the API is live, and raise per-key limits for high-volume service integrations (billing) rather than exempting them from limiting entirely. A call made through the [MCP Server](../mcp-server/) counts against the same bucket as the REST call it translates to — there's no separate "MCP traffic" dimension, since it's the same credential hitting the same underlying endpoint.
 
 ## Versioning
 
 - `/v1` now. Additive, backward-compatible changes (new optional fields, new endpoints) ship without a version bump.
 - A breaking change gets a new version prefix. The old version keeps working for a minimum 6-month deprecation window, announced in the [Changelog](../changelog/) the day the replacement ships, with a `Deprecation` and `Sunset` response header (RFC 8594) added to every response the old version serves from that point on.
 - Webhook payload versions are versioned independently of the URL version, since webhook consumers can't negotiate a version the way a request-time client can.
+- The [MCP Server](../mcp-server/)'s protocol version (negotiated per MCP's own date-based scheme during `initialize`) is likewise independent of `/v1` — a protocol-version bump there doesn't imply a `/v2` here, and vice versa.
 - **Enums can grow new values without a version bump.** `EntitlementStatus`, `UserStatus`, and similar closed-looking lists in [openapi.yaml](../openapi.yaml) are allowed to gain new members as additive, non-breaking changes. Clients — and any implementation — must treat an unrecognized enum value as "handle generically / no special case," never as an error to reject the response over. This is a contract, not just a suggestion: don't write a `switch` with no default case against any enum in this spec.
 
 ## Request tracing

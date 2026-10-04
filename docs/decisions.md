@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Decisions
-nav_order: 13
+nav_order: 14
 ---
 
 # Decisions
@@ -30,6 +30,8 @@ The open questions this spec currently depends on. This page is a log, not a one
 | 11 | [Tenant vs. Organization](#11-tenant-vs-organization) | 🟢 Resolved |
 | 12 | [Tenancy tiers & dedicated infrastructure](#12-tenancy-tiers--dedicated-infrastructure) | 🟢 Resolved |
 | 13 | [Organization-vs-User entitlement precedence](#13-organization-vs-user-entitlement-precedence) | 🟢 Resolved |
+| 14 | [MCP server authorization scope](#14-mcp-server-authorization-scope) | 🟡 Open |
+| 15 | [Platform subscription billing processor](#15-platform-subscription-billing-processor) | 🟡 Open |
 
 ---
 
@@ -136,3 +138,17 @@ When an end-user [Organization](../domain-model/users-and-organizations/#organiz
 - **A User's own personal Entitlement to the same Application (purchased or granted independently of any Organization) is a separate, untouched access path.** An Organization's exclusion of a member from its own org-wide grant does not reach into and revoke a personal Entitlement that member holds some other way. This is the one place this resolution departs from a literal "Organization always overrides User" rule — the alternative (an org silently revoking something a member individually holds) creates a real billing/legal defensibility problem ("the company turned off access to something I personally paid for"), and the scoped version below still satisfies the actual goal — an org's decision about its own grant is final — without that side effect. Revisit this if it doesn't match intent.
 - **A User's effective access to an Application is the union of every active path**: their own personal Entitlement (if any) OR any Organization they belong to whose grant includes them. Because each Organization's grant is independently evaluated, a User in multiple Organizations (even across different Tenants) never hits a real "Org A says yes, Org B says no" conflict — Org B's answer only ever governs Org B's own grant.
 - **Attribution is always surfaced.** Reading a User's entitlement to an app that came from (or was blocked by) an Organization's grant shows `source: org_seat`, the `organization_id`, and whether `member_scope` included or excluded this specific member — so anyone pulling a User's access record can see which Organization is responsible, rather than seeing a bare allow/deny. See [Entitlements](../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out) for the exact shape.
+
+## 14. MCP server authorization scope
+
+[MCP Server](../mcp-server/) deliberately introduces no new authorization model — every tool call carries the same Bearer credential (user token or [API Key](../api-reference/api-keys/)) as the equivalent REST call, and is checked against the exact same permissions. The open question is narrower: **should Substratal recommend — or eventually require — a purpose-scoped class of API Key specifically for agent/MCP callers**, rather than relying on whatever key a human happens to hand their agent?
+
+The case for a narrower default: an LLM deciding *which* tool to call based on a prompt (possibly influenced by untrusted data it has read, e.g. a `disabled_reason` or an `AppProfile.custom` field written by someone else) is a different risk shape than deterministic service code making the same call — not because the platform's own enforcement is any weaker (it isn't; [Access Control](../access-control/) doesn't know or care whether its caller is an agent), but because the *decision to call* a destructive tool at all is now made by something a prompt can influence, where a service integration's call sites are fixed at write time.
+
+**Leans toward:** no new API Key *type* (that would be a parallel, redundant scoping system next to the one that already exists) — instead, operational guidance to scope an agent-facing Key as narrowly as the integration actually needs (read-only `audit.view`/`users.list` for a query-only assistant; `entitlements.manage` only for an assistant that's actually meant to toggle access), plus the [tool annotations](../mcp-server/#tool-annotations--safety) that let a compliant client prompt for confirmation before a `destructiveHint` tool runs. Still open: whether that guidance should harden into something enforced server-side (e.g. a key flag that *disables* destructive operations outright, independent of the permissions it otherwise carries) once there's a real incident or a real customer asking for it — not built speculatively ahead of either.
+
+## 15. Platform subscription billing processor
+
+[Decision #4](#4-billing-system-of-record) resolved who processes payment for a developer's *own* end users (the developer, never this API). It left open the other direction, now a real question with [Pricing](../pricing/) specified: **who processes payment for the platform subscription itself** — the Starter/Team/Enterprise charge an Application owner pays Substratal?
+
+**Leans toward:** Stripe Billing, specifically because adopting it changes nothing already decided — [Decisions → Compliance scope](#10-compliance-scope) already keeps PCI scope minimal by design (card data never touches this API directly either way), and a subscription-billing product used only for Substratal's own direct customer relationship is a far smaller integration than the marketplace-payment-processor role [Decision #4](#4-billing-system-of-record) explicitly ruled out. Not yet built or confirmed — flagged here rather than assumed, since it's the one piece of [Pricing](../pricing/) with no corresponding API surface anywhere in this spec today (no `POST /v1/subscriptions`, no `plan` change endpoint — only the `plan` field on [Tenant](../domain-model/tenancy/#fields) recording the outcome). Building that surface is explicitly deferred until this decision is actually made.

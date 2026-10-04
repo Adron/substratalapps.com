@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Glossary
-nav_order: 15
+nav_order: 16
 ---
 
 # Glossary
@@ -35,6 +35,9 @@ The join record between a User (or Organization) and an Application: do they own
 
 #### Hub
 Shorthand used throughout this site for Substratal Apps itself — the platform this API belongs to.
+
+#### MCP
+Model Context Protocol — the standard this site's AI-agent-facing tool-call interface implements. See [MCP Server](../mcp-server/). Introduces no new authorization model of its own; see [Authentication — no new model](../mcp-server/#authentication--no-new-model).
 
 #### Order
 (also "Subscription") The commerce record an Entitlement traces back to. Owned by billing; referenced, not duplicated, here. See [Decisions → Billing system of record](../decisions/#4-billing-system-of-record).

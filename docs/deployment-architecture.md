@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment Architecture
-nav_order: 12
+nav_order: 13
 ---
 
 # Deployment Architecture
@@ -32,7 +32,10 @@ Four rules this architecture is built around, in priority order:
 ```mermaid
 flowchart LR
     Client[Downstream apps<br/>+ hub dashboard] -->|HTTPS| APIGW[API Gateway<br/>HTTP API]
+    Agent[AI agent /<br/>MCP client] -->|HTTPS, /mcp| APIGW
     APIGW --> Lambda[Lambda<br/>API handlers]
+    APIGW --> MCP[Lambda<br/>MCP server]
+    MCP -->|HTTPS, same Bearer token| APIGW
     Lambda -->|Data API, HTTPS, no VPC| Aurora[(Aurora Serverless v2<br/>PostgreSQL)]
     Lambda -->|enqueue| SQS[[SQS<br/>webhook delivery queue]]
     SQS --> Worker[Lambda<br/>webhook worker]
@@ -46,6 +49,7 @@ flowchart LR
 | Component | Service | Why this one |
 |---|---|---|
 | API compute | **Lambda** behind **API Gateway (HTTP API)** | Pay-per-request, zero idle cost. HTTP API over REST API — materially cheaper per request for the same job. |
+| MCP compute | A **second, dedicated Lambda** behind the same **API Gateway**, at `/mcp` | Kept as its own function (not folded into the API handlers' Lambda) specifically so its concurrency, cold-start profile, and any future upgrade (see [MCP server](#mcp-server)) can be tuned independently without touching the REST path — same reasoning as the webhook worker already being split out below. |
 | Database | **Aurora Serverless v2 (PostgreSQL)**, accessed via the **RDS Data API** | The domain model is relational (joins, foreign keys, the Audit log) — Postgres fits it directly. Data API means Lambda calls the database over signed HTTPS with **no VPC attachment** — which is what avoids a NAT Gateway entirely (see below), not a minor detail. |
 | Webhook delivery | **SQS** queue + a dedicated worker **Lambda** | Matches the retry/backoff schedule in [Webhooks](../api-reference/webhooks/) — SQS visibility timeouts drive the delay between attempts for free, no extra scheduler needed for that part. |
 | Scheduled jobs | **EventBridge Scheduler** → **Lambda** | Trial-expiry checks, idempotency-key cleanup — pay-per-invocation, no cron server to run. |
@@ -98,6 +102,7 @@ Rough, region-dependent, **not a quote** — the point is that every line is a k
 | Route 53 hosted zone | ~$0.50 |
 | Lambda + API Gateway + SQS + EventBridge at low traffic | Low single digits — much of this is covered by the AWS free tier for the first 12 months |
 | S3 + CloudFront at low volume | Near $0 |
+| MCP Lambda, low call volume | Low single digits, same free-tier coverage as the API handlers' Lambda — see [MCP server](#mcp-server) | 
 | **Floor total** | **~$45–55/month**, before any real traffic |
 
 The Aurora minimum is the floor's dominant term and the one genuine fixed cost in this design — accepted deliberately as a known number in exchange for a real relational database, rather than chasing a theoretical $0 floor with a data model that doesn't fit the access-control domain.
@@ -136,6 +141,31 @@ A tier change (`shared → isolated`, or either `→ dedicated_region`) is suppo
 
 Because [Entitlement](../domain-model/entitlements/), [AppProfile](../domain-model/profiles/#appprofile), and [AppSettings](../domain-model/settings/#appsettings) rows all denormalize `tenant_id` (see [Database Schema](../domain-model/database-schema/#conventions-used-below)), step 3 is a `WHERE tenant_id = ...` export per table — no cross-table join needed to find everything that has to move.
 
+## MCP server
+
+See [MCP Server](../mcp-server/) for what this component is and why it exists; this section is the build-out and cost side of it specifically.
+
+### Tier 0
+
+A dedicated Lambda (shown in the [Tier 0 diagram](#first-deployment-tier-0) above as `MCP`), behind the same API Gateway, at a new `/mcp` route alongside the existing `/v1/*` routes — no new domain, no new certificate, no new hosted zone. On each MCP tool call, this Lambda:
+
+1. Validates the `Mcp-Session-Id` (a signed, self-contained token — see [MCP Server → Statelessness](../mcp-server/#statelessness)) and decodes the JSON-RPC request.
+2. Maps the requested tool name back to its `operationId` and calls the matching `/v1/...` route on the **same** API Gateway, forwarding the caller's own `Authorization` header unchanged.
+3. Translates the REST response into the MCP result shape and returns a single, buffered JSON response.
+
+This Lambda never talks to Aurora, Secrets Manager, or SQS directly — it only ever calls the existing API handlers over HTTPS, so its IAM execution role needs no data-plane permissions at all, just `lambda:InvokeFunction`-equivalent network access to API Gateway (which, being public HTTPS, needs no special IAM grant). It's the cheapest possible shape for this component: pure compute, pay-per-call, the same free-tier coverage as the main API handlers' Lambda per the [floor cost table](#illustrative-tier-0-floor-cost) above.
+
+### Scaling the MCP server
+
+| Trigger | Change |
+|---|---|
+| Sustained high-frequency tool-call traffic on hot tools (e.g. `effective-permissions`, entitlement toggles called by an agent in a loop) | Provisioned Concurrency on the MCP Lambda specifically — the same pattern, and the same trigger condition, as the [Scale-out](#scale-out) table's cold-start row below. |
+| A real need for server-initiated push — mid-call progress notifications, or resumable streams per the MCP spec's reconnection semantics | Move `/mcp` from a plain Lambda-behind-API-Gateway integration to a **Lambda Function URL with streaming responses enabled** (`InvokeMode: RESPONSE_STREAM`) — API Gateway's HTTP API integration buffers the full Lambda response, so it can't carry a chunked `text/event-stream`; a Function URL can. This is a routing change (DNS/API Gateway no longer proxies this one path), not a rewrite of the tool-call logic itself. |
+| Session/stream-resumption state that can no longer fit in a short-lived signed token (the MCP spec's resumability feature expects the server to replay missed events after a client reconnects) | A small **DynamoDB** table, keyed by session ID, TTL'd like [`idempotency_keys`](../domain-model/database-schema/#idempotency_keys) — chosen over adding load to the Aurora cluster specifically because this data is ephemeral, high-churn, single-key lookup: the textbook case Aurora is the wrong tool for and DynamoDB is the right one. |
+| More than a handful of concurrent agent integrations with genuinely different trust levels | Per-integration API Keys scoped as narrowly as each integration actually needs (see [Decisions → MCP server authorization scope](../decisions/#14-mcp-server-authorization-scope)) — an operational practice, not an infrastructure change, but the trigger worth naming before it's needed under pressure. |
+
+None of this is pre-built into Tier 0, matching [Cost principles → Scale-out is a later, deliberate decision](#cost-principles) above — a plain request/response Lambda is a fully conforming MCP server on its own, and stays the right choice until one of these triggers actually fires.
+
 ## Scale-out
 
 Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, triggered by a specific, named condition, not a default growth path.
@@ -150,6 +180,7 @@ Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, trigger
 | Webhook delivery volume grows enough to need isolation from the main API's blast radius | Split the worker Lambda's concurrency/alerting from the API handlers' (it already runs as a separate function — this is a monitoring/limits change, not a redesign). |
 | More than one engineer shipping concurrently | A second AWS account (via AWS Organizations) for staging, separate from production — Tier 0 runs on a single account with a `dev`/`prod` naming convention, which is enough until this trigger. |
 | A specific customer requires dedicated or regional infrastructure | Run the [Tenancy tiers](#tenancy-tiers--where-they-run) migration for that one customer's [Tenant](../domain-model/tenancy/) — the one scale-out trigger in this table that's customer-specific rather than aggregate-volume-driven, and can fire at any traffic level. |
+| Agent/MCP tool-call traffic needs server-push, resumable streams, or dedicated concurrency | See [MCP server → Scaling the MCP server](#scaling-the-mcp-server) — its own trigger table, since none of its upgrades (Function URL streaming, a session-state table) overlap with the triggers above. |
 
 ## Build checklist
 

@@ -51,9 +51,11 @@ older single-file draft found elsewhere in the repository's history.
 
 - [Workflows]({{ site.url }}{{ site.baseurl }}/workflows/): purchase-to-access, admin revokes access, role changes, end to end.
 - [Trust Model]({{ site.url }}{{ site.baseurl }}/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.
+- [MCP Server]({{ site.url }}{{ site.baseurl }}/mcp-server/): a Model Context Protocol server that lets an AI agent call this API as tools, generated from openapi.yaml, using the same Bearer credential as every other caller — no new auth model.
 - [Non-Functional Requirements]({{ site.url }}{{ site.baseurl }}/non-functional-requirements/)
 - [Compliance & Data Protection]({{ site.url }}{{ site.baseurl }}/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.
 - [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
+- [Pricing]({{ site.url }}{{ site.baseurl }}/pricing/): Starter (free), Team (per-seat), and Enterprise (with a choice of Tenant tier) — what Substratal itself charges the Application-owner developer, distinct from what that developer charges their own end users.
 - [Deployment Architecture]({{ site.url }}{{ site.baseurl }}/deployment-architecture/): the cost-capped first deployment on AWS, and the path to scale.
 - [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
 - [Changelog]({{ site.url }}{{ site.baseurl }}/changelog/): what's changed in this spec over time.

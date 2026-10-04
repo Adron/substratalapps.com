@@ -33,7 +33,8 @@ Every Application owner gets a Tenant automatically, the moment they register th
 | `owner_type` | enum | `user` \| `organization`. |
 | `owner_user_id` | string, nullable | Set iff `owner_type: user`. |
 | `owner_organization_id` | string, nullable | Set iff `owner_type: organization`. |
-| `tier` | enum | `shared` (default) \| `isolated` \| `dedicated_region`. See [Tiers](#tiers). |
+| `tier` | enum | `shared` (default) \| `isolated` \| `dedicated_region`. See [Tiers](#tiers). **Infrastructure placement** — where the data lives. |
+| `plan` | enum | `starter` (default) \| `team` \| `enterprise`. See [Pricing](../../pricing/). **Commercial subscription tier** — what's being paid for. Independent of `tier`, except that `isolated`/`dedicated_region` are only offered on `enterprise` — see [Pricing → Enterprise tenancy tier options](../../pricing/#enterprise-tenancy-tier-options). |
 | `region` | string, nullable | An AWS region code. Set only when `tier: dedicated_region` — `null` otherwise, including for `isolated` (same region as [Tier 0](../../deployment-architecture/#first-deployment-tier-0), just a dedicated cluster within it). |
 | `status` | enum | `active` \| `migrating` \| `suspended`. `migrating` is the transitional state during a tier-change maintenance window — see [Deployment Architecture → Tenancy tiers](../../deployment-architecture/#tenancy-tiers--where-they-run). |
 | `created_at` | timestamp | |
@@ -49,6 +50,7 @@ Every Application owner gets a Tenant automatically, the moment they register th
   "owner_user_id": null,
   "owner_organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P",
   "tier": "isolated",
+  "plan": "enterprise",
   "region": null,
   "status": "active",
   "created_at": "2026-04-02T10:00:00Z"
