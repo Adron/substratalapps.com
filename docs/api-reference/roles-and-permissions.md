@@ -30,18 +30,67 @@ See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissi
 
 ## `GET /v1/permissions`
 
+Platform-scoped keys (fixed, built in) plus every app-scoped key declared by an Application the caller can see. See [Domain Model → Platform permission catalog](../../domain-model/roles-and-permissions/#platform-permission-catalog) for what each platform key grants.
+
 ```json
 // Response — 200
 {
   "data": [
+    { "key": "users.list", "scope": "platform" },
     { "key": "users.manage", "scope": "platform" },
     { "key": "entitlements.manage", "scope": "platform" },
+    { "key": "applications.manage", "scope": "platform" },
+    { "key": "roles.manage", "scope": "platform" },
+    { "key": "organizations.manage", "scope": "platform" },
+    { "key": "billing.manage", "scope": "platform" },
+    { "key": "billing.refund", "scope": "platform" },
+    { "key": "audit.view", "scope": "platform" },
+    { "key": "webhooks.manage", "scope": "platform" },
+    { "key": "api_keys.manage", "scope": "platform" },
     { "key": "app.timetrack.export", "scope": "app_timetrack" },
     { "key": "app.timetrack.manage_members", "scope": "app_timetrack" }
   ],
   "page": { "next_cursor": null, "has_more": false }
 }
 ```
+
+## `GET /v1/roles`
+
+```json
+// Response — 200
+{
+  "data": [
+    { "id": "role_platform_superadmin", "name": "superadmin", "scope": "platform", "permissions": ["users.list", "users.manage", "entitlements.manage", "applications.manage", "roles.manage", "organizations.manage", "billing.manage", "billing.refund", "audit.view", "webhooks.manage", "api_keys.manage"] },
+    { "id": "role_platform_support", "name": "support", "scope": "platform", "permissions": ["users.list", "entitlements.manage", "audit.view"] },
+    { "id": "role_timetrack_admin", "name": "admin", "scope": "app_timetrack", "permissions": ["app.timetrack.export", "app.timetrack.manage_members"] }
+  ],
+  "page": { "next_cursor": null, "has_more": false }
+}
+```
+
+`?scope=platform` or `?scope=app_timetrack` narrows the list to one scope.
+
+## `POST /v1/roles`
+
+```json
+// Request
+{
+  "name": "support_readonly",
+  "scope": "platform",
+  "permissions": ["users.list", "audit.view"]
+}
+```
+```json
+// Response — 201
+{
+  "id": "role_platform_support_readonly",
+  "name": "support_readonly",
+  "scope": "platform",
+  "permissions": ["users.list", "audit.view"]
+}
+```
+
+Requires a platform role with `roles.manage`. `permissions` must be a subset of the known Permission keys (see `GET /v1/permissions` above) for the given `scope` — an unknown key returns `422` with `code: "unknown_permission"`.
 
 ## `POST /v1/users/{id}/roles/{roleId}`
 
@@ -60,7 +109,15 @@ See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissi
 }
 ```
 
-`application_id` on the response is inherited from the Role's own `scope` — you don't pass it separately. Assigning an app-scoped Role to a user who holds no Entitlement to that app is allowed (the assignment is harmless until they do) but won't grant anything in practice — see [Access Control](../../access-control/#worked-example). Writes an [Audit Event](../audit/) and emits `role.assigned`.
+`application_id` on the response is inherited from the Role's own `scope` — you don't pass it separately. Assigning an app-scoped Role to a user who holds no Entitlement to that app is allowed (the assignment is harmless until they do) but won't grant anything in practice — see [Access Control](../../access-control/#worked-example). Requires a platform role with `roles.manage`. Writes an [Audit Event](../audit/) and emits `role.assigned`.
+
+## `DELETE /v1/users/{id}/roles/{roleId}`
+
+```json
+// Response — 204
+```
+
+Requires a platform role with `roles.manage`. Idempotent — removing a Role assignment that's already gone also returns `204`, not `404`, since the end state ("user does not hold this Role") is already true. Writes an [Audit Event](../audit/) and emits `role.removed`.
 
 ## `GET /v1/users/{id}/applications/{appId}/effective-permissions`
 
@@ -94,3 +151,4 @@ Note this always returns `200` with the current state, rather than `403` — it'
 |---|---|
 | `role_scope_mismatch` | Assigning an app-scoped Role via a call that doesn't match the Role's own `application_id`. |
 | `role_not_found` | `{roleId}` doesn't resolve. |
+| `unknown_permission` | `POST /v1/roles` includes a permission key that isn't in the known set for the given `scope`. |

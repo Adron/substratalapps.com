@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Roadmap
-nav_order: 9
+nav_order: 10
 ---
 
 # Roadmap
@@ -49,3 +49,7 @@ Enough to replace "someone manually emails a link and flips a flag in a spreadsh
 
 - Any end-user interface. This is an API-first roadmap; a UI project consumes whatever phase is live, on its own timeline. See [Getting Started → What's deliberately not here](../getting-started/#whats-deliberately-not-here).
 - Payment processing. Orders/Subscriptions are referenced, not owned, by this API — see [Decisions → Billing system of record](../decisions/#4-billing-system-of-record).
+
+## Where this runs
+
+These phases are about feature scope, not infrastructure — the MVP and Phase 2/3 all deploy onto the same [Deployment Architecture](../deployment-architecture/), which has its own, independent phasing (first deployment vs. scale-out) driven by traffic and cost, not by which of these feature phases is live.

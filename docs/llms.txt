@@ -18,6 +18,7 @@ older single-file draft found elsewhere in the repository's history.
 
 - [Home]({{ site.url }}{{ site.baseurl }}/): what Substratal Apps is and how this site is organized.
 - [Getting Started]({{ site.url }}{{ site.baseurl }}/getting-started/): the fastest path to understanding the system before writing code against it.
+- [Quickstart]({{ site.url }}{{ site.baseurl }}/quickstart/): a runnable curl walkthrough of the core access model.
 - [Domain Model]({{ site.url }}{{ site.baseurl }}/domain-model/): the entities — User, Organization, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
 - [Access Control]({{ site.url }}{{ site.baseurl }}/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request.
 
@@ -34,6 +35,8 @@ older single-file draft found elsewhere in the repository's history.
 - [Organizations]({{ site.url }}{{ site.baseurl }}/api-reference/organizations/)
 - [Audit]({{ site.url }}{{ site.baseurl }}/api-reference/audit/)
 - [Webhooks]({{ site.url }}{{ site.baseurl }}/api-reference/webhooks/)
+- [API Keys]({{ site.url }}{{ site.baseurl }}/api-reference/api-keys/): service-to-service credentials.
+- [openapi.yaml]({{ site.url }}{{ site.baseurl }}/openapi.yaml): the same API surface as a machine-readable OpenAPI 3.1 document.
 
 ## Also useful
 
@@ -41,5 +44,7 @@ older single-file draft found elsewhere in the repository's history.
 - [Trust Model]({{ site.url }}{{ site.baseurl }}/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.
 - [Non-Functional Requirements]({{ site.url }}{{ site.baseurl }}/non-functional-requirements/)
 - [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
+- [Deployment Architecture]({{ site.url }}{{ site.baseurl }}/deployment-architecture/): the cost-capped first deployment on AWS, and the path to scale.
 - [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
+- [Changelog]({{ site.url }}{{ site.baseurl }}/changelog/): what's changed in this spec over time.
 - [Glossary]({{ site.url }}{{ site.baseurl }}/glossary/)

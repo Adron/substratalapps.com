@@ -51,8 +51,8 @@ An immutable record of who changed what access, when. Never edited, never delete
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `evt_` prefix. |
-| `actor_user_id` | string | Who made the change. System-initiated changes (e.g. a trial expiring) use a reserved system actor ID. |
-| `action` | string | e.g. `entitlement.disabled`, `role.assigned`, `settings.updated`. |
+| `actor_user_id` | string | Who made the change. System-initiated changes (e.g. a trial expiring) use the reserved id `usr_system` rather than a null or a real user. |
+| `action` | string | See [Action catalog](#action-catalog) below. |
 | `target_user_id` | string | Whose access/data changed. |
 | `application_id` | string, nullable | Set when the action is app-scoped. |
 | `before` / `after` | object | Snapshot of the changed fields, not the whole record. |
@@ -72,6 +72,31 @@ An immutable record of who changed what access, when. Never edited, never delete
   "timestamp": "2026-09-30T16:22:41Z"
 }
 ```
+
+### Action catalog
+
+Every value `action` can take. Entries marked **admin-only** never fire for a self-service change — see [What triggers an Audit Event](#what-triggers-an-audit-event) below.
+
+| Action | Fires when |
+|---|---|
+| `user.created` | `POST /v1/users` |
+| `user.suspended` | `POST /v1/users/{id}/suspend`, or `PATCH` setting `status: suspended` — **admin-only** |
+| `user.reactivated` | `PATCH` setting `status: active` on a suspended user — **admin-only** |
+| `user.deleted` | `DELETE /v1/users/{id}` |
+| `entitlement.granted` | An Entitlement is created or returns to `active` |
+| `entitlement.disabled` | An Entitlement's `status` is set to `disabled` |
+| `entitlement.revoked` | An Entitlement's `status` is set to `revoked` |
+| `entitlement.expired` | An Entitlement transitions to `expired` automatically |
+| `role.assigned` | `POST /v1/users/{id}/roles/{roleId}` |
+| `role.removed` | `DELETE /v1/users/{id}/roles/{roleId}` |
+| `profile.updated` | An admin changes another user's Profile or AppProfile — **admin-only** |
+| `settings.updated` | An admin changes another user's Settings or AppSettings — **admin-only** |
+| `application.created` | `POST /v1/applications` |
+| `application.updated` | `PATCH /v1/applications/{id}` |
+| `organization.member_added` | `POST /v1/organizations/{id}/members` |
+| `organization.member_removed` | `DELETE /v1/organizations/{id}/members/{userId}` |
+
+This list is the authoritative source for `action` values — if an endpoint's page describes a write that isn't represented here, that's a spec bug; file it the same way as any other inconsistency.
 
 ### What triggers an Audit Event
 

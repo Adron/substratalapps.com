@@ -28,6 +28,7 @@ It's written to be read by people building the API **and** by AI coding tools as
 | Section | Answers |
 |---|---|
 | [Getting Started](getting-started/) | Where to start if you're new to this — human or AI tool. |
+| [Quickstart](quickstart/) | A runnable curl walkthrough — create a user, grant an app, check access, turn it off. |
 | [Domain Model](domain-model/) | What are the core entities, and how do they relate? |
 | [Access Control](access-control/) | Given a user and an app, what decides if a request is allowed? |
 | [API Reference](api-reference/) | What are the actual resources, endpoints, and payloads? |
@@ -35,7 +36,9 @@ It's written to be read by people building the API **and** by AI coding tools as
 | [Trust Model](trust-model/) | How does a separately-hosted app verify a user's access without maintaining its own user table? |
 | [Non-Functional Requirements](non-functional-requirements/) | Security, multi-tenancy, audit, rate limits, versioning. |
 | [Roadmap](roadmap/) | What ships in the MVP vs. later phases. |
+| [Deployment Architecture](deployment-architecture/) | Where this runs — the cost-capped first deployment, and the path to scale. |
 | [Decisions](decisions/) | The open questions this spec depends on, and their current status. |
+| [Changelog](changelog/) | What's changed in this spec over time. |
 | [Glossary](glossary/) | Precise definitions for every term used here. |
 
 ## The one idea worth remembering

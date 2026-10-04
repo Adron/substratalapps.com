@@ -50,6 +50,8 @@ See [Domain Model → Profiles](../../domain-model/profiles/) for the global-vs-
 // Response — 200, full updated object
 ```
 
+Self, or a platform role with `users.manage`.
+
 ## `GET /v1/users/{id}/apps/{appId}/profile`
 
 ```json

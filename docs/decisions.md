@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Decisions
-nav_order: 10
+nav_order: 12
 ---
 
 # Decisions
@@ -23,6 +23,7 @@ The open questions this spec currently depends on. This page is a log, not a one
 | 4 | [Billing system of record](#4-billing-system-of-record) | 🟡 Open |
 | 5 | [Settings schema ownership](#5-settings-schema-ownership) | 🟡 Open |
 | 6 | [Session model for revocation](#6-session-model-for-revocation) | 🟡 Open |
+| 7 | [AWS account and region](#7-aws-account-and-region) | 🟡 Open |
 
 ---
 
@@ -67,3 +68,9 @@ How fast must "turn off this user's access" take effect inside an already-open a
 - **By next login / token refresh** — much simpler for apps to implement, weaker guarantee.
 
 See [Trust Model → How fast does revocation need to land?](../trust-model/#how-fast-does-revocation-need-to-land) for the tradeoff table. This likely doesn't need one global answer — it may be a per-Application setting (some apps are compliance-sensitive enough to need immediate revocation, most aren't) — but that's itself an open sub-decision.
+
+## 7. AWS account and region
+
+Which AWS account hosts this (new, dedicated account vs. an existing one under an AWS Organization) and which region?
+
+Doesn't change anything in [Deployment Architecture](../deployment-architecture/) — every component and cost guardrail there holds regardless of the answer — it only changes where the build checklist's step 1 actually points. A dedicated account is the safer default for billing isolation (a Budget/Cost Anomaly Detection setup on a shared account is easy to mis-scope), and a single-region start (e.g. `us-east-1` or `us-west-2`) is enough until [Scale-out](../deployment-architecture/#scale-out)'s multi-region trigger is actually hit.

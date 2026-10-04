@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Reference
-nav_order: 5
+nav_order: 6
 has_children: true
 ---
 
@@ -24,6 +24,7 @@ Resource-oriented REST, JSON, versioned at `/v1`. Read [Conventions](conventions
 | [Organizations](organizations/) | Team/seat management. |
 | [Audit](audit/) | Query the audit log. |
 | [Webhooks](webhooks/) | Subscribe to access-change events. |
+| [API Keys](api-keys/) | Service-to-service credentials — how billing or an app's own backend authenticates. |
 
 {: .note }
 These pages specify the target contract for an API that does not yet exist. If you're implementing against this, these are the shapes to build toward — check the repository's actual code for what's already real before assuming a page here is live.

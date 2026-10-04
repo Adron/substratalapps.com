@@ -87,9 +87,22 @@ List responses return a trimmed view (no `settings_schema`, no `launch_url`) —
 
 Requires a platform role with `applications.manage` — this is a catalog operation for launching or configuring a product, not something any customer-facing flow triggers. `slug` is immutable once set; it's embedded in permission keys (`app.<slug>.*`) that may already be referenced by Roles.
 
+## `PATCH /v1/applications/{id}`
+
+```json
+// Request — only the fields being changed
+{ "description": "Time tracking, timesheet export, and billable-hours reporting for teams.", "available_app_roles": ["admin", "editor", "member"] }
+```
+```json
+// Response — 200, full updated object
+```
+
+Requires a platform role with `applications.manage`. `slug` cannot be changed via this call (see above). Adding a new entry to `available_app_roles` is backward compatible; removing one that's still referenced by an existing [AppRole](../../domain-model/roles-and-permissions/#approle) assignment returns `409` with `code: "app_role_in_use"`.
+
 ## Errors specific to this resource
 
 | Code | When |
 |---|---|
 | `slug_taken` | `slug` collides with an existing Application on create. |
 | `application_not_found` | `{id}` doesn't resolve. |
+| `app_role_in_use` | `PATCH` would remove an entry from `available_app_roles` that's still assigned to at least one user. |

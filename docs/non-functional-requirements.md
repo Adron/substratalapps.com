@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Non-Functional Requirements
-nav_order: 8
+nav_order: 9
 ---
 
 # Non-Functional Requirements
@@ -17,6 +17,11 @@ nav_order: 8
 - **User-facing login:** OAuth2/OIDC. Whether the hub is its own identity provider or delegates to one (Auth0, Clerk, WorkOS, Cognito, …) is open — see [Decisions](../decisions/#1-identity-provider).
 - **Service-to-service:** billing → hub, app → hub, and any other backend caller authenticates with scoped API keys or mTLS, not user credentials.
 - **MFA:** supported at the identity-provider layer; not re-implemented in this API.
+- **Bootstrapping:** the very first `superadmin` cannot be created through the public API — nothing can call `POST /v1/users/{id}/roles/{roleId}` with `roles.manage` before a `superadmin` exists to grant it. It's seeded directly against the database (or via a one-time, non-API admin CLI command) as part of standing up a new environment, not specified as an endpoint.
+
+## CORS
+
+`GET` endpoints intended for direct browser use by a future first-party UI (the catalog, a user's own entitlements/profile/settings via `me`) allow that UI's origin. Admin and service-to-service endpoints do not allow browser-origin requests at all — an admin console calls through its own backend, not directly from the browser with a platform API key. The exact allow-listed origin(s) are an environment-level config value, not part of this spec.
 
 ## Authorization enforcement point
 
@@ -36,12 +41,20 @@ Billing webhooks retry. Admin tooling double-clicks. Any mutating endpoint that 
 
 ## Rate limiting
 
-Standard per-API-key rate limits on all endpoints; stricter limits on `POST /v1/entitlements` and `POST /v1/users` to blunt scripted abuse. Exact numbers belong in the full spec, not this draft — flag here so it isn't forgotten.
+Per-API-key token bucket, returning `429` with a `Retry-After` header on exhaustion:
+
+| Scope | Limit |
+|---|---|
+| Default, all endpoints | 100 requests/minute |
+| `POST /v1/entitlements`, `POST /v1/users` | 20 requests/minute — tighter, since these are the endpoints scripted abuse would hit first |
+| `GET /v1/users/{id}/applications/{appId}/effective-permissions` | 300 requests/minute — expected to be called on a hot path by downstream apps (see [Trust Model](../trust-model/)), so it's deliberately not bottlenecked at the default rate |
+
+These are starting defaults, not a promise — tune them against real traffic once the API is live, and raise per-key limits for high-volume service integrations (billing) rather than exempting them from limiting entirely.
 
 ## Versioning
 
 - `/v1` now. Additive, backward-compatible changes (new optional fields, new endpoints) ship without a version bump.
-- A breaking change gets a new version prefix and a published deprecation window for the old one — the window length is TBD, see [Decisions](../decisions/).
+- A breaking change gets a new version prefix. The old version keeps working for a minimum 6-month deprecation window, announced in the [Changelog](../changelog/) the day the replacement ships, with a `Deprecation` and `Sunset` response header (RFC 8594) added to every response the old version serves from that point on.
 - Webhook payload versions are versioned independently of the URL version, since webhook consumers can't negotiate a version the way a request-time client can.
 
 ## Data retention

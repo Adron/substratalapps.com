@@ -22,6 +22,37 @@ GET /v1/permissions
 ```
 returns the full known set, for building role-assignment UI — see [API Reference → Roles & Permissions](../../api-reference/roles-and-permissions/).
 
+### Platform permission catalog
+
+The full set of platform-scoped permission keys. App-scoped keys (`app.<slug>.*`) are defined per Application and aren't listed here — see [Applications](../applications/).
+
+| Key | Grants |
+|---|---|
+| `users.list` | List/search User accounts. |
+| `users.manage` | Create, update, suspend, delete User accounts. |
+| `entitlements.manage` | Grant, toggle, and revoke Entitlements for any user. |
+| `applications.manage` | Create and edit Application catalog entries. |
+| `roles.manage` | Define Roles and assign/remove them on any user. |
+| `organizations.manage` | Create Organizations, manage membership and org-wide Entitlements. |
+| `billing.manage` | Manage Orders. |
+| `billing.refund` | Issue refunds specifically — split from `billing.manage` so support can be granted refund authority without full billing access. |
+| `audit.view` | Query the Audit log for any user. |
+| `webhooks.manage` | Manage this caller's own webhook subscriptions — every caller implicitly has this for their own subscriptions; the permission only matters for managing another caller's. |
+| `api_keys.manage` | Create, rotate, and revoke API Keys — see [API Keys](../../api-reference/api-keys/). |
+
+### Platform role grants
+
+The exact permission set behind each built-in [PlatformRole](#platformrole):
+
+| Role | Permissions |
+|---|---|
+| `superadmin` | All of the above. |
+| `support` | `users.list`, `entitlements.manage`, `audit.view` |
+| `billing_admin` | `billing.manage`, `billing.refund`, `audit.view` |
+| `member` | None — the default on signup; every permission a `member` effectively has comes from self-service endpoints (`me`), not from a granted permission. |
+
+These are the platform's own seed Roles, not a fixed enum — `superadmin` can define additional PlatformRoles with narrower grants (e.g. a `support_readonly` with only `users.list` and `audit.view`, no `entitlements.manage`) via `POST /v1/roles`.
+
 ## Role
 
 A named bundle of Permissions, scoped either to the whole platform or to one Application.
@@ -35,14 +66,7 @@ A named bundle of Permissions, scoped either to the whole platform or to one App
 
 ### PlatformRole
 
-Applies everywhere, and typically governs the hub itself rather than any one product.
-
-| Role | Typical grants |
-|---|---|
-| `superadmin` | Everything. Full platform administration. |
-| `support` | View any user's Entitlements/Roles/Audit history; toggle Entitlements; cannot touch billing or other admins. |
-| `billing_admin` | Manage Orders, issue refunds, view billing-related Audit Events. |
-| `member` | The default on signup. No special permissions beyond managing one's own account. |
+Applies everywhere, and typically governs the hub itself rather than any one product. Four seed roles — `superadmin`, `support`, `billing_admin`, `member` — ship with the platform; see [Platform role grants](#platform-role-grants) above for the exact permission set each one carries.
 
 ### AppRole
 

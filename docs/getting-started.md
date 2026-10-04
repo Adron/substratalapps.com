@@ -21,7 +21,7 @@ This page is the fast path into the spec — for a human engineer picking this u
 2. **[Access Control](../access-control/)** — the one algorithm that matters: `allow(user, application, permission)`. Every endpoint in the API reference ultimately defers to this.
 3. **[API Reference → Conventions](../api-reference/conventions/)** — ID format, auth header, pagination, idempotency, error shape. Read this once so every other API reference page can skip repeating it.
 
-Everything past that is detail you'll reach for as needed, not a reading order.
+Everything past that is detail you'll reach for as needed, not a reading order. Want to see it work before reading more theory? Jump to [Quickstart](../quickstart/) — a runnable curl walkthrough that exercises the core access model end to end.
 
 ## If you're building a feature against this API
 

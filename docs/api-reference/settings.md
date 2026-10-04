@@ -39,6 +39,8 @@ See [Domain Model → Settings](../../domain-model/settings/) for the three-laye
 }
 ```
 
+Self, or a platform role with `users.manage`. The `PATCH` counterpart carries the same requirement.
+
 ## `GET /v1/users/{id}/apps/{appId}/settings`
 
 Returns the resolved object, plus the override layer that produced it:
@@ -57,7 +59,7 @@ Returns the resolved object, plus the override layer that produced it:
 }
 ```
 
-See [Workflows → Settings resolution, in practice](../../workflows/#settings-resolution-in-practice) for exactly how `resolved` is computed.
+See [Workflows → Settings resolution, in practice](../../workflows/#settings-resolution-in-practice) for exactly how `resolved` is computed. Caller may be the app itself (its own service [API key](../api-keys/)), the user themselves, or an admin — the same model used by [AppProfile](../profiles/).
 
 ## `PATCH /v1/users/{id}/apps/{appId}/settings`
 

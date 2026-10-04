@@ -20,7 +20,7 @@ See [Domain Model → Audit Event](../../domain-model/orders-and-audit/#audit-ev
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/v1/audit-events` | Query the audit log, filterable by `user_id`, `application_id`, `actor_user_id`, `action`, and a `since`/`until` time range. |
+| `GET` | `/v1/audit-events` | Query the audit log, filterable by `target_user_id`, `application_id`, `actor_user_id`, `action`, and a `since`/`until` time range. |
 
 There is deliberately no write endpoint — Audit Events are produced only as a side effect of other writes (an Entitlement change, a Role assignment, …), never created directly.
 

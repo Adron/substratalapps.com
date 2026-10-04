@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Workflows
-nav_order: 6
+nav_order: 7
 ---
 
 # Workflows
