@@ -1,0 +1,1695 @@
+openapi: 3.1.0
+info:
+  title: Substratal Apps — Platform API
+  version: "1.0.0-draft"
+  summary: >-
+    Manages users, roles, per-app entitlements (the on/off access switch),
+    profiles, and settings across every product in the Substratal Apps
+    catalog. API-first — this is the target contract for an API that does
+    not yet exist; see the prose specification for context and rationale.
+  description: >-
+    Full documentation: https://adron.github.io/substratalapps.com/ — start
+    at /api-reference/conventions/ for ID format, pagination, idempotency,
+    and error shape before reading individual paths below.
+  license:
+    name: Unlicensed draft — internal specification, not yet released
+externalDocs:
+  description: Substratal Apps Platform API documentation
+  url: https://adron.github.io/substratalapps.com/
+servers:
+  - url: https://api.substratalapps.com/v1
+    description: Provisional base URL — see Decisions #1 (Identity provider)
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Profiles
+  - name: Settings
+  - name: Applications
+  - name: Entitlements
+  - name: Roles & Permissions
+  - name: Organizations
+  - name: Tenancy
+  - name: Audit
+  - name: Webhooks
+  - name: API Keys
+  - name: Meta
+
+paths:
+  /health:
+    get:
+      operationId: health.check
+      tags: [Meta]
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: Service is responding
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+
+  /auth/login:
+    post:
+      operationId: auth.login
+      tags: [Auth]
+      summary: Exchange credentials for a session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        "200":
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/token/refresh:
+    post:
+      operationId: auth.refreshToken
+      tags: [Auth]
+      summary: Exchange a refresh token for a new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        "200":
+          description: New session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/sso/{provider}/callback:
+    post:
+      operationId: auth.ssoCallback
+      tags: [Auth]
+      summary: Complete an SSO login
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+
+  /auth/logout:
+    post:
+      operationId: auth.logout
+      tags: [Auth]
+      summary: Invalidate the current session
+      responses:
+        "204": { description: Logged out }
+
+  /users/{id}/mfa/totp:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.enrollMfaTotp
+      tags: [Auth]
+      summary: Enroll TOTP-based MFA for a password UserIdentity
+      description: "Self-service only. Meaningless for a method=sso identity — see Auth."
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: TOTP secret issued, not yet confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret: { type: string }
+                  qr_code_url: { type: string, format: uri }
+
+  /users:
+    get:
+      operationId: users.list
+      tags: [Users]
+      summary: List users
+      description: "Requires a platform role with `users.list`."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/UserStatus" }
+      responses:
+        "200":
+          description: A page of users
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserPage" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: users.create
+      tags: [Users]
+      summary: Create a user
+      description: "Requires a platform role with `users.manage`. Also creates a default Profile and Settings record and assigns the default `member` platform role."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                status: { $ref: "#/components/schemas/UserStatus" }
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: users.get
+      tags: [Users]
+      summary: Fetch one user
+      description: "Self, or a platform role with `users.list`."
+      responses:
+        "200":
+          description: The user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: users.update
+      tags: [Users]
+      summary: Update mutable fields
+      description: "Self may update `email`. Changing `status` requires a platform role with `users.manage`."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                status: { $ref: "#/components/schemas/UserStatus" }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+    delete:
+      operationId: users.delete
+      tags: [Users]
+      summary: Soft-delete a user
+      description: "Requires a platform role with `users.manage`, or self."
+      responses:
+        "204": { description: Deleted }
+
+  /users/{id}/suspend:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: users.suspend
+      tags: [Users]
+      summary: Suspend a user
+      description: "Requires a platform role with `users.manage`. Shortcut for PATCH {status: suspended}."
+      responses:
+        "200":
+          description: User suspended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+
+  /users/{id}/export:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: users.export
+      tags: [Users]
+      summary: Export everything this API holds about this user
+      description: "Self, or a platform role with `users.manage`. GDPR Article 20 / CCPA right-to-know. Symmetric with the hard-delete cascade."
+      responses:
+        "200":
+          description: Full data export bundle
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserExport" }
+
+  /users/{id}/profile:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: profiles.get
+      tags: [Profiles]
+      summary: Fetch global Profile
+      description: "Self, or a platform role with `users.manage`."
+      responses:
+        "200":
+          description: The global Profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+    patch:
+      operationId: profiles.update
+      tags: [Profiles]
+      summary: Update global Profile
+      description: "Self, or a platform role with `users.manage`."
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileWrite" }
+      responses:
+        "200":
+          description: Updated Profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+
+  /users/{id}/settings:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: settings.get
+      tags: [Settings]
+      summary: Fetch global Settings
+      description: "Self, or a platform role with `users.manage`."
+      responses:
+        "200":
+          description: The global Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+    patch:
+      operationId: settings.update
+      tags: [Settings]
+      summary: Update global Settings
+      description: "Self, or a platform role with `users.manage`."
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SettingsWrite" }
+      responses:
+        "200":
+          description: Updated Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+
+  /users/{id}/apps/{appId}/profile:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: appProfiles.get
+      tags: [Profiles]
+      summary: Fetch per-app AppProfile
+      description: "Caller may be the app's own service API key, the user themselves, or an admin. Creates a default record on first read."
+      responses:
+        "200":
+          description: The AppProfile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppProfile" }
+        "404":
+          description: "entitlement_required — user has no active Entitlement to this app"
+    patch:
+      operationId: appProfiles.update
+      tags: [Profiles]
+      summary: Update per-app AppProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_handle: { type: [string, "null"] }
+                custom: { type: object }
+      responses:
+        "200":
+          description: Updated AppProfile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppProfile" }
+
+  /users/{id}/apps/{appId}/settings:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: appSettings.get
+      tags: [Settings]
+      summary: Fetch fully-resolved per-app settings
+      responses:
+        "200":
+          description: Resolved AppSettings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSettingsResolved" }
+    patch:
+      operationId: appSettings.update
+      tags: [Settings]
+      summary: Write per-app overrides
+      description: "Validated against the Application's settings_schema. Send a key as null to clear an override back to inherited."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overrides: { type: object }
+      responses:
+        "200":
+          description: Resolved AppSettings after the write
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSettingsResolved" }
+        "422":
+          description: "settings_schema_violation"
+
+  /applications:
+    get:
+      operationId: applications.list
+      tags: [Applications]
+      summary: List the catalog
+      description: Open to any authenticated user.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: visibility
+          in: query
+          schema: { $ref: "#/components/schemas/ApplicationVisibility" }
+      responses:
+        "200":
+          description: A page of Applications (trimmed view)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationSummaryPage" }
+    post:
+      operationId: applications.create
+      tags: [Applications]
+      summary: Add a catalog entry
+      description: "Requires a platform role with `applications.manage`."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationWrite" }
+      responses:
+        "201":
+          description: Application created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+
+  /applications/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: applications.get
+      tags: [Applications]
+      summary: Fetch one Application
+      responses:
+        "200":
+          description: The Application
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+    patch:
+      operationId: applications.update
+      tags: [Applications]
+      summary: Update a catalog entry
+      description: "Requires a platform role with `applications.manage`. `slug` is immutable."
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationWrite" }
+      responses:
+        "200":
+          description: Updated Application
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "409":
+          description: "app_role_in_use"
+
+  /users/{id}/entitlements:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: entitlements.listForUser
+      tags: [Entitlements]
+      summary: List a user's entitlements
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+    post:
+      operationId: entitlements.grant
+      tags: [Entitlements]
+      summary: Grant access to an app
+      description: "Requires `Idempotency-Key`. Requires a platform role with `entitlements.manage` for source=admin_grant."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id]
+              properties:
+                application_id: { type: string }
+                source: { $ref: "#/components/schemas/EntitlementSource" }
+                order_id: { type: [string, "null"] }
+      responses:
+        "201":
+          description: Entitlement created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "409":
+          description: "entitlement_already_exists"
+
+  /entitlements:
+    get:
+      operationId: entitlements.list
+      tags: [Entitlements]
+      summary: List entitlements across all users (admin/support)
+      description: "Requires a platform role with `entitlements.manage`."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: application_id
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/EntitlementStatus" }
+        - name: user_id
+          in: query
+          schema: { type: string }
+        - name: source
+          in: query
+          schema: { $ref: "#/components/schemas/EntitlementSource" }
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+
+  /entitlements/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: entitlements.get
+      tags: [Entitlements]
+      summary: Fetch one entitlement
+      description: "Self, or a platform role with `entitlements.manage`."
+      responses:
+        "200":
+          description: The Entitlement
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+    patch:
+      operationId: entitlements.update
+      tags: [Entitlements]
+      summary: "Change status (the on/off toggle), or narrow an org-wide grant's member_scope"
+      description: "Requires a platform role with `entitlements.manage`, or — for an org_seat row — org-admin standing on that Organization. `revoked` is terminal. Neither field is required on its own; a call changing only member_scope/member_overrides emits entitlement.member_scope_changed instead of a status-transition event."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { $ref: "#/components/schemas/EntitlementStatus" }
+                disabled_reason: { type: [string, "null"] }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides:
+                  type: array
+                  items: { type: string }
+      responses:
+        "200":
+          description: Updated Entitlement
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "409":
+          description: "invalid_status_transition"
+    delete:
+      operationId: entitlements.delete
+      tags: [Entitlements]
+      summary: Hard-remove a grant made in error
+      description: "Requires a platform role with `entitlements.manage`. Distinct from PATCH status=revoked — see prose spec. Rejected if order_id is set, regardless of restrict_destructive — see API Reference → Entitlements."
+      responses:
+        "204": { description: Removed }
+        "409":
+          description: "entitlement_order_linked"
+
+  /permissions:
+    get:
+      operationId: permissions.list
+      tags: [Roles & Permissions]
+      summary: List every known Permission key
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of Permissions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PermissionPage" }
+
+  /roles:
+    get:
+      operationId: roles.list
+      tags: [Roles & Permissions]
+      summary: List Roles
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: scope
+          in: query
+          description: "'platform' or an application_id"
+          schema: { type: string }
+      responses:
+        "200":
+          description: A page of Roles
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RolePage" }
+    post:
+      operationId: roles.create
+      tags: [Roles & Permissions]
+      summary: Define a new Role
+      description: "Requires a platform role with `roles.manage`."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleWrite" }
+      responses:
+        "201":
+          description: Role created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "422":
+          description: "unknown_permission"
+
+  /users/{id}/roles:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: roles.listForUser
+      tags: [Roles & Permissions]
+      summary: List a user's Role assignments
+      responses:
+        "200":
+          description: A page of UserRoleAssignments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRoleAssignmentPage" }
+
+  /users/{id}/roles/{roleId}:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - name: roleId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      operationId: roles.assign
+      tags: [Roles & Permissions]
+      summary: Assign a Role to a user
+      description: "Requires a platform role with `roles.manage`."
+      responses:
+        "201":
+          description: Role assigned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRoleAssignment" }
+        "409":
+          description: "role_scope_mismatch"
+    delete:
+      operationId: roles.remove
+      tags: [Roles & Permissions]
+      summary: Remove a Role assignment
+      description: "Requires a platform role with `roles.manage`. Idempotent."
+      responses:
+        "204": { description: Removed }
+
+  /users/{id}/applications/{appId}/effective-permissions:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: permissions.getEffective
+      tags: [Roles & Permissions]
+      summary: The live access check
+      description: Resolves Entitlement status and Role grants into one answer. Always 200.
+      responses:
+        "200":
+          description: Effective permissions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EffectivePermissions" }
+
+  /organizations:
+    get:
+      operationId: organizations.list
+      tags: [Organizations]
+      summary: List organizations
+      description: "Self-scoped by default; a platform role with `organizations.manage` sees all."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of Organizations
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationPage" }
+    post:
+      operationId: organizations.create
+      tags: [Organizations]
+      summary: Create an organization
+      description: "Requires a platform role with `organizations.manage`."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        "201":
+          description: Organization created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+
+  /organizations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: organizations.get
+      tags: [Organizations]
+      summary: Fetch one Organization
+      description: "Any member of the org, or a platform role with `organizations.manage`."
+      responses:
+        "200":
+          description: The Organization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+    patch:
+      operationId: organizations.update
+      tags: [Organizations]
+      summary: Update name, or suspend/reactivate
+      description: "Requires a platform role with `organizations.manage`. Suspending does not touch existing org-wide Entitlements."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                status: { type: string, enum: [active, suspended] }
+      responses:
+        "200":
+          description: Updated Organization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+
+  /organizations/{id}/members:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: organizations.listMembers
+      tags: [Organizations]
+      summary: List member users
+      responses:
+        "200":
+          description: A page of members
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMemberPage" }
+    post:
+      operationId: organizations.addMember
+      tags: [Organizations]
+      summary: Add a member
+      description: "Requires org-admin standing or a platform role with `organizations.manage`."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id: { type: string }
+                email: { type: string, format: email }
+                role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+      responses:
+        "201":
+          description: Member added
+        "409":
+          description: "already_member"
+
+  /organizations/{id}/members/{userId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+      - name: userId
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      operationId: organizations.removeMember
+      tags: [Organizations]
+      summary: Remove a member
+      description: "Requires org-admin standing or a platform role with `organizations.manage`."
+      responses:
+        "204": { description: Removed }
+
+  /organizations/{id}/entitlements:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: organizations.listEntitlements
+      tags: [Organizations]
+      summary: List org-wide (seat) entitlements
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+    post:
+      operationId: organizations.grantEntitlement
+      tags: [Organizations]
+      summary: Grant an app to the whole org
+      description: "Requires `Idempotency-Key`. Requires a platform role with `organizations.manage`, or org-admin standing on this Organization."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id]
+              properties:
+                application_id: { type: string }
+                source: { $ref: "#/components/schemas/EntitlementSource" }
+                order_id: { type: [string, "null"] }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides:
+                  type: array
+                  items: { type: string }
+      responses:
+        "201":
+          description: Org-wide Entitlement created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+
+  /tenants:
+    get:
+      operationId: tenants.list
+      tags: [Tenancy]
+      summary: List Tenants
+      description: "Requires `tenants.manage`."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of Tenants
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantPage" }
+
+  /tenants/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: tenants.get
+      tags: [Tenancy]
+      summary: Fetch one Tenant
+      description: "Its owner, or a platform role with `tenants.manage`."
+      responses:
+        "200":
+          description: A Tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "404":
+          description: "tenant_not_found"
+
+  /tenants/{id}/tier-change-requests:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: tenants.listTierChangeRequests
+      tags: [Tenancy]
+      summary: List tier-change requests for a Tenant
+      description: "Its owner, or a platform role with `tenants.manage`."
+      responses:
+        "200":
+          description: A page of tier-change requests
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequestPage" }
+    post:
+      operationId: tenants.requestTierChange
+      tags: [Tenancy]
+      summary: Request a tier change on a customer's behalf
+      description: "Requires `tenants.manage` — support places this request, not the customer. See Decisions #12."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requested_tier]
+              properties:
+                requested_tier: { $ref: "#/components/schemas/TenantTier" }
+                requested_region: { type: [string, "null"] }
+                reason: { type: string }
+      responses:
+        "201":
+          description: Tier-change request created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+        "409":
+          description: "tier_change_already_pending"
+
+  /audit-events:
+    get:
+      operationId: audit.list
+      tags: [Audit]
+      summary: Query the audit log
+      description: "Requires a platform role with `audit.view`, or self via target_user_id=me."
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: target_user_id
+          in: query
+          schema: { type: string }
+        - name: application_id
+          in: query
+          schema: { type: string }
+        - name: actor_user_id
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { $ref: "#/components/schemas/AuditAction" }
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+        - name: until
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        "200":
+          description: A page of Audit Events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditEventPage" }
+
+  /webhooks:
+    get:
+      operationId: webhooks.list
+      tags: [Webhooks]
+      summary: List this caller's webhook subscriptions
+      responses:
+        "200":
+          description: A page of Webhook subscriptions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WebhookPage" }
+    post:
+      operationId: webhooks.create
+      tags: [Webhooks]
+      summary: Subscribe a URL to one or more event types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url: { type: string, format: uri }
+                events:
+                  type: array
+                  items: { $ref: "#/components/schemas/WebhookEvent" }
+      responses:
+        "201":
+          description: Webhook created — includes the secret once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WebhookWithSecret" }
+        "422":
+          description: "url must be https"
+
+  /webhooks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      operationId: webhooks.delete
+      tags: [Webhooks]
+      summary: Unsubscribe
+      responses:
+        "204": { description: Unsubscribed }
+
+  /api-keys:
+    get:
+      operationId: apiKeys.list
+      tags: [API Keys]
+      summary: List keys in scope for the caller
+      description: "Requires a platform role with `api_keys.manage`."
+      responses:
+        "200":
+          description: A page of API Keys
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyPage" }
+    post:
+      operationId: apiKeys.create
+      tags: [API Keys]
+      summary: Create a key
+      description: "Requires a platform role with `api_keys.manage`."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApiKeyWrite" }
+      responses:
+        "201":
+          description: Key created — includes the secret once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyWithSecret" }
+        "422":
+          description: "permission_not_grantable_to_scope"
+
+  /api-keys/{id}/rotate:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      operationId: apiKeys.rotate
+      tags: [API Keys]
+      summary: Issue a new secret for the same key record
+      description: "Requires a platform role with `api_keys.manage`. No overlap window."
+      responses:
+        "200":
+          description: New secret issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyWithSecret" }
+
+  /api-keys/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      operationId: apiKeys.delete
+      tags: [API Keys]
+      summary: Revoke permanently
+      description: "Requires a platform role with `api_keys.manage`."
+      responses:
+        "204": { description: Revoked }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >-
+        A user access token (from /auth/login or /auth/token/refresh) or an
+        API Key secret (satk_live_...). See Conventions → Authentication.
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, default: 25, maximum: 100 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+    UserIdOrMe:
+      name: id
+      in: path
+      required: true
+      description: "A usr_... id, or the literal string 'me' for the caller."
+      schema: { type: string }
+    AppId:
+      name: appId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Authenticated but not permitted
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource does not exist
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: Idempotency key reuse with a different body, or a uniqueness violation
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object }
+
+    Page:
+      type: object
+      properties:
+        next_cursor: { type: [string, "null"] }
+        has_more: { type: boolean }
+
+    AuthSession:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer }
+        user_id: { type: string }
+
+    UserStatus:
+      type: string
+      enum: [active, invited, suspended, deleted]
+
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        email_verified: { type: boolean }
+        status: { $ref: "#/components/schemas/UserStatus" }
+        created_at: { type: string, format: date-time }
+        last_login_at: { type: [string, "null"], format: date-time }
+
+    UserPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/User" }
+
+    UserExport:
+      type: object
+      description: "Reads from the same tables the hard-delete cascade writes to — deliberately symmetric with it."
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        profile: { $ref: "#/components/schemas/Profile" }
+        settings: { $ref: "#/components/schemas/Settings" }
+        identities:
+          type: array
+          description: "Never includes password_hash or mfa_secret."
+          items:
+            type: object
+            properties:
+              method: { type: string, enum: [password, sso] }
+              mfa_enabled: { type: boolean }
+              last_used_at: { type: [string, "null"], format: date-time }
+        organizations:
+          type: array
+          items:
+            type: object
+            properties:
+              organization_id: { type: string }
+              role: { type: string, enum: [org_admin, member] }
+              joined_at: { type: string, format: date-time }
+        roles:
+          type: array
+          items: { $ref: "#/components/schemas/UserRoleAssignment" }
+        applications:
+          type: array
+          items:
+            type: object
+            properties:
+              application_id: { type: string }
+              entitlement: { $ref: "#/components/schemas/Entitlement" }
+              app_profile: { $ref: "#/components/schemas/AppProfile" }
+              app_settings: { $ref: "#/components/schemas/AppSettingsResolved" }
+        audit_events:
+          type: array
+          description: "This user's own trail as target_user_id, not every event they triggered as an actor on someone else's record."
+          items: { $ref: "#/components/schemas/AuditEvent" }
+
+    ProfileWrite:
+      type: object
+      properties:
+        display_name: { type: string }
+        avatar_url: { type: [string, "null"] }
+        contact_email: { type: [string, "null"] }
+        contact_phone: { type: [string, "null"] }
+        locale: { type: string }
+
+    Profile:
+      allOf:
+        - { $ref: "#/components/schemas/ProfileWrite" }
+        - type: object
+          properties:
+            user_id: { type: string }
+            updated_at: { type: string, format: date-time }
+
+    AppProfile:
+      type: object
+      properties:
+        user_id: { type: string }
+        application_id: { type: string }
+        display_handle: { type: [string, "null"] }
+        custom: { type: object }
+        updated_at: { type: string, format: date-time }
+
+    SettingsWrite:
+      type: object
+      properties:
+        locale: { type: string }
+        timezone: { type: string }
+        theme: { type: string, enum: [light, dark, system] }
+        notifications: { type: object }
+
+    Settings:
+      allOf:
+        - { $ref: "#/components/schemas/SettingsWrite" }
+        - type: object
+          properties:
+            user_id: { type: string }
+            updated_at: { type: string, format: date-time }
+
+    AppSettingsResolved:
+      type: object
+      properties:
+        application_id: { type: string }
+        resolved: { type: object }
+        overrides: { type: object }
+
+    ApplicationVisibility:
+      type: string
+      enum: [public, invite_only, internal]
+
+    ApplicationSummary:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        icon_url: { type: string }
+        visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
+
+    ApplicationSummaryPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/ApplicationSummary" }
+
+    ApplicationReviewStatus:
+      type: string
+      enum: [approved, pending_review, rejected, suspended]
+
+    ApplicationWrite:
+      type: object
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        icon_url: { type: string }
+        launch_url: { type: string, format: uri }
+        settings_schema: { type: object }
+        available_app_roles:
+          type: array
+          items: { type: string }
+        visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
+
+    Application:
+      allOf:
+        - { $ref: "#/components/schemas/ApplicationWrite" }
+        - type: object
+          properties:
+            id: { type: string }
+            review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
+            review_notes: { type: [string, "null"], description: "Required when review_status is set to rejected or suspended." }
+            tenant_id: { type: string, description: "Read-only. Resolved from the owner's Tenant at creation — see Decisions #11." }
+            created_at: { type: string, format: date-time }
+
+    EntitlementStatus:
+      type: string
+      enum: [active, disabled, expired, revoked]
+
+    EntitlementSource:
+      type: string
+      enum: [purchase, trial, admin_grant, org_seat]
+
+    EntitlementMemberScope:
+      type: string
+      enum: [all_members, allowlist, denylist]
+
+    EntitlementGrantedVia:
+      type: object
+      description: "Computed per member at read time, not stored — present only when reading a specific member's resolved entitlement, never on the raw org-wide grant."
+      properties:
+        organization_id: { type: string }
+        member_decision: { type: string, enum: [included, excluded] }
+
+    Entitlement:
+      type: object
+      properties:
+        id: { type: string }
+        user_id: { type: [string, "null"] }
+        organization_id: { type: [string, "null"] }
+        application_id: { type: string }
+        status: { $ref: "#/components/schemas/EntitlementStatus" }
+        source: { $ref: "#/components/schemas/EntitlementSource" }
+        order_id: { type: [string, "null"] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        disabled_reason: { type: [string, "null"] }
+        member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+        member_overrides:
+          type: array
+          items: { type: string }
+        granted_via: { $ref: "#/components/schemas/EntitlementGrantedVia" }
+
+    EntitlementPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Entitlement" }
+
+    Permission:
+      type: object
+      properties:
+        key: { type: string }
+        scope: { type: string }
+
+    PermissionPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Permission" }
+
+    RoleWrite:
+      type: object
+      properties:
+        name: { type: string }
+        scope: { type: string, description: "'platform' or an application_id" }
+        permissions:
+          type: array
+          items: { type: string }
+
+    Role:
+      allOf:
+        - { $ref: "#/components/schemas/RoleWrite" }
+        - type: object
+          properties:
+            id: { type: string }
+
+    RolePage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Role" }
+
+    UserRoleAssignment:
+      type: object
+      properties:
+        user_id: { type: string }
+        role_id: { type: string }
+        application_id: { type: [string, "null"] }
+        assigned_at: { type: string, format: date-time }
+        assigned_by: { type: string }
+
+    UserRoleAssignmentPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/UserRoleAssignment" }
+
+    EffectivePermissions:
+      type: object
+      properties:
+        user_id: { type: string }
+        application_id: { type: string }
+        entitlement_status: { $ref: "#/components/schemas/EntitlementStatus" }
+        effective_permissions:
+          type: array
+          items: { type: string }
+
+    Organization:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string, enum: [active, suspended] }
+        created_at: { type: string, format: date-time }
+
+    OrganizationPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Organization" }
+
+    OrganizationMemberRole:
+      type: string
+      enum: [org_admin, member]
+
+    OrganizationMember:
+      type: object
+      properties:
+        user_id: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+        joined_at: { type: string, format: date-time }
+
+    OrganizationMemberPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/OrganizationMember" }
+
+    AuditAction:
+      type: string
+      enum:
+        - user.created
+        - user.suspended
+        - user.reactivated
+        - user.deleted
+        - entitlement.granted
+        - entitlement.disabled
+        - entitlement.revoked
+        - entitlement.expired
+        - entitlement.member_scope_changed
+        - role.assigned
+        - role.removed
+        - profile.updated
+        - settings.updated
+        - application.created
+        - application.updated
+        - organization.member_added
+        - organization.member_removed
+        - tenant.tier_change_requested
+        - tenant.tier_changed
+        - api_key.restrict_destructive_disabled
+        - application.review_status_changed
+
+    TenantOwnerType:
+      type: string
+      enum: [user, organization]
+
+    TenantTier:
+      type: string
+      enum: [shared, isolated, dedicated_region]
+
+    TenantPlan:
+      type: string
+      enum: [starter, team, enterprise]
+      description: "Commercial subscription tier, independent of tier — see Pricing. isolated/dedicated_region are enterprise-only; starter is user-owned-only, see Pricing → Enforcement."
+
+    TenantStatus:
+      type: string
+      enum: [active, migrating, suspended]
+
+    Tenant:
+      type: object
+      properties:
+        id: { type: string }
+        owner_type: { $ref: "#/components/schemas/TenantOwnerType" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
+        tier: { $ref: "#/components/schemas/TenantTier" }
+        plan: { $ref: "#/components/schemas/TenantPlan" }
+        region: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/TenantStatus" }
+        created_at: { type: string, format: date-time }
+
+    TenantPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Tenant" }
+
+    TenantTierChangeRequestStatus:
+      type: string
+      enum: [pending, in_progress, completed, cancelled]
+
+    TenantTierChangeRequest:
+      type: object
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        requested_tier: { $ref: "#/components/schemas/TenantTier" }
+        requested_region: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/TenantTierChangeRequestStatus" }
+        requested_by: { type: string }
+        created_at: { type: string, format: date-time }
+        completed_at: { type: [string, "null"], format: date-time }
+
+    TenantTierChangeRequestPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+
+    AuditEvent:
+      type: object
+      properties:
+        id: { type: string }
+        actor_user_id: { type: string }
+        action: { $ref: "#/components/schemas/AuditAction" }
+        target_user_id: { type: string }
+        application_id: { type: [string, "null"] }
+        before: { type: object }
+        after: { type: object }
+        timestamp: { type: string, format: date-time }
+
+    AuditEventPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/AuditEvent" }
+
+    WebhookEvent:
+      type: string
+      enum:
+        - entitlement.granted
+        - entitlement.disabled
+        - entitlement.revoked
+        - entitlement.expired
+        - entitlement.member_scope_changed
+        - role.assigned
+        - role.removed
+
+    Webhook:
+      type: object
+      properties:
+        id: { type: string }
+        url: { type: string, format: uri }
+        events:
+          type: array
+          items: { $ref: "#/components/schemas/WebhookEvent" }
+        status: { type: string, enum: [healthy, unhealthy] }
+        created_at: { type: string, format: date-time }
+
+    WebhookWithSecret:
+      allOf:
+        - { $ref: "#/components/schemas/Webhook" }
+        - type: object
+          properties:
+            signing_secret: { type: string }
+
+    WebhookPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Webhook" }
+
+    ApiKeyWrite:
+      type: object
+      required: [name, scope, permissions, mode]
+      properties:
+        name: { type: string }
+        scope: { type: string, description: "'platform' or an application_id" }
+        permissions:
+          type: array
+          items: { type: string }
+        mode:
+          type: string
+          enum: [live, test]
+          description: "Fixed at creation — a key can't switch modes, only be replaced. See Conventions → Authentication (test vs. live)."
+        intended_use:
+          type: string
+          enum: [service, agent]
+          default: service
+          description: "Sets the default for restrict_destructive (true for agent, false for service)."
+        restrict_destructive:
+          type: boolean
+          description: "When true, any destructive operation (DELETE, or disabling/revoking a mutation) is rejected regardless of permissions. Defaults from intended_use unless set explicitly."
+
+    ApiKey:
+      allOf:
+        - { $ref: "#/components/schemas/ApiKeyWrite" }
+        - type: object
+          properties:
+            id: { type: string }
+            last_used_at: { type: [string, "null"], format: date-time }
+            created_at: { type: string, format: date-time }
+            revoked_at: { type: [string, "null"], format: date-time }
+
+    ApiKeyWithSecret:
+      allOf:
+        - { $ref: "#/components/schemas/ApiKey" }
+        - type: object
+          properties:
+            secret: { type: string }
+
+    ApiKeyPage:
+      allOf:
+        - { $ref: "#/components/schemas/Page" }
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/ApiKey" }

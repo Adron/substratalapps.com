@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(14)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(14) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(14) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(14) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.0.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.0.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Decisions | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Decisions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.0.0/decisions/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.0.0/decisions/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Decisions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Decisions","url":"https://adron.github.io/substratalapps.com/versions/1.0.0/decisions/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.0.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/decisions/" class="nav-list-link">Decisions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.0.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="decisions">
+  
+  
+    <a href="#decisions" class="anchor-heading" aria-labelledby="decisions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Decisions
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">The open questions this spec currently depends on. This page is a log, not a one-time list — update a row’s status in place as it gets resolved, and add new rows as new forks appear. Don’t let an answer live only in a chat thread; if it’s decided, it belongs here.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#1-identity-provider" id="markdown-toc-1-identity-provider">1. Identity provider</a></li>
+  <li><a href="#2-organizations" id="markdown-toc-2-organizations">2. Organizations</a></li>
+  <li><a href="#3-downstream-app-architecture" id="markdown-toc-3-downstream-app-architecture">3. Downstream app architecture</a></li>
+  <li><a href="#4-billing-system-of-record" id="markdown-toc-4-billing-system-of-record">4. Billing system of record</a></li>
+  <li><a href="#5-settings-schema-ownership" id="markdown-toc-5-settings-schema-ownership">5. Settings schema ownership</a></li>
+  <li><a href="#6-session-model-for-revocation" id="markdown-toc-6-session-model-for-revocation">6. Session model for revocation</a></li>
+  <li><a href="#7-aws-account-and-region" id="markdown-toc-7-aws-account-and-region">7. AWS account and region</a></li>
+  <li><a href="#8-storage-primitive-scope" id="markdown-toc-8-storage-primitive-scope">8. Storage primitive scope</a></li>
+  <li><a href="#9-app-developerpublisher-model" id="markdown-toc-9-app-developerpublisher-model">9. App developer/publisher model</a></li>
+  <li><a href="#10-compliance-scope" id="markdown-toc-10-compliance-scope">10. Compliance scope</a></li>
+  <li><a href="#11-tenant-vs-organization" id="markdown-toc-11-tenant-vs-organization">11. Tenant vs. Organization</a></li>
+  <li><a href="#12-tenancy-tiers--dedicated-infrastructure" id="markdown-toc-12-tenancy-tiers--dedicated-infrastructure">12. Tenancy tiers &amp; dedicated infrastructure</a></li>
+  <li><a href="#13-organization-vs-user-entitlement-precedence" id="markdown-toc-13-organization-vs-user-entitlement-precedence">13. Organization-vs-User entitlement precedence</a></li>
+  <li><a href="#14-mcp-server-authorization-scope" id="markdown-toc-14-mcp-server-authorization-scope">14. MCP server authorization scope</a></li>
+  <li><a href="#15-platform-subscription-billing-processor" id="markdown-toc-15-platform-subscription-billing-processor">15. Platform subscription billing processor</a></li>
+</ol><hr />
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Decision</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><a href="#1-identity-provider">Identity provider</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="#2-organizations">Organizations</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="#3-downstream-app-architecture">Downstream app architecture</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="#4-billing-system-of-record">Billing system of record</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="#5-settings-schema-ownership">Settings schema ownership</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="#6-session-model-for-revocation">Session model for revocation</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="#7-aws-account-and-region">AWS account and region</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td><a href="#8-storage-primitive-scope">Storage primitive scope</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td><a href="#9-app-developerpublisher-model">App developer/publisher model</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td><a href="#10-compliance-scope">Compliance scope</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td><a href="#11-tenant-vs-organization">Tenant vs. Organization</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td><a href="#12-tenancy-tiers--dedicated-infrastructure">Tenancy tiers &amp; dedicated infrastructure</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td><a href="#13-organization-vs-user-entitlement-precedence">Organization-vs-User entitlement precedence</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td><a href="#14-mcp-server-authorization-scope">MCP server authorization scope</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td><a href="#15-platform-subscription-billing-processor">Platform subscription billing processor</a></td>
+      <td>🟢 Resolved</td>
+    </tr>
+  </tbody>
+</table></div><hr />
+<h2 id="1-identity-provider">
+  
+  
+    <a href="#1-identity-provider" class="anchor-heading" aria-labelledby="1-identity-provider"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 1. Identity provider
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: both, not either/or — native in-house auth, architected from the start for pluggable, per-Organization SSO.</strong></p>
+
+<ul>
+  <li><strong>Native email/password is owned here</strong>, not delegated — a real <code class="language-plaintext highlighter-rouge">password_hash</code>, real sessions, built and live from Phase 1, requiring zero external integration to use: no Auth0/WorkOS/Cognito account, no API key for a third-party provider, nothing to configure. A single developer standing up their first Application has a fully working login system the moment Phase 1 ships. Not “in-house vs. delegate”; in-house is the default every User has available, delegation is additive on top of it.</li>
+  <li><strong>SSO is a per-Organization bridge</strong>, not a platform-wide or per-Application choice: an Organization admin connects their own company’s identity provider (Okta, Azure AD, Google Workspace, …) through a federation broker (leaning WorkOS, for exactly this “bring your own enterprise IdP” use case), and it becomes available to every member of that Organization. See <a href="../domain-model/users-and-organizations/#ssoconnection">Domain Model → SSOConnection</a>.</li>
+  <li><strong>A User can hold both at once</strong> — a <code class="language-plaintext highlighter-rouge">password</code> identity and an <code class="language-plaintext highlighter-rouge">sso</code> identity simultaneously — choosing either at login, not locked to one method per account. See <a href="../domain-model/users-and-organizations/#useridentity">Domain Model → UserIdentity</a>.</li>
+  <li><strong>MFA (TOTP) is optional and user-enabled</strong> for native accounts, via self-service enrollment (<code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp</code>) — not required, not yet built for SSO identities, whose MFA policy belongs to the member’s own IdP.</li>
+  <li><strong>Sequencing:</strong> the <code class="language-plaintext highlighter-rouge">UserIdentity</code>/<code class="language-plaintext highlighter-rouge">SSOConnection</code> schema and the auth endpoints are built for this shape now, so adding a real SSO broker integration later is additive, not a breaking migration — but the broker integration itself (the actual Auth0/WorkOS/Cognito wiring) is explicitly <strong>not</strong> being built yet. <code class="language-plaintext highlighter-rouge">POST /v1/auth/sso/{provider}/callback</code> exists as a route with its contract still open — see <a href="../api-reference/auth/">API Reference → Auth</a>.</li>
+</ul>
+
+<p>This replaces the earlier in-house-vs-delegate framing entirely — the real question was never which one, it was how both coexist on the same User without a later rework, which is what <a href="../domain-model/users-and-organizations/#useridentity">UserIdentity</a> now answers.</p>
+<h2 id="2-organizations">
+  
+  
+    <a href="#2-organizations" class="anchor-heading" aria-labelledby="2-organizations"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2. Organizations
+  
+  
+</h2>
+    
+
+<p>Both individual and team/business end users are expected, so Organizations isn’t a someday-maybe feature. It’s pulled forward to <a href="../roadmap/#phase-2">Phase 2</a> rather than <a href="../roadmap/#phase-3">Phase 3</a> — not the MVP itself (the first dozens of users are expected to be mostly individual early adopters), but needed well before the 10x/100x growth horizon in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Growth trajectory</a> hits, where team accounts are assumed to matter.</p>
+
+<p><code class="language-plaintext highlighter-rouge">organization_id</code> being load-bearing in the schema from day one (per <a href="../non-functional-requirements/#multi-tenancy">Non-Functional Requirements</a>) was the right call regardless of timing — this just confirms it wasn’t a hedge against a hypothetical.</p>
+
+<p>Note this <code class="language-plaintext highlighter-rouge">organization_id</code> (end-user team/seat grouping, scoped <em>within</em> one Application) is a different axis from the infrastructure-placement <code class="language-plaintext highlighter-rouge">tenant_id</code> introduced in <a href="#11-tenant-vs-organization">Decision #11</a> — don’t conflate the two when reading <a href="../domain-model/database-schema/">Database Schema</a>.</p>
+<h2 id="3-downstream-app-architecture">
+  
+  
+    <a href="#3-downstream-app-architecture" class="anchor-heading" aria-labelledby="3-downstream-app-architecture"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 3. Downstream app architecture
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: Applications are separately hosted, and not just web apps.</strong> An Application built on this platform can be an iOS, macOS, Windows, Linux, or web app, or any other platform entirely — the one thing every option has in common is that it’s a separate piece of software Substratal doesn’t host, which this API serves purely as a backend: API methods for authenticating a user and for reading/writing that user’s settings and related collateral, nothing about how or where the app itself runs. This confirms the “separately hosted services” assumption <a href="../trust-model/">Trust Model</a> already builds on — the “apps as modules/iframes inside one deployment” alternative is ruled out, since a native iOS or desktop app can’t be an iframe inside anything.</p>
+
+<p><strong>One real implication, not yet reflected in <a href="../trust-model/">Trust Model</a>:</strong> that page’s launch flow is written as a web redirect carrying a JWT. A native mobile/desktop app can’t receive a browser redirect the same way — it needs the equivalent of an OAuth 2.0 Authorization Code flow with PKCE (industry-standard for exactly this: a public client with no safe place to hold a secret, handing control back via a custom URL scheme or app link rather than a server-side redirect). The underlying claims and verification model <a href="../trust-model/">Trust Model</a> already specifies (short-lived JWT, <code class="language-plaintext highlighter-rouge">effective_permissions</code>, introspection, webhooks) don’t change — only the mechanics of <em>handing the token to the app</em> need a second, platform-appropriate flow alongside the existing web redirect. Flagged here as a known gap to close in <a href="../trust-model/">Trust Model</a>, not a reason to revisit anything else already decided.</p>
+<h2 id="4-billing-system-of-record">
+  
+  
+    <a href="#4-billing-system-of-record" class="anchor-heading" aria-labelledby="4-billing-system-of-record"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 4. Billing system of record
+  
+  
+</h2>
+    
+
+<p><strong>Resolved, fully:</strong> Substratal Apps is not a payment processor or marketplace billing engine, for any Application, ever — not even once the marketplace/eventual-UI phase ships. Each Application’s developer owns the billing relationship with their own end users (their own Stripe or equivalent) entirely outside this API, and simply calls this API’s <a href="../api-reference/entitlements/">Entitlements</a> endpoints to reflect the outcome. <code class="language-plaintext highlighter-rouge">Order</code>/<code class="language-plaintext highlighter-rouge">order_id</code> is reference metadata the developer supplies for their own reconciliation, never a record this API’s own billing system pushes webhooks about. When the marketplace ships, Applications are <em>made available</em> through it based on each developer’s own pricing and billing mechanism — discovery, not a checkout Substratal runs.</p>
+
+<p>The <strong>one and only</strong> payment flow that runs through Substratal Apps itself is its own <a href="../pricing/">Pricing</a> subscription — what an Application owner pays Substratal for the platform (Starter/Team/Enterprise). See <a href="#15-platform-subscription-billing-processor">Decision #15</a> for how that one is processed.</p>
+<h2 id="5-settings-schema-ownership">
+  
+  
+    <a href="#5-settings-schema-ownership" class="anchor-heading" aria-labelledby="5-settings-schema-ownership"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 5. Settings schema ownership
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: schema-on-file with the hub.</strong> Each Application registers its own JSON Schema (<code class="language-plaintext highlighter-rouge">settings_schema</code>), and the hub validates every write against it — confirming what <a href="../domain-model/settings/"><code class="language-plaintext highlighter-rouge">AppSettings</code></a> already assumed, rather than falling back to a fully opaque blob. Centralized validation is why <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/settings</code> can promise a resolved, valid object instead of “whatever blob was last written,” and it’s the same schema the <a href="../domain-model/database-schema/#typed-fields-generated-columns-over-jsonb">typed generated-column</a> mechanism from <a href="#8-storage-primitive-scope">Decision #8</a> reads to know what to type and index.</p>
+<h2 id="6-session-model-for-revocation">
+  
+  
+    <a href="#6-session-model-for-revocation" class="anchor-heading" aria-labelledby="6-session-model-for-revocation"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 6. Session model for revocation
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: immediately.</strong> “Turn off this user’s access” must take effect inside an already-open app session right away — not “by next login or token refresh.” This is a single global guarantee, not a per-Application opt-in.</p>
+
+<p><strong>What this requires of every Application</strong>, not just permits: a short JWT TTL alone can no longer be called sufficient, since a live session must not survive a revocation for the length of that TTL. In practice this makes the <a href="../trust-model/">Trust Model</a>’s three mechanisms a <strong>required layering</strong>, not a menu an app picks from — an Application must subscribe to the <code class="language-plaintext highlighter-rouge">entitlement.revoked</code>/<code class="language-plaintext highlighter-rouge">entitlement.disabled</code>/<code class="language-plaintext highlighter-rouge">role.removed</code> <a href="../api-reference/webhooks/">webhooks</a> and force-expire the affected session the moment one arrives, with the JWT TTL as a backstop rather than the primary mechanism. <a href="../trust-model/#how-fast-does-revocation-need-to-land">Trust Model → How fast does revocation need to land?</a> needs updating to reflect this as settled rather than an open tradeoff — done alongside this decision, see that page.</p>
+<h2 id="7-aws-account-and-region">
+  
+  
+    <a href="#7-aws-account-and-region" class="anchor-heading" aria-labelledby="7-aws-account-and-region"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 7. AWS account and region
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: a dedicated AWS account, under AWS Organizations, in <code class="language-plaintext highlighter-rouge">us-east-1</code>.</strong> Elaborated in full — the reasoning for both the dedicated account and the specific region, not just the choice — in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#aws-account--region">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → AWS account &amp; region</a>, alongside the rest of the infrastructure build-out this decision feeds into.</p>
+<h2 id="8-storage-primitive-scope">
+  
+  
+    <a href="#8-storage-primitive-scope" class="anchor-heading" aria-labelledby="8-storage-primitive-scope"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 8. Storage primitive scope
+  
+  
+</h2>
+    
+
+<p>The product pitch names “storage” as one of the five things a developer shouldn’t have to build (alongside user, settings, organization, tenancy) — but the spec as written only has two narrow storage primitives: <a href="../domain-model/profiles/#appprofile">AppProfile</a>’s <code class="language-plaintext highlighter-rouge">custom</code> field and <a href="../domain-model/settings/#appsettings">AppSettings</a>’ <code class="language-plaintext highlighter-rouge">overrides</code>, both flat JSON blobs with no server-side structure beyond the Application’s own <code class="language-plaintext highlighter-rouge">settings_schema</code>. Is that actually what “storage” means, or does a developer need something more general — arbitrary collections, file/blob storage — before this product does what it says on the label?</p>
+
+<p><strong>Resolved: Postgres-backed, and typed where it’s declared.</strong> The engine is Postgres (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Database engine</a>), so the storage primitive follows that directly rather than needing a separate decision:</p>
+
+<ul>
+  <li><strong>The source of truth stays <code class="language-plaintext highlighter-rouge">jsonb</code></strong> — <code class="language-plaintext highlighter-rouge">AppProfile.custom</code> and <code class="language-plaintext highlighter-rouge">AppSettings.overrides</code> remain flexible JSON blobs, so a developer never has to pre-declare a migration to store a new field.</li>
+  <li><strong>Every field a developer <em>has</em> declared in their <code class="language-plaintext highlighter-rouge">settings_schema</code> gets a real Postgres type, not just JSON.</strong> The implementation backs each declared schema property with a Postgres <a href="../domain-model/database-schema/#typed-fields-generated-columns-over-jsonb">generated column</a> (<code class="language-plaintext highlighter-rouge">GENERATED ALWAYS AS (overrides-&gt;&gt;'week_start') STORED</code>, cast to the schema’s declared type — <code class="language-plaintext highlighter-rouge">text</code>, <code class="language-plaintext highlighter-rouge">boolean</code>, <code class="language-plaintext highlighter-rouge">integer</code>, <code class="language-plaintext highlighter-rouge">timestamptz</code>, whatever it specifies) and an index on it. This is what “map to a respective PostgreSQL data type” means concretely: the JSON is where a value <em>lives</em>, the generated column is how it’s <em>queried and type-checked</em> once a developer has told the platform what shape to expect.</li>
+  <li><strong>A general-purpose storage API (arbitrary collections, file/blob storage) is still not in scope today</strong> — the above is enough for the flag/preference/small-record use case every Application needs, and it’s the same mechanism regardless of how large that use case grows, since adding a new declared field just adds another generated column rather than requiring a new kind of storage object. Revisit only if a real Application — including the three-plus the platform’s own developer is building — hits something a typed JSON field genuinely can’t represent (e.g. actual file bytes).</li>
+</ul>
+<h2 id="9-app-developerpublisher-model">
+  
+  
+    <a href="#9-app-developerpublisher-model" class="anchor-heading" aria-labelledby="9-app-developerpublisher-model"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 9. App developer/publisher model
+  
+  
+</h2>
+    
+
+<p>Third-party developers registering their own Applications is an explicit later phase, not day one (see <a href="../#what-substratal-apps-actually-is">Home</a>) — but “later” still needs a real shape: self-service submission into <a href="../domain-model/applications/"><code class="language-plaintext highlighter-rouge">review_status: pending_review</code></a>, who reviews it and against what criteria, what SLA a developer should expect, and what happens to an already-launched app that gets <code class="language-plaintext highlighter-rouge">suspended</code> mid-flight (do its existing users’ Entitlements stay <code class="language-plaintext highlighter-rouge">active</code>, or does suspension cascade to them?).</p>
+
+<p><strong>Resolved — elaborated so the review-queue mechanics are no longer open:</strong></p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">POST /v1/applications</code> stays platform-admin-only through <a href="../roadmap/">MVP and Phase 2</a></strong>, confirmed. The <code class="language-plaintext highlighter-rouge">owner_user_id</code>/<code class="language-plaintext highlighter-rouge">owner_organization_id</code>/<code class="language-plaintext highlighter-rouge">review_status</code> fields on <a href="../domain-model/applications/">Application</a> exist now specifically so this doesn’t require a breaking schema change when self-service registration ships in <a href="../roadmap/#phase-3">Phase 3</a>.</li>
+  <li><strong>Reviewer assignment:</strong> no dedicated assignment system — any platform User holding <code class="language-plaintext highlighter-rouge">applications.manage</code> can review. At this team’s actual scale, a queue (<code class="language-plaintext highlighter-rouge">GET /v1/applications?review_status=pending_review</code>, admin-only) is enough; auto-assignment is exactly the kind of process worth skipping until submission volume makes a FIFO queue genuinely insufficient, which isn’t knowable in advance.</li>
+  <li><strong>SLA:</strong> a 5-business-day review target, stated as policy, not a system-enforced guarantee — nothing automatically escalates or refunds over a miss. Revisit if real volume makes that insufficient.</li>
+  <li><strong>A fourth <code class="language-plaintext highlighter-rouge">review_status</code> value, <code class="language-plaintext highlighter-rouge">rejected</code>,</strong> closes a real gap the original three-value enum left open: there was no way to represent “reviewed, declined” distinct from “never submitted.” A rejected Application is <strong>not deleted</strong> — it’s retained with a required <code class="language-plaintext highlighter-rouge">review_notes</code> explaining why, visible to its owner, who may edit and resubmit (<code class="language-plaintext highlighter-rouge">review_status: rejected → pending_review</code>, same record, not a new Application).</li>
+  <li><strong>Suspension does not cascade to existing Entitlements, by default.</strong> Setting <code class="language-plaintext highlighter-rouge">review_status: suspended</code> on an already-launched Application immediately removes it from the public catalog, blocks new Entitlement grants, and blocks new launch-JWT issuance — but a User who already holds an active Entitlement keeps it, and an already-open session isn’t force-killed by this action alone. The alternative (suspension silently cutting off every existing paying user) is the same “an org’s decision reaching into something an individual holds” problem <a href="#13-organization-vs-user-entitlement-precedence">Decision #13</a> already ruled against, applied to a different relationship. A platform admin can still separately, explicitly revoke the affected Entitlements via the ordinary <a href="../api-reference/entitlements/">Entitlements</a> endpoint for an egregious case — that’s a distinct, deliberate action, not an automatic consequence of suspension. <code class="language-plaintext highlighter-rouge">review_notes</code> is required on a <code class="language-plaintext highlighter-rouge">suspended</code> transition too, same as <code class="language-plaintext highlighter-rouge">rejected</code>.</li>
+</ul>
+
+<p>See <a href="../api-reference/applications/">API Reference → Applications</a> for the endpoint-level detail this resolution implies.</p>
+<h2 id="10-compliance-scope">
+  
+  
+    <a href="#10-compliance-scope" class="anchor-heading" aria-labelledby="10-compliance-scope"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 10. Compliance scope
+  
+  
+</h2>
+    
+
+<p><strong>Resolved: the recommendation stands as decided.</strong> GDPR/CCPA/CPRA mechanisms are built now — <a href="../compliance/">Compliance &amp; Data Protection</a> specifies the actual hard-delete cascade, the <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/export</code> endpoint, and the 72-hour breach-notification commitment, not just a table of gaps. SOC 2 posture is built now (access control, audit logging, encryption, change management, vendor risk management — all already load-bearing parts of this spec anyway); the formal Type I → Type II audit is deferred until a customer’s security review actually requires it. <strong>HIPAA is explicitly out of scope</strong> — not deferred-as-a-maybe, decided: nothing here is built for PHI, and that’s revisited only if a real healthcare-vertical developer wants to build on the platform, as its own scoped project at that point.</p>
+
+<p>This page’s <a href="../compliance/#gdpr-and-ccpa--build-for-it-now">Data residency</a> row, previously open, is now resolved by <a href="#12-tenancy-tiers--dedicated-infrastructure">Decision #12</a> — a customer needing EU residency gets a <code class="language-plaintext highlighter-rouge">dedicated_region</code> <a href="../domain-model/tenancy/">Tenant</a>, not a platform-wide region change.</p>
+<h2 id="11-tenant-vs-organization">
+  
+  
+    <a href="#11-tenant-vs-organization" class="anchor-heading" aria-labelledby="11-tenant-vs-organization"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 11. Tenant vs. Organization
+  
+  
+</h2>
+    
+
+<p>Does “tenancy” — named in the product pitch alongside user/settings/organization/storage (see <a href="../#what-substratal-apps-actually-is">Home</a>) — mean the same thing as <a href="../domain-model/users-and-organizations/#organization">Organization</a>, or is it a separate concept?</p>
+
+<p><strong>Resolved: separate, and tied to different things.</strong> <code class="language-plaintext highlighter-rouge">Organization</code> is a domain/grouping object — a company, or a group within a company — used to organize which Users share admin standing and which Applications a group is granted access to as a whole. It carries no infrastructure meaning. <code class="language-plaintext highlighter-rouge">Tenant</code> is new: the infrastructure-placement and data-isolation boundary, tied to <strong>the subscription</strong> — concretely, to whoever owns an Application’s catalog entry (<code class="language-plaintext highlighter-rouge">owner_user_id</code> or <code class="language-plaintext highlighter-rouge">owner_organization_id</code>, see <a href="../domain-model/applications/">Applications</a>), since that’s the only subscription relationship Substratal has directly (see <a href="#4-billing-system-of-record">Decision #4</a>: a developer’s own end-user billing is their own concern, not this API’s).</p>
+
+<p>Practically: a User or Organization can hold membership in many Organizations (even, now, across multiple Tenants — a person building one app and also using a seat on someone else’s app), but there is exactly one Tenant governing where a given Application’s data physically lives. See <a href="../domain-model/tenancy/">Domain Model → Tenancy</a> for the full entity and <a href="#13-organization-vs-user-entitlement-precedence">Decision #13</a> for how <code class="language-plaintext highlighter-rouge">Organization</code>-level access decisions interact with individual Users — a related but orthogonal question.</p>
+<h2 id="12-tenancy-tiers--dedicated-infrastructure">
+  
+  
+    <a href="#12-tenancy-tiers--dedicated-infrastructure" class="anchor-heading" aria-labelledby="12-tenancy-tiers--dedicated-infrastructure"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 12. Tenancy tiers &amp; dedicated infrastructure
+  
+  
+</h2>
+    
+
+<p>Some customers (Application owners) want — or need, for compliance — their own dedicated infrastructure rather than the shared Tier 0 database, and some need a specific geographic region for their data. Four sub-questions, all resolved together:</p>
+
+<ul>
+  <li><strong>How many tiers?</strong> Three: <code class="language-plaintext highlighter-rouge">shared</code> (default — <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Tier 0</a>, logical isolation only), <code class="language-plaintext highlighter-rouge">isolated</code> (a dedicated Aurora Serverless v2 cluster, same region), <code class="language-plaintext highlighter-rouge">dedicated_region</code> (a dedicated cluster in a customer-chosen AWS region — real data residency). See <a href="../domain-model/tenancy/">Domain Model → Tenancy</a> and <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Tenancy tiers</a>.</li>
+  <li><strong>Self-serve or gatekept?</strong> Gatekept by support today — no public API lets a customer trigger their own migration. <code class="language-plaintext highlighter-rouge">tenants.manage</code> (support/superadmin only) is required even to request a tier change. Automated, customer-initiated tier changes are a later, explicitly revenue-gated step, not a roadmap-phase trigger: it means accepting a real amount of migration risk (a failed cutover, a narrower support safety net) that a human currently absorbs step by step, and that trade only makes sense once the volume of tier-change requests justifies building it.</li>
+  <li><strong>Downtime during a tier change?</strong> A brief, scheduled maintenance window is acceptable — this is support-run and infrequent at current scale, so a snapshot/restore cutover is enough. Zero-downtime (logical replication) migration is a legitimate future upgrade once this is self-serve and frequent enough to need it, not a day-one requirement.</li>
+  <li><strong>Does this reach downstream Applications?</strong> No — tenancy governs where <em>this API’s own</em> data lives (Entitlements, AppProfile, AppSettings, the relevant Audit Events), never an Application’s own separately-hosted infrastructure. An Application’s <code class="language-plaintext highlighter-rouge">tenant_id</code>/<code class="language-plaintext highlighter-rouge">tier</code>/<code class="language-plaintext highlighter-rouge">region</code> are exposed as static metadata on the <a href="../domain-model/tenancy/">Tenant</a> and <a href="../domain-model/applications/">Application</a> resources, for the owning developer’s own benefit — not as a live JWT claim on every request, since placement is set once per Application, not computed per end-user per request the way <code class="language-plaintext highlighter-rouge">effective_permissions</code> is.</li>
+</ul>
+<h2 id="13-organization-vs-user-entitlement-precedence">
+  
+  
+    <a href="#13-organization-vs-user-entitlement-precedence" class="anchor-heading" aria-labelledby="13-organization-vs-user-entitlement-precedence"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 13. Organization-vs-User entitlement precedence
+  
+  
+</h2>
+    
+
+<p>When an end-user <a href="../domain-model/users-and-organizations/#organization">Organization</a> holds an org-wide (<code class="language-plaintext highlighter-rouge">org_seat</code>) <a href="../domain-model/entitlements/">Entitlement</a> to an Application, and a member of that Organization also holds (or could hold) their own individual standing for the same app, which wins?</p>
+
+<p><strong>Resolved</strong>, with one deliberate scoping refinement flagged below:</p>
+
+<ul>
+  <li><strong>Within one Organization’s own grant, the Organization’s decision is authoritative.</strong> A member cannot opt themselves in or out of their org’s seat grant — see <a href="../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out">Entitlements → Org-wide entitlements</a> for the <code class="language-plaintext highlighter-rouge">member_scope</code> mechanism (<code class="language-plaintext highlighter-rouge">all_members</code> / <code class="language-plaintext highlighter-rouge">allowlist</code> / <code class="language-plaintext highlighter-rouge">denylist</code>) that lets an org admin include or exclude specific members.</li>
+  <li><strong>A User’s own personal Entitlement to the same Application (purchased or granted independently of any Organization) is a separate, untouched access path.</strong> An Organization’s exclusion of a member from its own org-wide grant does not reach into and revoke a personal Entitlement that member holds some other way. This is the one place this resolution departs from a literal “Organization always overrides User” rule — the alternative (an org silently revoking something a member individually holds) creates a real billing/legal defensibility problem (“the company turned off access to something I personally paid for”), and the scoped version below still satisfies the actual goal — an org’s decision about its own grant is final — without that side effect. Revisit this if it doesn’t match intent.</li>
+  <li><strong>A User’s effective access to an Application is the union of every active path</strong>: their own personal Entitlement (if any) OR any Organization they belong to whose grant includes them. Because each Organization’s grant is independently evaluated, a User in multiple Organizations (even across different Tenants) never hits a real “Org A says yes, Org B says no” conflict — Org B’s answer only ever governs Org B’s own grant.</li>
+  <li><strong>Attribution is always surfaced.</strong> Reading a User’s entitlement to an app that came from (or was blocked by) an Organization’s grant shows <code class="language-plaintext highlighter-rouge">source: org_seat</code>, the <code class="language-plaintext highlighter-rouge">organization_id</code>, and whether <code class="language-plaintext highlighter-rouge">member_scope</code> included or excluded this specific member — so anyone pulling a User’s access record can see which Organization is responsible, rather than seeing a bare allow/deny. See <a href="../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out">Entitlements</a> for the exact shape.</li>
+</ul>
+<h2 id="14-mcp-server-authorization-scope">
+  
+  
+    <a href="#14-mcp-server-authorization-scope" class="anchor-heading" aria-labelledby="14-mcp-server-authorization-scope"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 14. MCP server authorization scope
+  
+  
+</h2>
+    
+
+<p><a href="../mcp-server/">MCP Server</a> deliberately introduces no new authorization model — every tool call carries the same Bearer credential (user token or <a href="../api-reference/api-keys/">API Key</a>) as the equivalent REST call, and is checked against the exact same permissions. The open question is narrower: <strong>should Substratal recommend — or eventually require — a purpose-scoped class of API Key specifically for agent/MCP callers</strong>, rather than relying on whatever key a human happens to hand their agent?</p>
+
+<p>The case for a narrower default: an LLM deciding <em>which</em> tool to call based on a prompt (possibly influenced by untrusted data it has read, e.g. a <code class="language-plaintext highlighter-rouge">disabled_reason</code> or an <code class="language-plaintext highlighter-rouge">AppProfile.custom</code> field written by someone else) is a different risk shape than deterministic service code making the same call — not because the platform’s own enforcement is any weaker (it isn’t; <a href="../access-control/">Access Control</a> doesn’t know or care whether its caller is an agent), but because the <em>decision to call</em> a destructive tool at all is now made by something a prompt can influence, where a service integration’s call sites are fixed at write time.</p>
+
+<p><strong>Resolved — elaborated for implementation, not just operational guidance.</strong> No new API Key <em>type</em> (that would be a parallel, redundant scoping system next to the one that already exists). Two concrete mechanisms instead, both shipping with <a href="../api-reference/api-keys/">API Keys</a>:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">intended_use: "service" | "agent"</code></strong> on API Key, set at creation. Pure metadata with one real effect: it changes the <em>default</em> of the field below, steering an agent-facing key toward the safer posture without forcing it.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">restrict_destructive: boolean</code></strong>, default <code class="language-plaintext highlighter-rouge">true</code> when <code class="language-plaintext highlighter-rouge">intended_use: "agent"</code> (and <code class="language-plaintext highlighter-rouge">false</code> for <code class="language-plaintext highlighter-rouge">"service"</code>). When <code class="language-plaintext highlighter-rouge">true</code>, any request this key authorizes that classifies as destructive is rejected with <code class="language-plaintext highlighter-rouge">403</code> / <code class="language-plaintext highlighter-rouge">code: "destructive_operation_restricted"</code> — <strong>regardless of what permissions the key otherwise carries.</strong> This is the “harden into something enforced server-side” option from the original open question, resolved yes rather than left pending an incident.</li>
+</ol>
+
+<p><strong>“Destructive” is not a second classification scheme</strong> — it’s the exact same rule <a href="../mcp-server/#tool-annotations--safety">MCP Server → Tool annotations &amp; safety</a> already uses to derive <code class="language-plaintext highlighter-rouge">destructiveHint</code> for MCP tool calls (a <code class="language-plaintext highlighter-rouge">DELETE</code>, or a <code class="language-plaintext highlighter-rouge">PATCH</code>/<code class="language-plaintext highlighter-rouge">POST</code> that moves an Entitlement to <code class="language-plaintext highlighter-rouge">disabled</code>/<code class="language-plaintext highlighter-rouge">revoked</code>, removes an Organization member, or requests a Tenant tier change), applied as a hard gate instead of a client-side confirmation hint. One rule, two consumers: an MCP client reads <code class="language-plaintext highlighter-rouge">destructiveHint</code> to decide whether to prompt a human before calling a tool; the API itself enforces the identical rule server-side when the calling key has <code class="language-plaintext highlighter-rouge">restrict_destructive: true</code>. A key with this flag set can still read everything its permissions allow and can still call every non-destructive write (<code class="language-plaintext highlighter-rouge">PATCH</code> updates that don’t disable/revoke/remove anything) — it’s scoped out of the specific small set of actions where an LLM’s tool-call <em>decision</em>, not the platform’s permission check, is the weaker link in the chain.</p>
+
+<p>This is why an agent integration is safer by default without being less capable by default: a read-only or toggle-only assistant never needs <code class="language-plaintext highlighter-rouge">restrict_destructive: false</code> at all, and the one that genuinely does (an assistant whose whole job is disabling compromised accounts, say) sets it explicitly, which is itself worth an Audit Event (<code class="language-plaintext highlighter-rouge">api_key.restrict_destructive_disabled</code>) precisely because it’s the deliberate exception, not the default.</p>
+<h2 id="15-platform-subscription-billing-processor">
+  
+  
+    <a href="#15-platform-subscription-billing-processor" class="anchor-heading" aria-labelledby="15-platform-subscription-billing-processor"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 15. Platform subscription billing processor
+  
+  
+</h2>
+    
+
+<p><a href="#4-billing-system-of-record">Decision #4</a> resolved who processes payment for a developer’s <em>own</em> end users (the developer, never this API, never even in the marketplace phase). This is the other direction: <strong>who processes payment for the platform subscription itself</strong> — the Starter/Team/Enterprise charge an Application owner pays Substratal.</p>
+
+<p><strong>Resolved: Stripe Billing.</strong> Chosen specifically because adopting it changes nothing already decided — <a href="#10-compliance-scope">Compliance scope</a> already keeps PCI scope minimal by design (card data never touches this API directly either way), and a subscription-billing product used only for Substratal’s own direct customer relationship is a far smaller integration than the marketplace-payment-processor role <a href="#4-billing-system-of-record">Decision #4</a> explicitly ruled out. The implementation — object mapping, the <code class="language-plaintext highlighter-rouge">tenants</code> schema additions, webhook event handling — is specified in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Stripe Billing</a>, not here, since it’s a build/ops concern rather than part of the API Applications and their developers call — see that doc’s own framing of what lives in the project root versus this site.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

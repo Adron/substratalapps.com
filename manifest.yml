@@ -1,0 +1,8 @@
+# Every released version of the docs site, newest first. Written by
+# scripts/docs-build.rb on main's GitHub build; each entry has a frozen
+# static copy at <version>/ on this branch, served at /versions/<version>/.
+versions:
+- version: 1.0.0
+  released: '2026-10-05'
+  commit: a74801c031caffa1172c90c21d3f1b2f82f863f2
+  summary: Version the docs site automatically on every GitHub build

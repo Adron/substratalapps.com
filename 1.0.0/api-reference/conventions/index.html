@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(1)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(1) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(1) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(1) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.0.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.0.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Conventions | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Conventions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.0.0/api-reference/conventions/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.0.0/api-reference/conventions/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Conventions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Conventions","url":"https://adron.github.io/substratalapps.com/versions/1.0.0/api-reference/conventions/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.0.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/decisions/" class="nav-list-link">Decisions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.0.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Conventions</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="conventions">
+  
+  
+    <a href="#conventions" class="anchor-heading" aria-labelledby="conventions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Conventions
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">Read once, applies to every page in this section.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#machine-readable" id="markdown-toc-machine-readable">Machine-readable</a></li>
+  <li><a href="#base-url" id="markdown-toc-base-url">Base URL</a></li>
+  <li><a href="#authentication" id="markdown-toc-authentication">Authentication</a></li>
+  <li><a href="#ids" id="markdown-toc-ids">IDs</a></li>
+  <li><a href="#addressing-yourself-me" id="markdown-toc-addressing-yourself-me">Addressing yourself: <code class="language-plaintext highlighter-rouge">me</code></a></li>
+  <li><a href="#pagination" id="markdown-toc-pagination">Pagination</a></li>
+  <li><a href="#filtering" id="markdown-toc-filtering">Filtering</a></li>
+  <li><a href="#delete-semantics-hard-vs-soft" id="markdown-toc-delete-semantics-hard-vs-soft">Delete semantics: hard vs. soft</a></li>
+  <li><a href="#single-resource-responses" id="markdown-toc-single-resource-responses">Single-resource responses</a></li>
+  <li><a href="#errors" id="markdown-toc-errors">Errors</a></li>
+  <li><a href="#idempotency" id="markdown-toc-idempotency">Idempotency</a></li>
+  <li><a href="#health-check" id="markdown-toc-health-check">Health check</a></li>
+  <li><a href="#versioning" id="markdown-toc-versioning">Versioning</a></li>
+  <li><a href="#timestamps" id="markdown-toc-timestamps">Timestamps</a></li>
+</ol><hr />
+<h2 id="machine-readable">
+  
+  
+    <a href="#machine-readable" class="anchor-heading" aria-labelledby="machine-readable"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Machine-readable
+  
+  
+</h2>
+    
+
+<p>Everything on this and the following pages is also available as a single <a href="../../openapi.yaml">OpenAPI 3.1 document</a> — generate a client, import into an API tool, or diff it against an implementation to check drift. The prose here is authoritative when the two disagree; the YAML is kept in sync by hand, not generated from this site.</p>
+<h2 id="base-url">
+  
+  
+    <a href="#base-url" class="anchor-heading" aria-labelledby="base-url"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Base URL
+  
+  
+</h2>
+    
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://api.substratalapps.com/v1
+</code></pre></div></div>
+
+<p>Provisional — the real host is whatever gets decided alongside <a href="../../decisions/#1-identity-provider">Decisions → Identity provider</a>, but every example on this site uses this value so they’re copy-pasteable and consistent with each other.</p>
+<h2 id="authentication">
+  
+  
+    <a href="#authentication" class="anchor-heading" aria-labelledby="authentication"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Authentication
+  
+  
+</h2>
+    
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Authorization: Bearer &lt;token&gt;
+</code></pre></div></div>
+
+<p>User-facing requests carry a user access token (issued at login, see <a href="../auth/">Auth</a>). Service-to-service requests (billing, an app’s backend) carry a scoped <a href="../api-keys/">API Key</a>. Both go in the same header — the token type is distinguishable server-side by prefix, not by a different header name.</p>
+
+<p><strong>Test vs. live:</strong> every API Key is created with <code class="language-plaintext highlighter-rouge">satk_test_…</code> or <code class="language-plaintext highlighter-rouge">satk_live_…</code> (see <a href="../api-keys/">API Keys</a>) — there is no separate sandbox deployment to point at. A <code class="language-plaintext highlighter-rouge">test</code> key operates against the same database, but every record it creates is tagged <code class="language-plaintext highlighter-rouge">test_mode: true</code>, excluded from webhooks firing to any other caller’s <code class="language-plaintext highlighter-rouge">live</code> subscriptions, and from rate-limit/analytics counters. This is cheaper to build and run than a parallel environment, and it’s the right call at the current scale (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a>) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.</p>
+<h2 id="ids">
+  
+  
+    <a href="#ids" class="anchor-heading" aria-labelledby="ids"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> IDs
+  
+  
+</h2>
+    
+
+<p>Every resource ID is prefixed by type. Most are opaque ULIDs — generated, never reused, never recomputed from other fields, and not meant to be parsed for meaning beyond the prefix:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Prefix</th>
+      <th>Entity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">usr_</code></td>
+      <td>User</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">org_</code></td>
+      <td>Organization</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tnt_</code></td>
+      <td>Tenant — see <a href="../../domain-model/tenancy/">Domain Model → Tenancy</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tcr_</code></td>
+      <td>Tenant tier-change request — see <a href="../tenancy/">Tenancy</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">app_</code></td>
+      <td>Application</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_</code></td>
+      <td>Role</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ent_</code></td>
+      <td>Entitlement</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ord_</code></td>
+      <td>Order</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">evt_</code></td>
+      <td>Audit Event</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">whk_</code></td>
+      <td>Webhook subscription</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">key_</code></td>
+      <td>API Key — see <a href="../api-keys/">API Keys</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uid_</code></td>
+      <td>UserIdentity — see <a href="../../domain-model/users-and-organizations/#useridentity">Users &amp; Organizations</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ssc_</code></td>
+      <td>SSOConnection — see <a href="../../domain-model/users-and-organizations/#ssoconnection">Users &amp; Organizations</a></td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Role is the deliberate exception.</strong> A Role’s <code class="language-plaintext highlighter-rouge">id</code> is a human-readable slug (<code class="language-plaintext highlighter-rouge">role_timetrack_admin</code>, <code class="language-plaintext highlighter-rouge">role_platform_member</code>), not a random ULID — Roles are commonly referenced from code and config (seed scripts, permission checks), where a stable, meaningful id is more useful than an opaque one. See <a href="../../domain-model/roles-and-permissions/#role">Domain Model → Roles &amp; Permissions</a>.</p>
+
+<p><strong>Credential strings are not resource IDs</strong> and follow their own prefix conventions, since they’re secrets rather than addressable resources: a refresh token is <code class="language-plaintext highlighter-rouge">rtk_…</code> (see <a href="../auth/">Auth</a>), a webhook signing secret is <code class="language-plaintext highlighter-rouge">whsec_…</code> (see <a href="../webhooks/">Webhooks</a>), and an API key’s secret value is <code class="language-plaintext highlighter-rouge">satk_live_…</code> (see <a href="../api-keys/">API Keys</a>). Never log these or echo them back after their initial issuance.</p>
+<h2 id="addressing-yourself-me">
+  
+  
+    <a href="#addressing-yourself-me" class="anchor-heading" aria-labelledby="addressing-yourself-me"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Addressing yourself: <code class="language-plaintext highlighter-rouge">me</code>
+  
+  
+</h2>
+    
+
+<p>Anywhere a path takes a <code class="language-plaintext highlighter-rouge">{id}</code> for a User, you may pass the literal string <code class="language-plaintext highlighter-rouge">me</code> instead of the caller’s own <code class="language-plaintext highlighter-rouge">usr_…</code> id — <code class="language-plaintext highlighter-rouge">GET /v1/users/me</code>, <code class="language-plaintext highlighter-rouge">GET /v1/users/me/entitlements</code>, <code class="language-plaintext highlighter-rouge">GET /v1/users/me/apps/{appId}/settings</code>, <code class="language-plaintext highlighter-rouge">PATCH /v1/users/me/profile</code>, and so on. This resolves server-side from the auth token, so a client never needs to know its own user id just to read or update its own data.</p>
+<h2 id="pagination">
+  
+  
+    <a href="#pagination" class="anchor-heading" aria-labelledby="pagination"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Pagination
+  
+  
+</h2>
+    
+
+<p>List endpoints take <code class="language-plaintext highlighter-rouge">limit</code> (default 25, max 100) and <code class="language-plaintext highlighter-rouge">cursor</code>, and return:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">/*</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="err">*/</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJpZCI6Im9yZ18wMUoi..."</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Pass <code class="language-plaintext highlighter-rouge">next_cursor</code> back as <code class="language-plaintext highlighter-rouge">cursor</code> to get the next page. <code class="language-plaintext highlighter-rouge">has_more: false</code> means <code class="language-plaintext highlighter-rouge">next_cursor</code> is <code class="language-plaintext highlighter-rouge">null</code> and there’s nothing further.</p>
+<h2 id="filtering">
+  
+  
+    <a href="#filtering" class="anchor-heading" aria-labelledby="filtering"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Filtering
+  
+  
+</h2>
+    
+
+<p>List endpoints that support filtering take plain query parameters named after the field being matched (<code class="language-plaintext highlighter-rouge">?status=active</code>, <code class="language-plaintext highlighter-rouge">?application_id=app_timetrack</code>) — there’s no separate filter DSL. Each resource page’s endpoint table states which fields are filterable; passing an unsupported filter parameter is ignored rather than erroring, so adding a new filterable field later is never a breaking change.</p>
+
+<p><strong>Soft-deleted and terminal-state records are excluded by default.</strong> A list endpoint doesn’t return a soft-deleted User, a <code class="language-plaintext highlighter-rouge">revoked</code> Entitlement, or a <code class="language-plaintext highlighter-rouge">suspended</code> API Key unless the caller explicitly asks for it (<code class="language-plaintext highlighter-rouge">?status=revoked</code>, or a resource-specific <code class="language-plaintext highlighter-rouge">?include_deleted=true</code> where noted on that page). This is the default precisely so “list my entitlements” doesn’t require every caller to remember to filter out the ones that don’t matter anymore.</p>
+<h2 id="delete-semantics-hard-vs-soft">
+  
+  
+    <a href="#delete-semantics-hard-vs-soft" class="anchor-heading" aria-labelledby="delete-semantics-hard-vs-soft"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Delete semantics: hard vs. soft
+  
+  
+</h2>
+    
+
+<p>“Delete” doesn’t mean the same thing on every resource, and this site doesn’t pick one convention and force every resource into it — it picks the right one per resource and documents which, here, once, instead of leaving a caller to infer it from each page’s own wording.</p>
+
+<p><strong>A soft delete</strong> flips a <code class="language-plaintext highlighter-rouge">status</code> (or sets a <code class="language-plaintext highlighter-rouge">deleted_at</code>/<code class="language-plaintext highlighter-rouge">revoked_at</code> timestamp) rather than removing the row. The record is excluded from default list results — same rule as <a href="#filtering">Filtering</a> above — but remains fetchable by id for an authorized caller, and every other field is untouched. Nothing about a soft delete scrubs, redacts, or moves data anywhere; it’s purely a status change. Where a soft delete is reversible, reversing it restores exactly the prior state, nothing re-provisioned.</p>
+
+<p><strong>A hard delete</strong> removes the row entirely. Where this site allows it at all, it’s reserved for correcting a mistake, not for the ordinary lifecycle of a real record — see each resource’s own endpoint description for the specific line it draws.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Resource</th>
+      <th><code class="language-plaintext highlighter-rouge">DELETE</code> behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="../../domain-model/users-and-organizations/">User</a></td>
+      <td><strong>Soft.</strong> <code class="language-plaintext highlighter-rouge">status: deleted</code>; 404s afterward. A separate, two-stage hard-delete cascade exists for right-to-erasure requests specifically — see <a href="../../non-functional-requirements/#hard-delete-cascade">Non-Functional Requirements → Hard-delete cascade</a>. Not triggered by this call.</td>
+    </tr>
+    <tr>
+      <td><a href="../api-keys/">API Key</a></td>
+      <td><strong>Soft, but irreversible.</strong> Sets <code class="language-plaintext highlighter-rouge">revoked_at</code>; the row and its usage history are retained, but unlike every other soft delete on this list, there is no un-revoke — a replacement means creating a new key.</td>
+    </tr>
+    <tr>
+      <td><a href="../entitlements/">Entitlement</a></td>
+      <td><strong>Hard</strong> — but only for a grant with no <code class="language-plaintext highlighter-rouge">order_id</code>. Reserved for correcting a mistake (wrong user, wrong app, duplicate); real revocations use <code class="language-plaintext highlighter-rouge">PATCH status: revoked</code>/<code class="language-plaintext highlighter-rouge">disabled</code> instead, so the history survives. See <a href="../entitlements/#delete-v1entitlementsid">Entitlements → <code class="language-plaintext highlighter-rouge">DELETE</code></a>.</td>
+    </tr>
+    <tr>
+      <td>Organization member</td>
+      <td><strong>Hard.</strong> The <a href="../../domain-model/users-and-organizations/#organizationmembership">OrganizationMembership</a> join row is removed outright — membership has no “soft-removed” state of its own.</td>
+    </tr>
+    <tr>
+      <td>Role assignment</td>
+      <td><strong>Hard.</strong> The <a href="../../domain-model/roles-and-permissions/#userroleassignment">UserRoleAssignment</a> join row is removed outright; idempotent (removing an already-gone assignment still returns <code class="language-plaintext highlighter-rouge">204</code>).</td>
+    </tr>
+    <tr>
+      <td><a href="../webhooks/">Webhook</a> subscription</td>
+      <td><strong>Hard.</strong> Unsubscribing removes the subscription; already-queued deliveries still attempt, nothing new is enqueued.</td>
+    </tr>
+    <tr>
+      <td><a href="../applications/">Application</a>, <a href="../organizations/">Organization</a>, <a href="../roles-and-permissions/">Role</a> (the definition), <a href="../tenancy/">Tenant</a></td>
+      <td><strong>No <code class="language-plaintext highlighter-rouge">DELETE</code> endpoint at all.</strong> Each has its own terminal-but-not-deleted state instead — <code class="language-plaintext highlighter-rouge">review_status: suspended</code>/<code class="language-plaintext highlighter-rouge">rejected</code> for an Application, <code class="language-plaintext highlighter-rouge">status: suspended</code> for an Organization (via <code class="language-plaintext highlighter-rouge">PATCH</code>) — because removing the catalog/definition entry itself would orphan everything that still references it (Entitlements, Role assignments, Roles scoped to it).</td>
+    </tr>
+    <tr>
+      <td><a href="../../domain-model/profiles/">Profile</a></td>
+      <td>No <code class="language-plaintext highlighter-rouge">DELETE</code> endpoint. Deleted outright, but only as step 2 of the <a href="../../non-functional-requirements/#hard-delete-cascade">hard-delete cascade</a> above — never independently.</td>
+    </tr>
+    <tr>
+      <td><a href="../../domain-model/profiles/#appprofile">AppProfile</a> / <a href="../../domain-model/settings/#appsettings">AppSettings</a></td>
+      <td>No <code class="language-plaintext highlighter-rouge">DELETE</code> endpoint. PII is scrubbed from <code class="language-plaintext highlighter-rouge">custom</code>/<code class="language-plaintext highlighter-rouge">overrides</code> in place by the hard-delete cascade’s step 3; the row itself is retained even then.</td>
+    </tr>
+    <tr>
+      <td><a href="../../domain-model/settings/">Settings</a> (global)</td>
+      <td>No <code class="language-plaintext highlighter-rouge">DELETE</code> endpoint, and not touched by the hard-delete cascade either — none of its fields (<code class="language-plaintext highlighter-rouge">locale</code>, <code class="language-plaintext highlighter-rouge">timezone</code>, <code class="language-plaintext highlighter-rouge">theme</code>, <code class="language-plaintext highlighter-rouge">notifications</code>) are personally identifying, so there’s nothing on it the erasure right reaches.</td>
+    </tr>
+    <tr>
+      <td><a href="../../domain-model/orders-and-audit/#audit-event">Audit Event</a></td>
+      <td>Never deletable through the API, by anyone, under any permission — the one exception is the scheduled archival job moving an aged-out event to cold storage, which is an infrastructure process, not a caller-facing <code class="language-plaintext highlighter-rouge">DELETE</code>. See <a href="../../non-functional-requirements/#audit-log-lifecycle">Non-Functional Requirements → Audit log lifecycle</a>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="single-resource-responses">
+  
+  
+    <a href="#single-resource-responses" class="anchor-heading" aria-labelledby="single-resource-responses"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Single-resource responses
+  
+  
+</h2>
+    
+
+<p>A single resource is returned as a bare JSON object — no envelope:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w"> </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w"> </span><span class="nl">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<h2 id="errors">
+  
+  
+    <a href="#errors" class="anchor-heading" aria-labelledby="errors"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"entitlement_required"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This user has no active entitlement to app_invoicer."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_invoicer"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">code</code> is a stable, machine-matchable string — build logic against it, not against <code class="language-plaintext highlighter-rouge">message</code>, which is for humans and can change wording without notice.</p>
+
+<p><strong>There’s no single global code catalog.</strong> Each resource’s own API Reference page carries an “Errors specific to this resource” table — that table is the authoritative source for the codes that resource returns, the same way <a href="../../domain-model/orders-and-audit/#action-catalog">Orders &amp; Audit → Action catalog</a> is authoritative for <code class="language-plaintext highlighter-rouge">action</code> values. A handful of codes are cross-cutting enough to define once, here, instead of repeating identically on every page: <code class="language-plaintext highlighter-rouge">validation_failed</code>, <code class="language-plaintext highlighter-rouge">version_conflict</code>, <code class="language-plaintext highlighter-rouge">rate_limited</code>. Everything else — <code class="language-plaintext highlighter-rouge">entitlement_required</code> above included — belongs to, and is defined on, one specific resource page.</p>
+
+<p>HTTP status follows a fixed mapping from error <em>class</em>, not a judgment call per endpoint:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Class</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">400</code></td>
+      <td>Malformed request — the body isn’t valid JSON, or is missing a required field with no sensible default.</td>
+      <td>Missing <code class="language-plaintext highlighter-rouge">application_id</code> on a grant.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">401</code></td>
+      <td>Missing or invalid auth — no Bearer token, an expired one, or a revoked API Key’s secret.</td>
+      <td>A revoked key’s secret used after <code class="language-plaintext highlighter-rouge">revoked_at</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">403</code></td>
+      <td>Authenticated, but not permitted — a real permission or ownership check failed.</td>
+      <td><code class="language-plaintext highlighter-rouge">moderation_field_forbidden</code>, <code class="language-plaintext highlighter-rouge">destructive_operation_restricted</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">404</code></td>
+      <td>Not found — including a soft-deleted or never-existed resource; see <a href="#filtering">Filtering</a> for why a soft-deleted record 404s rather than returning a <code class="language-plaintext highlighter-rouge">deleted</code> status.</td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement_not_found</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">409</code></td>
+      <td>Conflict — the request is individually valid, but the current state of the resource makes it impossible to apply as-is.</td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement_already_exists</code>, <code class="language-plaintext highlighter-rouge">version_conflict</code>, <code class="language-plaintext highlighter-rouge">plan_limit_reached</code>, an idempotency key reused with a different body.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">422</code></td>
+      <td>Semantically invalid — the request is well-formed but violates a declared rule beyond basic shape.</td>
+      <td>A <code class="language-plaintext highlighter-rouge">settings_schema</code> violation, <code class="language-plaintext highlighter-rouge">validation_failed</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">429</code></td>
+      <td>Rate limited.</td>
+      <td>See <a href="../../non-functional-requirements/#rate-limiting">Rate limiting</a>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>The dividing line between <code class="language-plaintext highlighter-rouge">409</code> and <code class="language-plaintext highlighter-rouge">422</code> worth internalizing: <code class="language-plaintext highlighter-rouge">409</code> is about <em>state</em> (“this would conflict with something that already exists or already happened”), <code class="language-plaintext highlighter-rouge">422</code> is about the <em>request’s own content</em> (“this value, on its own, doesn’t satisfy a rule”). <code class="language-plaintext highlighter-rouge">plan_limit_reached</code> is <code class="language-plaintext highlighter-rouge">409</code>, not <code class="language-plaintext highlighter-rouge">422</code>, for exactly this reason — the request is well-formed, it just can’t be satisfied against the owning Tenant’s current count.</p>
+
+<p><strong>Multiple field errors</strong> (a <code class="language-plaintext highlighter-rouge">422</code> from a request that fails validation on more than one field at once) use a structured <code class="language-plaintext highlighter-rouge">details.fields</code> array instead of forcing the client to parse <code class="language-plaintext highlighter-rouge">message</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2 fields failed validation."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_format"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"available_app_roles"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"too_long"</span><span class="p">,</span><span class="w"> </span><span class="nl">"max"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A single-field error (like <code class="language-plaintext highlighter-rouge">entitlement_required</code> above) skips the array and puts the relevant IDs directly in <code class="language-plaintext highlighter-rouge">details</code> — the array form is specifically for “more than one thing wrong with this request body.”</p>
+<h2 id="idempotency">
+  
+  
+    <a href="#idempotency" class="anchor-heading" aria-labelledby="idempotency"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Idempotency
+  
+  
+</h2>
+    
+
+<p>Any <code class="language-plaintext highlighter-rouge">POST</code> that creates or transitions an Entitlement- or Order-linked record accepts:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Idempotency-Key: &lt;client-generated UUID&gt;
+</code></pre></div></div>
+
+<p>A repeated key with an identical body returns the original response (same status code, same body) instead of creating a duplicate. A repeated key with a <em>different</em> body returns <code class="language-plaintext highlighter-rouge">409</code>. Keys are remembered for 24 hours, scoped per API key/caller — after that window a repeated key is treated as new. See <a href="../../non-functional-requirements/#idempotency--retries">Non-Functional Requirements → Idempotency &amp; retries</a> for why this is mandatory rather than optional on those endpoints — billing webhooks retry, and a duplicate Entitlement is a real-money bug, not a cosmetic one.</p>
+
+<p><strong>Implementation note:</strong> store <code class="language-plaintext highlighter-rouge">(caller_id, idempotency_key) → (request_body_hash, response_status, response_body, expires_at)</code>, written in the same transaction as the mutation it guards (see <a href="../../non-functional-requirements/#transaction-boundaries">Non-Functional Requirements → Transaction boundaries</a>) so a crash between “wrote the Entitlement” and “recorded the idempotency key” can’t produce a duplicate on retry. Compare the stored hash, not the raw body, to decide same-vs-different.</p>
+<h2 id="health-check">
+  
+  
+    <a href="#health-check" class="anchor-heading" aria-labelledby="health-check"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Health check
+  
+  
+</h2>
+    
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /v1/health
+</code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Unauthenticated, uncached, for uptime monitoring and load balancer health checks — not a dependency check (it doesn’t query the database). Always <code class="language-plaintext highlighter-rouge">200</code> unless the service itself can’t respond.</p>
+<h2 id="versioning">
+  
+  
+    <a href="#versioning" class="anchor-heading" aria-labelledby="versioning"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Versioning
+  
+  
+</h2>
+    
+
+<p><code class="language-plaintext highlighter-rouge">/v1</code> is the only version today. Additive changes (new optional fields, new endpoints) ship without a version bump; breaking changes get a new prefix and a deprecation window for the old one. See <a href="../../non-functional-requirements/#versioning">Non-Functional Requirements → Versioning</a>.</p>
+<h2 id="timestamps">
+  
+  
+    <a href="#timestamps" class="anchor-heading" aria-labelledby="timestamps"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Timestamps
+  
+  
+</h2>
+    
+
+<p>ISO 8601, UTC, always with a <code class="language-plaintext highlighter-rouge">Z</code> suffix: <code class="language-plaintext highlighter-rouge">2026-09-30T16:22:41Z</code>.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

@@ -1,0 +1,516 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.0.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(10)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(10) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(10) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(10) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.0.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.0.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Non-Functional Requirements | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Non-Functional Requirements" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.0.0/non-functional-requirements/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.0.0/non-functional-requirements/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Non-Functional Requirements" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Non-Functional Requirements","url":"https://adron.github.io/substratalapps.com/versions/1.0.0/non-functional-requirements/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.0.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.0.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/decisions/" class="nav-list-link">Decisions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.0.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.0.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="non-functional-requirements">
+  
+  
+    <a href="#non-functional-requirements" class="anchor-heading" aria-labelledby="non-functional-requirements"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Non-Functional Requirements
+  
+  
+</h1>
+    
+
+<ol id="markdown-toc">
+  <li><a href="#authentication" id="markdown-toc-authentication">Authentication</a></li>
+  <li><a href="#cors" id="markdown-toc-cors">CORS</a></li>
+  <li><a href="#authorization-enforcement-point" id="markdown-toc-authorization-enforcement-point">Authorization enforcement point</a></li>
+  <li><a href="#multi-tenancy" id="markdown-toc-multi-tenancy">Multi-tenancy</a></li>
+  <li><a href="#concurrency-control" id="markdown-toc-concurrency-control">Concurrency control</a></li>
+  <li><a href="#transaction-boundaries" id="markdown-toc-transaction-boundaries">Transaction boundaries</a></li>
+  <li><a href="#audit" id="markdown-toc-audit">Audit</a></li>
+  <li><a href="#idempotency--retries" id="markdown-toc-idempotency--retries">Idempotency &amp; retries</a></li>
+  <li><a href="#rate-limiting" id="markdown-toc-rate-limiting">Rate limiting</a></li>
+  <li><a href="#versioning" id="markdown-toc-versioning">Versioning</a></li>
+  <li><a href="#request-tracing" id="markdown-toc-request-tracing">Request tracing</a></li>
+  <li><a href="#testing-strategy" id="markdown-toc-testing-strategy">Testing strategy</a></li>
+  <li><a href="#data-retention" id="markdown-toc-data-retention">Data retention</a>    <ol>
+      <li><a href="#audit-log-lifecycle" id="markdown-toc-audit-log-lifecycle">Audit log lifecycle</a></li>
+      <li><a href="#hard-delete-cascade" id="markdown-toc-hard-delete-cascade">Hard-delete cascade</a></li>
+    </ol>
+  </li>
+  <li><a href="#availability-expectations-on-the-trust-model" id="markdown-toc-availability-expectations-on-the-trust-model">Availability expectations on the trust model</a></li>
+</ol><hr />
+<h2 id="authentication">
+  
+  
+    <a href="#authentication" class="anchor-heading" aria-labelledby="authentication"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Authentication
+  
+  
+</h2>
+    
+
+<ul>
+  <li><strong>User-facing login:</strong> OAuth2/OIDC. Whether the hub is its own identity provider or delegates to one (Auth0, Clerk, WorkOS, Cognito, …) is open — see <a href="../decisions/#1-identity-provider">Decisions</a>.</li>
+  <li><strong>Service-to-service:</strong> billing → hub, app → hub, and any other backend caller authenticates with scoped API keys or mTLS, not user credentials.</li>
+  <li><strong>MFA:</strong> supported at the identity-provider layer; not re-implemented in this API.</li>
+  <li><strong>Bootstrapping:</strong> the very first <code class="language-plaintext highlighter-rouge">superadmin</code> cannot be created through the public API — nothing can call <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/roles/{roleId}</code> with <code class="language-plaintext highlighter-rouge">roles.manage</code> before a <code class="language-plaintext highlighter-rouge">superadmin</code> exists to grant it. It’s seeded directly against the database (or via a one-time, non-API admin CLI command) as part of standing up a new environment, not specified as an endpoint.</li>
+  <li><strong>MCP:</strong> the <a href="../mcp-server/">MCP Server</a> is not a separate auth surface — it carries and forwards the same Bearer credential (user token or API Key) as any other caller. No new rule in this section applies to it that doesn’t already apply here.</li>
+</ul>
+<h2 id="cors">
+  
+  
+    <a href="#cors" class="anchor-heading" aria-labelledby="cors"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> CORS
+  
+  
+</h2>
+    
+
+<p><code class="language-plaintext highlighter-rouge">GET</code> endpoints intended for direct browser use by a future first-party UI (the catalog, a user’s own entitlements/profile/settings via <code class="language-plaintext highlighter-rouge">me</code>) allow that UI’s origin. Admin and service-to-service endpoints do not allow browser-origin requests at all — an admin console calls through its own backend, not directly from the browser with a platform API key. The exact allow-listed origin(s) are an environment-level config value, not part of this spec.</p>
+<h2 id="authorization-enforcement-point">
+  
+  
+    <a href="#authorization-enforcement-point" class="anchor-heading" aria-labelledby="authorization-enforcement-point"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Authorization enforcement point
+  
+  
+</h2>
+    
+
+<p>The hub is the <strong>only</strong> writer of Entitlement and Role state. Apps read (via JWT claim, introspection, or webhook) — they never maintain a parallel copy they write to independently. If an app needs a role concept finer than what <a href="../domain-model/roles-and-permissions/">App Roles</a> supports, that’s a sign the app needs a new permission defined in its catalog entry, not a local workaround.</p>
+<h2 id="multi-tenancy">
+  
+  
+    <a href="#multi-tenancy" class="anchor-heading" aria-labelledby="multi-tenancy"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Multi-tenancy
+  
+  
+</h2>
+    
+
+<p>Two independent axes, both enforced the same way — <strong>Postgres Row-Level Security policies</strong>, not application-code <code class="language-plaintext highlighter-rouge">WHERE</code> clauses a future query can forget to add — but answering different questions, and easy to conflate if read too quickly:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">organization_id</code></strong> — team/seat grouping. Every record that can belong to an <a href="../domain-model/users-and-organizations/#organization">Organization</a> is scoped by it, keyed off a session variable the API layer sets per request (<code class="language-plaintext highlighter-rouge">SET LOCAL app.current_org_id = ...</code>). This matters even before Organizations are customer-facing everywhere (see <a href="../decisions/#2-organizations">Decisions</a>) — the column and the policy exist and are enforced from day one so neither is a migration later.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">tenant_id</code></strong> — infrastructure placement. Every record scoped to one <a href="../domain-model/applications/">Application</a> carries it, denormalized from that Application’s own <code class="language-plaintext highlighter-rouge">tenant_id</code> (see <a href="../domain-model/tenancy/">Tenancy</a>), keyed off a second session variable (<code class="language-plaintext highlighter-rouge">SET LOCAL app.current_tenant_id = ...</code>). For a <code class="language-plaintext highlighter-rouge">shared</code>-tier <a href="../domain-model/tenancy/#tiers">Tenant</a> this policy is the <em>only</em> isolation in place; for <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code>, the row additionally never lives on the same physical cluster as another Tenant’s rows at all — the RLS policy and the physical placement are deliberately redundant, not an either/or.</li>
+</ul>
+
+<p>A query that omits either session variable should fail closed (return nothing) by policy default, not fail open. See <a href="../decisions/#11-tenant-vs-organization">Decisions → Tenant vs. Organization</a> for why these are two columns and two policies, not one.</p>
+<h2 id="concurrency-control">
+  
+  
+    <a href="#concurrency-control" class="anchor-heading" aria-labelledby="concurrency-control"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Concurrency control
+  
+  
+</h2>
+    
+
+<p>Entitlement, Role assignment, and Settings writes can race — two support agents acting on the same user, or a webhook retry landing alongside a manual edit. Mutating endpoints on these resources accept an <code class="language-plaintext highlighter-rouge">If-Match</code> header carrying the resource’s current version (returned as an <code class="language-plaintext highlighter-rouge">ETag</code> on every <code class="language-plaintext highlighter-rouge">GET</code>); a write with a stale or missing <code class="language-plaintext highlighter-rouge">ETag</code> where one was expected returns <code class="language-plaintext highlighter-rouge">409</code> with <code class="language-plaintext highlighter-rouge">code: "version_conflict"</code> rather than silently applying a last-write-wins update. Endpoints where this matters most: <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code>, <code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/apps/{appId}/settings</code>, <code class="language-plaintext highlighter-rouge">POST</code>/<code class="language-plaintext highlighter-rouge">DELETE</code> on role assignments.</p>
+<h2 id="transaction-boundaries">
+  
+  
+    <a href="#transaction-boundaries" class="anchor-heading" aria-labelledby="transaction-boundaries"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Transaction boundaries
+  
+  
+</h2>
+    
+
+<p>Any write described as “also creates” or “also assigns” elsewhere in this spec — most notably <code class="language-plaintext highlighter-rouge">POST /v1/users</code> creating a default Profile, Settings, and <code class="language-plaintext highlighter-rouge">member</code> Role assignment in one call — is one database transaction. A partial failure (e.g. the Role assignment insert fails) rolls back the whole call; the client sees a single error, not a half-created User. The same rule applies to <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> and its <a href="../domain-model/orders-and-audit/#audit-event">Audit Event</a>: the state change and the audit record are written together or not at all — an Audit Event that doesn’t actually correspond to a committed change is worse than no Audit Event.</p>
+<h2 id="audit">
+  
+  
+    <a href="#audit" class="anchor-heading" aria-labelledby="audit"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Audit
+  
+  
+</h2>
+    
+
+<p>Every write to an Entitlement, a Role assignment, or an admin-initiated change to a user’s Profile or Settings produces an immutable <a href="../domain-model/orders-and-audit/">Audit Event</a>: actor, action, target, before/after snapshot, timestamp. Audit events are never deleted or edited, including when the record they describe is later deleted.</p>
+<h2 id="idempotency--retries">
+  
+  
+    <a href="#idempotency--retries" class="anchor-heading" aria-labelledby="idempotency--retries"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Idempotency &amp; retries
+  
+  
+</h2>
+    
+
+<p>Billing webhooks retry. Admin tooling double-clicks. Any mutating endpoint that creates or transitions an Entitlement or Order-linked record <strong>must</strong> accept an <code class="language-plaintext highlighter-rouge">Idempotency-Key</code> header and return the original result on a repeated key rather than creating a duplicate. See <a href="../api-reference/conventions/#idempotency">Conventions</a>.</p>
+<h2 id="rate-limiting">
+  
+  
+    <a href="#rate-limiting" class="anchor-heading" aria-labelledby="rate-limiting"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Rate limiting
+  
+  
+</h2>
+    
+
+<p>Per-API-key token bucket, returning <code class="language-plaintext highlighter-rouge">429</code> with a <code class="language-plaintext highlighter-rouge">Retry-After</code> header on exhaustion:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Scope</th>
+      <th>Limit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Default, all endpoints</td>
+      <td>100 requests/minute</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/entitlements</code>, <code class="language-plaintext highlighter-rouge">POST /v1/users</code></td>
+      <td>20 requests/minute — tighter, since these are the endpoints scripted abuse would hit first</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/applications/{appId}/effective-permissions</code></td>
+      <td>300 requests/minute — expected to be called on a hot path by downstream apps (see <a href="../trust-model/">Trust Model</a>), so it’s deliberately not bottlenecked at the default rate</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>These are starting defaults, not a promise — tune them against real traffic once the API is live, and raise per-key limits for high-volume service integrations (billing) rather than exempting them from limiting entirely. A call made through the <a href="../mcp-server/">MCP Server</a> counts against the same bucket as the REST call it translates to — there’s no separate “MCP traffic” dimension, since it’s the same credential hitting the same underlying endpoint.</p>
+<h2 id="versioning">
+  
+  
+    <a href="#versioning" class="anchor-heading" aria-labelledby="versioning"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Versioning
+  
+  
+</h2>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/v1</code> now. Additive, backward-compatible changes (new optional fields, new endpoints) ship without a version bump.</li>
+  <li>A breaking change gets a new version prefix. The old version keeps working for a minimum 6-month deprecation window, announced in the <a href="../changelog/">Changelog</a> the day the replacement ships, with a <code class="language-plaintext highlighter-rouge">Deprecation</code> and <code class="language-plaintext highlighter-rouge">Sunset</code> response header (RFC 8594) added to every response the old version serves from that point on.</li>
+  <li>Webhook payload versions are versioned independently of the URL version, since webhook consumers can’t negotiate a version the way a request-time client can.</li>
+  <li>The <a href="../mcp-server/">MCP Server</a>’s protocol version (negotiated per MCP’s own date-based scheme during <code class="language-plaintext highlighter-rouge">initialize</code>) is likewise independent of <code class="language-plaintext highlighter-rouge">/v1</code> — a protocol-version bump there doesn’t imply a <code class="language-plaintext highlighter-rouge">/v2</code> here, and vice versa.</li>
+  <li><strong>Enums can grow new values without a version bump.</strong> <code class="language-plaintext highlighter-rouge">EntitlementStatus</code>, <code class="language-plaintext highlighter-rouge">UserStatus</code>, and similar closed-looking lists in <a href="../openapi.yaml">openapi.yaml</a> are allowed to gain new members as additive, non-breaking changes. Clients — and any implementation — must treat an unrecognized enum value as “handle generically / no special case,” never as an error to reject the response over. This is a contract, not just a suggestion: don’t write a <code class="language-plaintext highlighter-rouge">switch</code> with no default case against any enum in this spec.</li>
+</ul>
+<h2 id="request-tracing">
+  
+  
+    <a href="#request-tracing" class="anchor-heading" aria-labelledby="request-tracing"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Request tracing
+  
+  
+</h2>
+    
+
+<p>Every response carries an <code class="language-plaintext highlighter-rouge">X-Request-Id</code> (server-generated if the caller didn’t send one in the request). Log it at every layer a request touches. This is what turns “a user says something failed around 2pm” into a specific, searchable trace — cheap to add at the start, expensive to retrofit once there’s production traffic to correlate.</p>
+<h2 id="testing-strategy">
+  
+  
+    <a href="#testing-strategy" class="anchor-heading" aria-labelledby="testing-strategy"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Testing strategy
+  
+  
+</h2>
+    
+
+<ul>
+  <li><strong>Contract tests</strong> validate the implementation’s actual responses against <a href="../openapi.yaml">openapi.yaml</a> — this is what keeps the machine-readable spec from silently drifting from reality, which is the normal failure mode for hand-maintained API docs.</li>
+  <li><strong>Unit tests</strong> on the <a href="../access-control/">Access Control</a> resolution logic (<code class="language-plaintext highlighter-rouge">effective_permissions</code>) specifically — it’s the one piece of logic every single request depends on, and it’s pure/deterministic enough to be cheap to test exhaustively (every combination of entitlement status × platform role × app role).</li>
+  <li><strong>Integration tests</strong> run against a real local Postgres (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Local development</a>), not a mocked data layer — the Row-Level Security policies in <a href="#multi-tenancy">Multi-tenancy</a> are exactly the kind of thing a mock would let silently pass while actually being broken.</li>
+  <li><strong>Seed/fixture data</strong> for local and test environments should be generated from the same request/response examples already in the <a href="../api-reference/">API Reference</a> — one source of realistic data, not a second hand-maintained copy that drifts from the docs.</li>
+</ul>
+<h2 id="data-retention">
+  
+  
+    <a href="#data-retention" class="anchor-heading" aria-labelledby="data-retention"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Data retention
+  
+  
+</h2>
+    
+
+<ul>
+  <li>Audit Events: retained indefinitely (compliance system of record) — see <a href="#audit-log-lifecycle">Audit log lifecycle</a> immediately below for how that stays true without every plan paying for the same amount of hot, directly-queryable storage.</li>
+  <li>Disabled/revoked Entitlements: retained, not deleted — re-enabling or investigating a dispute depends on the history.</li>
+  <li>Deleted Users: soft-deleted first (status transition), with a separate, deliberate hard-delete process for right-to-erasure requests — see <a href="#hard-delete-cascade">Hard-delete cascade</a> immediately below for what that process actually does, not just that it exists.</li>
+</ul>
+<h3 id="audit-log-lifecycle">
+  
+  
+    <a href="#audit-log-lifecycle" class="anchor-heading" aria-labelledby="audit-log-lifecycle"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Audit log lifecycle
+  
+  
+</h3>
+    
+
+<p>“Retained indefinitely” and <a href="../pricing/#enforcement">Pricing</a>’s plan-tiered “audit log hot-storage window” (30 days Starter / 1 year Team / negotiated Enterprise) are two different axes, not a contradiction:</p>
+
+<ol>
+  <li><strong>Hot storage.</strong> A freshly-written Audit Event lives in the primary <code class="language-plaintext highlighter-rouge">audit_events</code> table (Aurora Postgres) with its full <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> snapshot — queryable via <a href="../api-reference/audit/">API Reference → Audit</a> exactly as specified elsewhere on this page.</li>
+  <li><strong>Archival, at the end of the plan’s hot window.</strong> A scheduled job (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Audit log archival</a>) moves every Audit Event older than the owning Tenant’s hot window out of the hot table: <code class="language-plaintext highlighter-rouge">action</code>, <code class="language-plaintext highlighter-rouge">timestamp</code>, <code class="language-plaintext highlighter-rouge">actor_user_id</code>, and every other shape field move to cheap, indefinite cold storage; the <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> snapshot values — the one place the row could hold personal data — are dropped at this point rather than carried forward, the same redaction <a href="#hard-delete-cascade">Hard-delete cascade</a> step 4 already performs for a deleted User, just applied uniformly by age instead of by erasure request.</li>
+  <li><strong>Cold storage, forever.</strong> The shape-only archive is never deleted, satisfying “retained indefinitely” literally — what’s indefinite is the record that something happened, not a guarantee that its full payload stays warm (or stays at all) past the hot window. Retrieving an archived event for a dispute or investigation is a deliberately manual, support-mediated process, not a live API path — see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a> for the actual retrieval SLA.</li>
+</ol>
+
+<p>This is also why the hot/cold split doesn’t weaken <a href="../compliance/#gdpr-and-ccpa--build-for-it-now">Audit trail vs. erasure tension</a>: a snapshot value is gone (not just hidden) the moment it leaves hot storage, on every plan, regardless of whether a User ever requests erasure.</p>
+<h3 id="hard-delete-cascade">
+  
+  
+    <a href="#hard-delete-cascade" class="anchor-heading" aria-labelledby="hard-delete-cascade"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Hard-delete cascade
+  
+  
+</h3>
+    
+
+<p>Triggered by a verified erasure request, completing well within GDPR Article 12(3)’s 30-day ceiling — soft-delete (the <code class="language-plaintext highlighter-rouge">status: deleted</code> transition) is immediate; this is the follow-up. Runs in this order, each step committed before the next:</p>
+
+<ol>
+  <li>Delete <code class="language-plaintext highlighter-rouge">password_hash</code> and <code class="language-plaintext highlighter-rouge">mfa_secret</code> from every <a href="../domain-model/users-and-organizations/#useridentity">UserIdentity</a> row the User holds — the credential itself, not the row (the row’s <code class="language-plaintext highlighter-rouge">method</code>/<code class="language-plaintext highlighter-rouge">created_at</code> stays, as a record that an identity of that kind existed).</li>
+  <li>Delete the User’s <a href="../domain-model/profiles/">Profile</a> row outright.</li>
+  <li>For every <a href="../domain-model/profiles/#appprofile">AppProfile</a>/<a href="../domain-model/settings/#appsettings">AppSettings</a> row the User holds: scrub personally-identifying values out of <code class="language-plaintext highlighter-rouge">custom</code>/<code class="language-plaintext highlighter-rouge">overrides</code> (the Application’s own <code class="language-plaintext highlighter-rouge">settings_schema</code> is consulted to know which declared fields are PII-shaped — a free-text <code class="language-plaintext highlighter-rouge">display_handle</code> or similar, not a structural <code class="language-plaintext highlighter-rouge">boolean</code> preference), rather than deleting the row, since an Application may have a legitimate reason to know an entitlement-shaped record existed.</li>
+  <li>Redact <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> snapshot values (not the whole row) on every <a href="../domain-model/orders-and-audit/#audit-event">Audit Event</a> where this User is <code class="language-plaintext highlighter-rouge">target_user_id</code> — preserves <code class="language-plaintext highlighter-rouge">action</code>/<code class="language-plaintext highlighter-rouge">timestamp</code>/<code class="language-plaintext highlighter-rouge">actor_user_id</code> (the <em>shape</em> of what happened) while removing the one place a deleted field’s value could otherwise still be read back.</li>
+  <li>Leave <a href="../domain-model/entitlements/">Entitlement</a> and <a href="../domain-model/orders-and-audit/">Order</a> rows in place, pseudonymized by the cascade above having already removed the identifying data they’d otherwise join against — retained under a legitimate-interest basis (financial/business records) distinct from, and not overridden by, the erasure right.</li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/export</code> (see <a href="../api-reference/users/">API Reference → Users</a>) reads from the same tables this cascade writes to — the two are deliberately symmetric: export answers “what do you have on me,” erasure answers “stop having it,” and both need to agree on what “it” actually comprises.</p>
+<h2 id="availability-expectations-on-the-trust-model">
+  
+  
+    <a href="#availability-expectations-on-the-trust-model" class="anchor-heading" aria-labelledby="availability-expectations-on-the-trust-model"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Availability expectations on the trust model
+  
+  
+</h2>
+    
+
+<p>Because downstream apps verify access against this API (see <a href="../trust-model/">Trust Model</a>), this API’s availability is a dependency of every app in the catalog, not just the hub dashboard. JWT verification keeps apps functioning through a brief hub outage; live introspection calls do not. This is a reason to lean on JWTs for routine checks and reserve introspection for genuinely sensitive actions, independent of the latency tradeoff discussed on that page.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
