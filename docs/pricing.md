@@ -16,7 +16,7 @@ Three subscription tiers for what Substratal Apps itself charges — the platfor
 ---
 
 {: .decision }
-Illustrative, proposed numbers — grounded in the real infrastructure costs already established in [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) and [Tenancy](../domain-model/tenancy/), not a published price list. The tiers and their structure are settled; the dollar amounts are still a proposal until confirmed.
+Illustrative, proposed numbers — grounded in the real infrastructure costs already established in [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) and [Tenancy](../domain-model/tenancy/), not a published price list. The tiers, their structure, and how they're charged are settled; the dollar amounts are still awaiting confirmation ([DECISIONS.md #31](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)).
 
 ## Who pays whom, again
 
@@ -24,8 +24,7 @@ Keep this straight before reading tiers: [Orders & Audit → Billing system of r
 
 ## What "seat" means here
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #23](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#23-seat-counting-caps--stripe-quantity-sync)). The seat definition, Starter's hard cap of 1,000 (`409 plan_limit_reached`), and the daily Stripe `quantity` sync with no mid-period proration (see [Enforcement](#enforcement) and [Stripe catalog](#stripe-catalog)) are all proposed. **Alternative:** real-time quantity sync with prorations. It's more accurate, but noisier for customers and means more Stripe API calls.
+Seats sync to Stripe once a day with no mid-period proration (see [Enforcement](#enforcement) and [Stripe catalog](#stripe-catalog)). Real-time sync with prorations was considered and not chosen: it's more accurate, but noisier for customers and means more Stripe API calls.
 
 A **seat** is a distinct, non-test-mode User whose *resolved* access is `active` to at least one Application this Tenant owns, by a personal Entitlement or through an [Organization](../domain-model/users-and-organizations/)'s org-wide grant that includes them (see [Access Control](../access-control/#the-algorithm)). A User with access to three of the Tenant's apps is **one** seat. An org-wide grant counts every member it includes. Suspended and deleted Users don't count. It's computed directly from existing Entitlement and membership rows, with no new tracking primitive. Deliberately **provisioned, not activity-based** (not "monthly active users") — a seat count a customer can predict and budget against, consistent with [Entitlement](../domain-model/entitlements/) already being a persistent on/off state rather than a usage log.
 
@@ -65,8 +64,7 @@ Every limit in the table above is checked server-side, at write time, on the Ten
 
 ## Subscription lapse & downgrades
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #24](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#24-subscription-lapse--downgrade-behavior)). A lapsed paid Tenant becomes `restricted` rather than suspended, so no end user is cut off because of their developer's billing problem. An Organization-owned Tenant never reverts to `starter`, which the database rejects. **Alternative:** suspend the Tenant on lapse. That's rejected as proposed, because it punishes end users who did nothing wrong.
+A lapsed paid Tenant becomes `restricted` rather than suspended, so no end user is cut off because of their developer's billing problem. An Organization-owned Tenant never reverts to `starter`, which the database rejects.
 
 | Situation | What happens |
 |---|---|
@@ -78,8 +76,7 @@ Every limit in the table above is checked server-side, at write time, on the Ten
 
 ## Stripe catalog
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #25](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#25-stripe-object-model--plan-changes)). Starter is a Stripe Customer with no Subscription, which avoids $0 subscriptions that must be cancelled and replaced on upgrade. Team upgrades go through Stripe Checkout and self-service management through the Customer Portal; Enterprise is sales-led. Billing is monthly, USD only, and tax-exclusive with Stripe Tax. **Still open, none blocking:** annual plans, a Team free trial, and whether Starter requires a card on file.
+Starter is a Stripe Customer with no Subscription, which avoids $0 subscriptions that must be cancelled and replaced on upgrade. Team upgrades go through Stripe Checkout and self-service management through the Customer Portal; Enterprise is sales-led. Billing is monthly, USD only, and tax-exclusive with Stripe Tax.
 
 The Products and Prices configured in Stripe. Lookup keys are what the code references, never Stripe price ids, so test and live mode can share code.
 
@@ -92,7 +89,7 @@ The Products and Prices configured in Stripe. Lookup keys are what the code refe
 | Dedicated-region tenancy add-on | `addon_dedicated_region_monthly_usd` | $1,500.00 | Enterprise only. Replaces the isolated add-on. |
 
 - **Starter has no Stripe Subscription.** The Tenant has a Customer, and `plan: starter` is the absence of a paid subscription. That avoids $0 subscriptions that would need cancelling and replacing on upgrade.
-- **Monthly, USD, tax-exclusive** (Stripe Tax enabled) at launch. Annual plans and a Team trial are open questions. They don't block the build.
+- **Monthly, USD, tax-exclusive** (Stripe Tax enabled) at launch. Annual plans, a Team trial, and whether Starter requires a card on file are open questions ([DECISIONS.md #31](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)). They don't block the build.
 - **Seat quantity** is written to the `team_seats_monthly_usd` item by a daily job (00:15 UTC) with `proration_behavior: none`. Each invoice charges for the seat count on the day before it's issued, with no mid-period proration.
 - Every Stripe object carries `metadata.tenant_id`. Every Product carries `metadata.substratal_plan` (`team`/`enterprise`) or `metadata.substratal_addon`, which is how the webhook handler maps a subscription back to `plan`.
 

@@ -142,8 +142,7 @@ The result: an agent integration is safer by default without being less capable 
 
 ## Test vs. live
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #30](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#30-test-mode-data-isolation)). Uniqueness constraints include `test_mode` (e.g. `unique (email, test_mode) where deleted_at is null`), so a test signup can't collide with a live one. A test-mode credential sees only test-mode rows and a live credential only live rows, enforced by the same Row-Level Security mechanism as `tenant_id`. Test-mode rows older than 30 days are purged nightly.
+Uniqueness constraints include `test_mode` (e.g. `unique (email, test_mode) where deleted_at is null`), so a test signup can't collide with a live one. A test-mode credential sees only test-mode rows and a live credential only live rows, enforced by the same Row-Level Security mechanism as `tenant_id`. Test-mode rows older than 30 days are purged nightly.
 
 `mode: "test"` produces a `satk_test_…` secret instead of `satk_live_…` — same permissions and scope, but every resource it creates (Users, Entitlements, anything) is tagged `test_mode: true`:
 
@@ -155,8 +154,7 @@ This is how an Application's developer integration-tests against the real API wi
 
 ## App-confined permissions
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #17](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#17-app-scoped-api-key-confinement)). A developer's backend has to reflect its own billing outcomes into Entitlements (see [Billing system of record](../../domain-model/orders-and-audit/#billing-system-of-record)). Without app confinement it would have no safe credential to do that with: an app-scoped key couldn't hold `entitlements.manage`, and a platform-scoped key that could would reach every Application. Confinement keeps the safety property: a compromised app key still can't touch a *different* Application or escalate anyone's platform standing. **Alternative:** a platform-run "billing bridge" that developers post outcomes to. It adds a component without actually reducing risk.
+Why app-scoped keys can carry these permissions at all: a developer's backend has to reflect its own billing outcomes into Entitlements (see [Billing system of record](../../domain-model/orders-and-audit/#billing-system-of-record)). Without app confinement it would have no safe credential to do that with. An app-scoped key couldn't hold `entitlements.manage`, and a platform-scoped key that could would reach every Application. Confinement keeps the safety property: a compromised app key still can't touch a *different* Application or escalate anyone's platform standing. A platform-run "billing bridge" for developers to post outcomes to was considered and not chosen, because it adds a component without reducing risk.
 
 An app-scoped key may carry its Application's own `app.<slug>.*` keys, plus four platform permissions in **confined** form. The server automatically restricts each one to rows belonging to the key's own Application:
 

@@ -82,8 +82,7 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
 
 ## Who can manage an Application's catalog entry
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #18](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#18-developer-onboarding-before-phase-3)). Concierge onboarding: through Phase 2, Substratal staff create every Application with the paying customer as its owner. From then on, the owner self-serves everything else for their own Application: configuration, app-scoped API Keys, webhooks, reading its Tenant, and their subscription via [Billing](../../api-reference/billing/). For an Organization-owned Application, "owner" means any `org_admin` of the owning Organization. **To confirm:** paying external developers will exist before Phase 3. If they won't, Pricing/Stripe can slip to Phase 3 alongside the marketplace.
+**Onboarding before Phase 3 is concierge.** Paying external developers exist before self-service registration does. Through Phase 2, Substratal staff create every Application with the paying customer as its owner. From then on, the owner self-serves everything else for their own Application: configuration, app-scoped API Keys, webhooks, reading its Tenant, and their subscription via [Billing](../../api-reference/billing/). For an Organization-owned Application, "owner" means any `org_admin` of the owning Organization.
 
 Two distinct rights, not one:
 

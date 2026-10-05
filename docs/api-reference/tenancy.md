@@ -70,8 +70,7 @@ Returns the Tenant object above. `404 tenant_not_found` for a caller who isn't a
 
 ## `POST /v1/tenants/{id}/tier-change-requests`
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #27](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#27-supported-regions-for-dedicated_region)). The initial `dedicated_region` allow-list is `us-east-1`, `us-west-2`, `ca-central-1`, `eu-west-1`, `eu-central-1`, `ap-southeast-2`. Any other region returns `422 unsupported_region`. Adding a region is a support/ops decision and needs no API change.
+The `dedicated_region` allow-list is `us-east-1`, `us-west-2`, `ca-central-1`, `eu-west-1`, `eu-central-1`, `ap-southeast-2`. Any other region returns `422 unsupported_region`. Adding a region is a support/ops decision and needs no API change.
 
 ```json
 // Request

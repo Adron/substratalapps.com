@@ -59,7 +59,7 @@ Matches the [Roadmap → MVP](https://adron.github.io/substratalapps.com/roadmap
 Matches [Roadmap → Phase 2](https://adron.github.io/substratalapps.com/roadmap/#phase-2):
 
 1. **App-scoped Roles** — extend the Phase 1 Role/permission machinery with `scope: <application_id>` and `available_app_roles` on Application. Not a new system, the same tables with a column that was already reserved for this.
-2. **`app_profiles`/`app_settings` tables**, with the [typed generated-column mechanism](https://adron.github.io/substratalapps.com/domain-model/database-schema/#typed-fields-generated-columns-over-jsonb) for declared `settings_schema` fields.
+2. **`app_profiles`/`app_settings` tables**, with the [typed generated-column mechanism](https://adron.github.io/substratalapps.com/domain-model/database-schema/#typed-fields-per-application-views-and-expression-indexes) for declared `settings_schema` fields.
 3. **[Webhooks](https://adron.github.io/substratalapps.com/api-reference/webhooks/)** — delivery queue, signing, the retry/backoff schedule. This is also where the [Trust Model's](https://adron.github.io/substratalapps.com/trust-model/#how-fast-does-revocation-need-to-land) **required** immediate-revocation integration becomes real: an Application can't actually meet that requirement until this ships, so treat Phase 2 webhooks as a hard prerequisite for telling any real Application developer their integration is compliant, not a nice-to-have.
 4. **Live introspection** (`effective-permissions`) — the other half of the [Trust Model](https://adron.github.io/substratalapps.com/trust-model/), alongside the app token from Phase 1's Auth work.
 5. **[Organizations](https://adron.github.io/substratalapps.com/api-reference/organizations/)** — `organizations`, `organization_memberships`, org-wide Entitlements with `member_scope`/`member_overrides`. Pulled forward from a hypothetical later phase per [Domain Model → Organization](https://adron.github.io/substratalapps.com/domain-model/users-and-organizations/#organization) — both individual and team end users are expected from early on.
@@ -89,9 +89,6 @@ Not a phase — these apply from Phase 0 onward and should never be "added later
 
 ## What's still open, and what it blocks
 
-See [DECISIONS.md](DECISIONS.md) for the full, current list. Decisions #1–#15 are resolved. Decisions #16–#30, added in the 2026-10-05 implementation-readiness pass, are **🟡 Proposed**: the spec already contains a complete, buildable default for each, so **none of them blocks starting Phase 0 or Phase 1**. They need confirmation before the phase that depends on them:
+See [DECISIONS.md](DECISIONS.md) for the current list. Decisions #1–#30 are resolved, and each answer is written into the spec page it governs. #16–#30 were confirmed on 2026-10-05, and #29 was applied: per-user, per-Application paths use `/apps/{appId}`.
 
-| Before | Confirm |
-|---|---|
-| Phase 1 | #16 embedded login is acceptable for first-party apps · #17 app-confined API key permissions · #26 7-day erasure grace · #28 SES + Substratal-branded email · #29 path naming (`/apps/` vs `/applications/`) — the cheapest to fix before any endpoint exists · #30 test-mode isolation |
-| Phase 2 | #18 concierge onboarding with paying developers before Phase 3 · #19 derived `access.*` webhooks · #20 order references & billing permissions · #21 typed settings via views + expression indexes · #22 self-service Organization creation · #23–#25 seats, lapse, and the Stripe object model · #27 the region list |
+The one open question, [#31](DECISIONS.md#31-published-prices-and-billing-options), covers the final Pricing dollar amounts plus annual plans, a Team trial, and whether Starter needs a card on file. **It blocks nothing in any phase:** prices are Stripe configuration, not code, and each billing option is additive. Settle it before the Phase 2 Billing work goes live to paying customers.

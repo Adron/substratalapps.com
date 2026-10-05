@@ -30,7 +30,7 @@ Deliberately **staying** on the docs site despite being borderline: `compliance.
 
 ## Status
 
-**Specification-complete for an MVP build; implementation has not started.** The API described at [adron.github.io/substratalapps.com](https://adron.github.io/substratalapps.com/) is a target contract, not a running service — there is no code in this repository yet beyond the documentation site itself and this planning layer. See [PLAN.md](PLAN.md) for the build order and [DECISIONS.md](DECISIONS.md) for questions still awaiting a decision. Decisions #1–#15 are resolved and written into the spec pages they govern; #16–#30 are 🟡 proposed, each with a complete, buildable default already in the spec and an "Awaiting decision" callout on the page it affects. Check `DECISIONS.md` before starting a phase, since real implementation can surface a new question nobody asked yet.
+**Specification-complete for an MVP build; implementation has not started.** The API described at [adron.github.io/substratalapps.com](https://adron.github.io/substratalapps.com/) is a target contract, not a running service — there is no code in this repository yet beyond the documentation site itself and this planning layer. See [PLAN.md](PLAN.md) for the build order and [DECISIONS.md](DECISIONS.md) for questions still awaiting a decision. Decisions #1–#30 are resolved and written into the spec pages they govern; the only open question (#31, final prices and billing options) doesn't block the build. Check `DECISIONS.md` before starting a phase, since real implementation can surface a new question nobody asked yet.
 
 ## Working on the docs site locally
 

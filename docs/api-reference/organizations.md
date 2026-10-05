@@ -62,8 +62,7 @@ A non-admin caller sees every Organization they hold an [OrganizationMembership]
 
 ## `POST /v1/organizations`
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #22](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#22-who-can-create-an-organization)). Self-service creation (any active User; rate-limited) is what makes team end users from [Phase 2](../../roadmap/#phase-2) workable, instead of a Substratal staff member creating every team. **The guard that makes it safe:** an org admin can never *create* an org-wide grant for their own Organization. Only whoever controls the Application can. Without that rule, anyone could create an Organization and grant themselves free access to any app. **Alternative:** keep creation admin-only until Phase 3.
+Self-service creation (any active User, rate-limited) is what makes team end users from [Phase 2](../../roadmap/#phase-2) workable, rather than a Substratal staff member creating every team. **The guard that makes it safe:** an org admin can never *create* an org-wide grant for their own Organization. Only whoever controls the Application can. Without that rule, anyone could create an Organization and grant themselves free access to any app.
 
 ```json
 // Request

@@ -226,8 +226,7 @@ Revokes the session(s): the refresh token and any app refresh tokens in them sto
 
 ## Getting an app token
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #16](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#16-login-surface--app-token-issuance)). Embedded login is allowed now because every Application is first-party, so no third party ever handles a Substratal password. It is to be blocked for any Application not owned by Substratal once self-service registration ships, and the hosted sign-in page must exist before any third-party Application goes live. **Alternative:** build the hosted login page in Phase 1 and never allow embedded login. That's more secure for the eventual marketplace, but makes the MVP depend on a UI project.
+Embedded login is allowed today because every Application is first-party, so no third party ever handles a Substratal password. It's blocked for any Application not owned by Substratal once self-service registration ships, and the hosted sign-in page must exist before any third-party Application goes live. Requiring the hosted page from Phase 1 instead was considered and not chosen: it would make the MVP depend on a UI project.
 
 An **app token** is the per-Application JWT that [Trust Model](../../trust-model/) describes. Two ways to get one:
 
@@ -349,8 +348,7 @@ Accepts `application/json` and, for compatibility with standard OAuth client lib
 
 ## Email verification
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #28](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#28-transactional-email-provider--branding)). Transactional email (verification, password reset, invitations, MFA changes) is sent through **Amazon SES** in the same AWS account, so it adds no new sub-processor. Templates are Substratal-branded at MVP; an Application can set `email_from_name` and `support_url` so a message triggered from inside it names the app. A full per-Application custom domain and template is deferred.
+Transactional email (verification, password reset, invitations, MFA changes) is sent through **Amazon SES** in the same AWS account, so it adds no new sub-processor. Templates are Substratal-branded; an Application can set `email_from_name` and `support_url` so a message triggered from inside it names the app. A full per-Application custom domain and template is deferred.
 
 ### `POST /v1/auth/email/verify`
 

@@ -15,8 +15,7 @@ nav_order: 7
 
 ## Order
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #20](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#20-order-references--billing-permissions)). `order_id` as an opaque, developer-supplied reference (no entity, table, or endpoint) follows from the [billing system of record](#billing-system-of-record). `billing.manage` and `billing.refund` are re-pointed at the one billing relationship Substratal actually has, platform subscriptions. `billing.manage` lets support view a Tenant's subscription and usage and open its billing portal. `billing.refund` is reserved for Stripe credits and refunds, which are done in the Stripe dashboard today, so it has no endpoint yet.
+`order_id` is an opaque, developer-supplied reference (no entity, table, or endpoint), following from the [billing system of record](#billing-system-of-record). `billing.manage` and `billing.refund` apply to the one billing relationship Substratal actually has, platform subscriptions. `billing.manage` lets support view a Tenant's subscription and usage and open its billing portal. `billing.refund` is reserved for Stripe credits and refunds, which are done in the Stripe dashboard today, so it has no endpoint yet.
 
 **An Order isn't an entity in this API.** There's no `orders` table, no `ord_` resource, and no Orders endpoint. The commerce record an Entitlement traces back to lives in the *developer's own* billing system (see [Billing system of record](#billing-system-of-record) below). What this API stores is a **reference** to it:
 

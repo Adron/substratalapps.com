@@ -188,9 +188,6 @@ Idempotent: removing an assignment that's already gone also returns `204`, since
 
 ## `GET /v1/users/{id}/apps/{appId}/effective-permissions`
 
-{: .decision }
-**Open — not applied** ([DECISIONS.md #29](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#29-path-naming-apps-vs-applications)). This path spells the segment `/applications/{appId}`, while the per-user Profile and Settings paths use `/apps/{appId}`. The inconsistency is still in the spec. **Recommendation:** standardize on `/apps/{appId}` before the first endpoint is implemented, since renaming is free until then and a breaking change after.
-
 The live introspection check described throughout [Trust Model](../../trust-model/#2-live-introspection).
 
 ```json

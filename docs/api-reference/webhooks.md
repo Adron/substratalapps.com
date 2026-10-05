@@ -147,8 +147,7 @@ Filters: `event_id`, `status` (`succeeded`/`failed`/`pending`), and `since`. Ret
 
 ## Event types
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #19](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#19-derived-access-webhooks--user-status-in-access)). The derived, per-user `access.granted`/`access.revoked` events, and `allow()` requiring `user.status == "active"`, exist because the raw `entitlement.*` events missed real ways a user loses access: an org-wide grant being disabled (the event carries only `organization_id`), removal from an Organization, a `member_scope` exclusion, and a suspended or deleted user. The required set for [immediate revocation](../../trust-model/#how-fast-does-revocation-need-to-land) is therefore `access.revoked` + `role.removed`.
+Why the derived, per-user `access.granted`/`access.revoked` events exist, and why `allow()` requires `user.status == "active"`: the raw `entitlement.*` events miss real ways a user loses access. Those are an org-wide grant being disabled (the event carries only `organization_id`), removal from an Organization, a `member_scope` exclusion, and a suspended or deleted user. The required set for [immediate revocation](../../trust-model/#how-fast-does-revocation-need-to-land) is therefore `access.revoked` + `role.removed`.
 
 **Derived access events** fire per (user, Application) pair whenever a user's *resolved* access flips, whatever caused it. They're what an Application should build session handling on:
 

@@ -214,8 +214,7 @@ Every section reads from exactly the tables the [hard-delete cascade](../../non-
 
 ## `POST /v1/users/{id}/erasure-requests`
 
-{: .decision }
-**Proposed — confirm** ([DECISIONS.md #26](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#26-erasure-grace-period)). The 7-day delay before the hard-delete cascade sits well inside GDPR's 30-day ceiling, and gives support a window to cancel a request made in error or under account takeover. **Alternatives:** run the cascade immediately (no recovery), or wait the full 30 days.
+The 7-day delay before the hard-delete cascade sits well inside GDPR's 30-day ceiling, and gives support a window to cancel a request made in error or under account takeover.
 
 ```json
 // Request
