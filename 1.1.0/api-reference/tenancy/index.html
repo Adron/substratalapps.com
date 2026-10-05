@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(10)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(10) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(10) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(10) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.1.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.1.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Tenancy | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Tenancy" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.1.0/api-reference/tenancy/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.1.0/api-reference/tenancy/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Tenancy" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Tenancy","url":"https://adron.github.io/substratalapps.com/versions/1.1.0/api-reference/tenancy/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.1.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.1.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Tenancy</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="tenancy">
+  
+  
+    <a href="#tenancy" class="anchor-heading" aria-labelledby="tenancy"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Tenancy
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">Where a Tenant’s data lives, and the support-run process to change it. See <a href="../../domain-model/tenancy/">Domain Model → Tenancy</a> for the full field reference, and <a href="../billing/">Billing</a> for the Tenant’s platform subscription.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#who-counts-as-a-tenants-owner" id="markdown-toc-who-counts-as-a-tenants-owner">Who counts as a Tenant’s owner</a></li>
+  <li><a href="#endpoints" id="markdown-toc-endpoints">Endpoints</a></li>
+  <li><a href="#the-tenant-object" id="markdown-toc-the-tenant-object">The Tenant object</a></li>
+  <li><a href="#get-v1tenants" id="markdown-toc-get-v1tenants"><code class="language-plaintext highlighter-rouge">GET /v1/tenants</code></a></li>
+  <li><a href="#get-v1tenantsid" id="markdown-toc-get-v1tenantsid"><code class="language-plaintext highlighter-rouge">GET /v1/tenants/{id}</code></a></li>
+  <li><a href="#post-v1tenantsidtier-change-requests" id="markdown-toc-post-v1tenantsidtier-change-requests"><code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code></a></li>
+  <li><a href="#patch-v1tenantsidtier-change-requestsrequestid" id="markdown-toc-patch-v1tenantsidtier-change-requestsrequestid"><code class="language-plaintext highlighter-rouge">PATCH /v1/tenants/{id}/tier-change-requests/{requestId}</code></a></li>
+  <li><a href="#errors-specific-to-this-resource" id="markdown-toc-errors-specific-to-this-resource">Errors specific to this resource</a></li>
+</ol><hr />
+
+<p class="important">There’s no customer self-service endpoint to change a Tenant’s <code class="language-plaintext highlighter-rouge">tier</code> or <code class="language-plaintext highlighter-rouge">region</code>. Every tier write below requires <code class="language-plaintext highlighter-rouge">tenants.manage</code> (support/superadmin). A customer asks support, and support places the request on their behalf. A Tenant’s own owner can <strong>read</strong> everything here.</p>
+<h2 id="who-counts-as-a-tenants-owner">
+  
+  
+    <a href="#who-counts-as-a-tenants-owner" class="anchor-heading" aria-labelledby="who-counts-as-a-tenants-owner"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Who counts as a Tenant’s owner
+  
+  
+</h2>
+    
+
+<p>A Tenant is owned by either a User or an Organization. “Owner” here means the <code class="language-plaintext highlighter-rouge">owner_user_id</code> User, or any <code class="language-plaintext highlighter-rouge">org_admin</code> of <code class="language-plaintext highlighter-rouge">owner_organization_id</code>. Owners can read their Tenant, its tier-change requests, and its <a href="../billing/">billing</a>. Ordinary members of the owning Organization can’t.</p>
+<h2 id="endpoints">
+  
+  
+    <a href="#endpoints" class="anchor-heading" aria-labelledby="endpoints"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Endpoints
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Requires</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants</code></td>
+      <td>any User (own Tenants) or <code class="language-plaintext highlighter-rouge">tenants.manage</code> (all)</td>
+      <td>List Tenants.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants/{id}</code></td>
+      <td>owner, <code class="language-plaintext highlighter-rouge">tenants.manage</code>, or <code class="language-plaintext highlighter-rouge">billing.manage</code></td>
+      <td>Fetch one Tenant.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants/{id}/tier-change-requests</code></td>
+      <td><code class="language-plaintext highlighter-rouge">tenants.manage</code></td>
+      <td>Open a tier-change request on a customer’s behalf.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants/{id}/tier-change-requests</code></td>
+      <td>owner or <code class="language-plaintext highlighter-rouge">tenants.manage</code></td>
+      <td>List a Tenant’s tier-change requests.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants/{id}/tier-change-requests/{requestId}</code></td>
+      <td>owner or <code class="language-plaintext highlighter-rouge">tenants.manage</code></td>
+      <td>Fetch one request.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/tenants/{id}/tier-change-requests/{requestId}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">tenants.manage</code></td>
+      <td>Schedule, start, complete, or cancel a request.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Tenants are never created or deleted directly. One is created automatically the first time its owner gets an Application (see <a href="../applications/#post-v1applications">Applications → <code class="language-plaintext highlighter-rouge">POST</code></a>), and it persists after that.</p>
+<h2 id="the-tenant-object">
+  
+  
+    <a href="#the-tenant-object" class="anchor-heading" aria-labelledby="the-tenant-object"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The Tenant object
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tnt_01JAGC3D4E5F6G7H8J9K0L1M2N"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"organization"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_user_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_organization_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"isolated"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"plan"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enterprise"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"us-east-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"restricted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-02T10:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-14T03:12:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">region</code> is always set. It’s <code class="language-plaintext highlighter-rouge">us-east-1</code> for <code class="language-plaintext highlighter-rouge">shared</code> and <code class="language-plaintext highlighter-rouge">isolated</code>, and the chosen region for <code class="language-plaintext highlighter-rouge">dedicated_region</code>. Earlier drafts used <code class="language-plaintext highlighter-rouge">null</code> for “the default region”. Always returning a real value means a reader never has to know what the default is.</li>
+  <li><code class="language-plaintext highlighter-rouge">subscription_status</code> and <code class="language-plaintext highlighter-rouge">restricted</code> mirror the Stripe-synced billing state. See <a href="../billing/">Billing</a> and <a href="../../pricing/#subscription-lapse--downgrades">Pricing → Subscription lapse</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">status: migrating</code> holds for the duration of an <code class="language-plaintext highlighter-rouge">in_progress</code> tier change. While it does, reads keep working, and writes to that Tenant’s data return <code class="language-plaintext highlighter-rouge">503 service_unavailable</code> with <code class="language-plaintext highlighter-rouge">Retry-After</code>.</li>
+</ul>
+<h2 id="get-v1tenants">
+  
+  
+    <a href="#get-v1tenants" class="anchor-heading" aria-labelledby="get-v1tenants"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/tenants</code>
+  
+  
+</h2>
+    
+
+<p>A non-<code class="language-plaintext highlighter-rouge">tenants.manage</code> caller gets the Tenants they own: at most one owned personally, plus one per Organization where they’re <code class="language-plaintext highlighter-rouge">org_admin</code> and the Organization owns a Tenant. This is how a developer finds their own <code class="language-plaintext highlighter-rouge">tenant_id</code> without knowing it in advance. <code class="language-plaintext highlighter-rouge">tenants.manage</code> holders see every Tenant and can filter by <code class="language-plaintext highlighter-rouge">plan</code>, <code class="language-plaintext highlighter-rouge">tier</code>, <code class="language-plaintext highlighter-rouge">status</code>, <code class="language-plaintext highlighter-rouge">restricted</code>, <code class="language-plaintext highlighter-rouge">owner_user_id</code>, and <code class="language-plaintext highlighter-rouge">owner_organization_id</code>.</p>
+<h2 id="get-v1tenantsid">
+  
+  
+    <a href="#get-v1tenantsid" class="anchor-heading" aria-labelledby="get-v1tenantsid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/tenants/{id}</code>
+  
+  
+</h2>
+    
+
+<p>Returns the Tenant object above. <code class="language-plaintext highlighter-rouge">404 tenant_not_found</code> for a caller who isn’t an owner and lacks <code class="language-plaintext highlighter-rouge">tenants.manage</code>/<code class="language-plaintext highlighter-rouge">billing.manage</code>.</p>
+<h2 id="post-v1tenantsidtier-change-requests">
+  
+  
+    <a href="#post-v1tenantsidtier-change-requests" class="anchor-heading" aria-labelledby="post-v1tenantsidtier-change-requests"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code>
+  
+  
+</h2>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">dedicated_region</code> allow-list is <code class="language-plaintext highlighter-rouge">us-east-1</code>, <code class="language-plaintext highlighter-rouge">us-west-2</code>, <code class="language-plaintext highlighter-rouge">ca-central-1</code>, <code class="language-plaintext highlighter-rouge">eu-west-1</code>, <code class="language-plaintext highlighter-rouge">eu-central-1</code>, <code class="language-plaintext highlighter-rouge">ap-southeast-2</code>. Any other region returns <code class="language-plaintext highlighter-rouge">422 unsupported_region</code>. Adding a region is a support/ops decision and needs no API change.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"requested_tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dedicated_region"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"requested_region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eu-west-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer requires EU data residency; contract ref ENT-2026-014."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tcr_01JAGE5F6G7H8J9K0L1M2N3O4P"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tnt_01JAGC3D4E5F6G7H8J9K0L1M2N"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"from_tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"isolated"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"from_region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"us-east-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"requested_tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dedicated_region"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"requested_region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eu-west-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pending"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer requires EU data residency; contract ref ENT-2026-014."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scheduled_for"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"requested_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG9SUPPORT0000000000000"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-04T15:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"started_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"completed_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Validation:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">requested_tier</code> must be strictly higher on the ladder <code class="language-plaintext highlighter-rouge">shared &lt; isolated &lt; dedicated_region</code> (<code class="language-plaintext highlighter-rouge">409 invalid_tier_transition</code>). Moving down implies tearing down dedicated infrastructure and is handled by ops directly, not as a modeled transition. Changing region <em>within</em> <code class="language-plaintext highlighter-rouge">dedicated_region</code> counts as an upgrade request.</li>
+  <li>The Tenant’s <code class="language-plaintext highlighter-rouge">plan</code> must be <code class="language-plaintext highlighter-rouge">enterprise</code> (<code class="language-plaintext highlighter-rouge">409 plan_does_not_allow_tier</code>). Upgrade the plan first; see <a href="../billing/">Billing</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">requested_region</code> is required for <code class="language-plaintext highlighter-rouge">dedicated_region</code> and must be in the supported list: <code class="language-plaintext highlighter-rouge">us-east-1</code>, <code class="language-plaintext highlighter-rouge">us-west-2</code>, <code class="language-plaintext highlighter-rouge">ca-central-1</code>, <code class="language-plaintext highlighter-rouge">eu-west-1</code>, <code class="language-plaintext highlighter-rouge">eu-central-1</code>, <code class="language-plaintext highlighter-rouge">ap-southeast-2</code> (<code class="language-plaintext highlighter-rouge">422 unsupported_region</code>). It’s forbidden for <code class="language-plaintext highlighter-rouge">isolated</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">reason</code> is required, up to 2,000 characters.</li>
+  <li>There can be only one open (<code class="language-plaintext highlighter-rouge">pending</code>/<code class="language-plaintext highlighter-rouge">scheduled</code>/<code class="language-plaintext highlighter-rouge">in_progress</code>) request per Tenant (<code class="language-plaintext highlighter-rouge">409 tier_change_already_pending</code>).</li>
+</ul>
+
+<p>Creating a request doesn’t start a migration. It’s the record and the queue entry. Writes <code class="language-plaintext highlighter-rouge">tenant.tier_change_requested</code>. Destructive (it leads to a maintenance window), so a <code class="language-plaintext highlighter-rouge">restrict_destructive</code> key can’t call it.</p>
+<h2 id="patch-v1tenantsidtier-change-requestsrequestid">
+  
+  
+    <a href="#patch-v1tenantsidtier-change-requestsrequestid" class="anchor-heading" aria-labelledby="patch-v1tenantsidtier-change-requestsrequestid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">PATCH /v1/tenants/{id}/tier-change-requests/{requestId}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">schedule</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">maintenance</span><span class="w"> </span><span class="err">window</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"scheduled"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scheduled_for"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-11T06:00:00Z"</span><span class="p">,</span><span class="w"> </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer confirmed Sunday 06:00 UTC window."</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">begin</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">cutover</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"in_progress"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">finish</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w"> </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Snapshot restored to eu-west-1, routing flipped, smoke tests green."</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">updated</span><span class="w"> </span><span class="err">request</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>From → to</th>
+      <th>Side effects</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pending → scheduled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">scheduled_for</code> is required and must be in the future. Emails the owner the window.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pending</code>/<code class="language-plaintext highlighter-rouge">scheduled → in_progress</code></td>
+      <td>The Tenant’s <code class="language-plaintext highlighter-rouge">status</code> becomes <code class="language-plaintext highlighter-rouge">migrating</code>. <code class="language-plaintext highlighter-rouge">started_at</code> is set.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">in_progress → completed</code></td>
+      <td>The Tenant’s <code class="language-plaintext highlighter-rouge">tier</code>/<code class="language-plaintext highlighter-rouge">region</code> become the requested values and its <code class="language-plaintext highlighter-rouge">status</code> returns to <code class="language-plaintext highlighter-rouge">active</code>. <code class="language-plaintext highlighter-rouge">completed_at</code> is set. Writes <code class="language-plaintext highlighter-rouge">tenant.tier_changed</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pending</code>/<code class="language-plaintext highlighter-rouge">scheduled → cancelled</code></td>
+      <td>No Tenant change. <code class="language-plaintext highlighter-rouge">notes</code> is required.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">in_progress → cancelled</code></td>
+      <td>A rollback: the Tenant’s <code class="language-plaintext highlighter-rouge">status</code> returns to <code class="language-plaintext highlighter-rouge">active</code> on its <em>original</em> tier/region. <code class="language-plaintext highlighter-rouge">notes</code> is required.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Any other transition returns <code class="language-plaintext highlighter-rouge">409 invalid_request_transition</code>. Every change writes <code class="language-plaintext highlighter-rouge">tenant.tier_change_request_updated</code>. The physical migration steps are ops runbook work. See <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Migration mechanics</a>. This endpoint records and gates those steps; it doesn’t perform them.</p>
+<h2 id="errors-specific-to-this-resource">
+  
+  
+    <a href="#errors-specific-to-this-resource" class="anchor-heading" aria-labelledby="errors-specific-to-this-resource"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors specific to this resource
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{id}</code> doesn’t resolve or isn’t visible.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tier_change_request_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{requestId}</code> doesn’t resolve for this Tenant.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tier_change_already_pending</code></td>
+      <td>409</td>
+      <td>An open request already exists.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_tier_transition</code></td>
+      <td>409</td>
+      <td>Not an upgrade on the ladder.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plan_does_not_allow_tier</code></td>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> on a non-Enterprise plan.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">unsupported_region</code></td>
+      <td>422</td>
+      <td><code class="language-plaintext highlighter-rouge">requested_region</code> isn’t on the supported list.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_request_transition</code></td>
+      <td>409</td>
+      <td>A request <code class="language-plaintext highlighter-rouge">status</code> change not in the table above.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

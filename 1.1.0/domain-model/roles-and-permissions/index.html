@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(3)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(3) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(4) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(3) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list > li.nav-list-item:nth-child(3) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.1.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.1.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Roles &amp; Permissions | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Roles &amp; Permissions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.1.0/domain-model/roles-and-permissions/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.1.0/domain-model/roles-and-permissions/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Roles &amp; Permissions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Roles &amp; Permissions","url":"https://adron.github.io/substratalapps.com/versions/1.1.0/domain-model/roles-and-permissions/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.1.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.1.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.1.0/domain-model/">Domain Model</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Roles & Permissions</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="roles--permissions">
+  
+  
+    <a href="#roles--permissions" class="anchor-heading" aria-labelledby="roles--permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Roles &amp; Permissions
+  
+  
+</h1>
+    
+
+<ol id="markdown-toc">
+  <li><a href="#permission" id="markdown-toc-permission">Permission</a>    <ol>
+      <li><a href="#platform-permission-catalog" id="markdown-toc-platform-permission-catalog">Platform permission catalog</a></li>
+      <li><a href="#platform-role-grants" id="markdown-toc-platform-role-grants">Platform role grants</a></li>
+    </ol>
+  </li>
+  <li><a href="#role" id="markdown-toc-role">Role</a>    <ol>
+      <li><a href="#platformrole" id="markdown-toc-platformrole">PlatformRole</a></li>
+      <li><a href="#approle" id="markdown-toc-approle">AppRole</a></li>
+    </ol>
+  </li>
+  <li><a href="#userroleassignment" id="markdown-toc-userroleassignment">UserRoleAssignment</a></li>
+  <li><a href="#example-a-users-role-assignments" id="markdown-toc-example-a-users-role-assignments">Example: a user’s role assignments</a></li>
+  <li><a href="#this-is-deliberately-not-the-same-thing-as-entitlement" id="markdown-toc-this-is-deliberately-not-the-same-thing-as-entitlement">This is deliberately not the same thing as Entitlement</a></li>
+</ol><hr />
+<h2 id="permission">
+  
+  
+    <a href="#permission" class="anchor-heading" aria-labelledby="permission"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Permission
+  
+  
+</h2>
+    
+
+<p>An atomic, checkable capability, written as a dotted string key: <code class="language-plaintext highlighter-rouge">users.manage</code>, <code class="language-plaintext highlighter-rouge">billing.refund</code>, <code class="language-plaintext highlighter-rouge">app.timetrack.export</code>. Permissions are never assigned to a user directly — only through a Role. There’s no standalone <code class="language-plaintext highlighter-rouge">Permission</code> resource with its own lifecycle; the catalog of valid keys is effectively static, defined by the platform (for platform-scoped keys) and by each Application (for its own <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /v1/permissions
+</code></pre></div></div>
+<p>returns the full known set, for building role-assignment UI — see <a href="../../api-reference/roles-and-permissions/">API Reference → Roles &amp; Permissions</a>.</p>
+<h3 id="platform-permission-catalog">
+  
+  
+    <a href="#platform-permission-catalog" class="anchor-heading" aria-labelledby="platform-permission-catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Platform permission catalog
+  
+  
+</h3>
+    
+
+<p>The full set of platform-scoped permission keys. App-scoped keys (<code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code>) are defined per Application and aren’t listed here — see <a href="../applications/">Applications</a>.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Grants</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">users.list</code></td>
+      <td>List/search User accounts. On an app-scoped key, confined to users with an access path to that Application.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">users.manage</code></td>
+      <td>Create, update, suspend, delete User accounts.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlements.manage</code></td>
+      <td>Grant, toggle, and revoke Entitlements for any user. On an app-scoped key, confined to that Application.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">applications.manage</code></td>
+      <td>Create and edit Application catalog entries.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">roles.manage</code></td>
+      <td>Define Roles and assign/remove them on any user. Platform Roles can only be defined or assigned with permissions the caller already holds (no escalation). On an app-scoped key, confined to that Application’s Roles.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">organizations.manage</code></td>
+      <td>Manage <em>any</em> Organization: suspend/reactivate, membership, and member scope. Creating an Organization needs no permission, since any active User may.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">billing.manage</code></td>
+      <td>View any Tenant’s platform subscription and usage, and open its Stripe billing portal on the customer’s behalf. See <a href="../../api-reference/billing/">API Reference → Billing</a>. (Orders aren’t an entity of this API, so this permission is about Substratal’s own subscription billing only.)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">billing.refund</code></td>
+      <td>Issue platform-subscription refunds and credits. It’s split from <code class="language-plaintext highlighter-rouge">billing.manage</code> so support can be granted refund authority separately. There’s no API endpoint yet; refunds are issued in the Stripe dashboard, and this permission gates the future endpoint.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">audit.view</code></td>
+      <td>Query the Audit log for any user. On an app-scoped key, confined to that Application’s events.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">webhooks.manage</code></td>
+      <td>Manage <em>any</em> webhook subscription, and create <code class="language-plaintext highlighter-rouge">platform</code>-scoped ones. An Application’s own keys and owner manage that app’s subscriptions without it.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_keys.manage</code></td>
+      <td>Create, rotate, and revoke <em>any</em> API Key — see <a href="../../api-reference/api-keys/">API Keys</a>. An Application’s owner manages that app’s keys without it.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenants.manage</code></td>
+      <td>View any Tenant and request a tier change on a customer’s behalf — see <a href="../tenancy/">Tenancy</a>. Deliberately held by <code class="language-plaintext highlighter-rouge">support</code>: tier changes are gatekept by support today, not a self-service customer action, so this is the one permission a Tenant’s own owner never holds, even for their own Tenant.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="platform-role-grants">
+  
+  
+    <a href="#platform-role-grants" class="anchor-heading" aria-labelledby="platform-role-grants"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Platform role grants
+  
+  
+</h3>
+    
+
+<p>The exact permission set behind each built-in <a href="#platformrole">PlatformRole</a>:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Permissions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">superadmin</code></td>
+      <td>All of the above.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">support</code></td>
+      <td><code class="language-plaintext highlighter-rouge">users.list</code>, <code class="language-plaintext highlighter-rouge">entitlements.manage</code>, <code class="language-plaintext highlighter-rouge">audit.view</code>, <code class="language-plaintext highlighter-rouge">tenants.manage</code>, <code class="language-plaintext highlighter-rouge">billing.manage</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">billing_admin</code></td>
+      <td><code class="language-plaintext highlighter-rouge">billing.manage</code>, <code class="language-plaintext highlighter-rouge">billing.refund</code>, <code class="language-plaintext highlighter-rouge">audit.view</code>, <code class="language-plaintext highlighter-rouge">users.list</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">member</code></td>
+      <td>None — the default on signup; every permission a <code class="language-plaintext highlighter-rouge">member</code> effectively has comes from self-service endpoints (<code class="language-plaintext highlighter-rouge">me</code>), not from a granted permission.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>These are the platform’s own seed Roles, not a fixed enum — <code class="language-plaintext highlighter-rouge">superadmin</code> can define additional PlatformRoles with narrower grants (e.g. a <code class="language-plaintext highlighter-rouge">support_readonly</code> with only <code class="language-plaintext highlighter-rouge">users.list</code> and <code class="language-plaintext highlighter-rouge">audit.view</code>, no <code class="language-plaintext highlighter-rouge">entitlements.manage</code>) via <code class="language-plaintext highlighter-rouge">POST /v1/roles</code>.</p>
+<h2 id="role">
+  
+  
+    <a href="#role" class="anchor-heading" aria-labelledby="role"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Role
+  
+  
+</h2>
+    
+
+<p>A named bundle of Permissions, scoped either to the whole platform or to one Application.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">id</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">role_</code> prefix.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">name</code></td>
+      <td>string</td>
+      <td>e.g. <code class="language-plaintext highlighter-rouge">support</code>, <code class="language-plaintext highlighter-rouge">admin</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scope</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">"platform"</code> or an <code class="language-plaintext highlighter-rouge">application_id</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">permissions</code></td>
+      <td>array of strings</td>
+      <td>Permission keys this role grants.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="platformrole">
+  
+  
+    <a href="#platformrole" class="anchor-heading" aria-labelledby="platformrole"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> PlatformRole
+  
+  
+</h3>
+    
+
+<p>Applies everywhere, and typically governs the hub itself rather than any one product. Four seed roles — <code class="language-plaintext highlighter-rouge">superadmin</code>, <code class="language-plaintext highlighter-rouge">support</code>, <code class="language-plaintext highlighter-rouge">billing_admin</code>, <code class="language-plaintext highlighter-rouge">member</code> — ship with the platform; see <a href="#platform-role-grants">Platform role grants</a> above for the exact permission set each one carries.</p>
+<h3 id="approle">
+  
+  
+    <a href="#approle" class="anchor-heading" aria-labelledby="approle"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> AppRole
+  
+  
+</h3>
+    
+
+<p>Scoped to one Application (<code class="language-plaintext highlighter-rouge">scope</code> = that app’s <code class="language-plaintext highlighter-rouge">application_id</code>), and defined by whoever owns that app’s catalog entry via <code class="language-plaintext highlighter-rouge">Application.available_app_roles</code> — see <a href="../applications/">Applications</a>. The hub stores the definition and enforces the assignment; the app supplies the vocabulary and decides what each role name should be able to do inside it.</p>
+
+<p>A user can hold different AppRoles across different apps they own, entirely independently — being <code class="language-plaintext highlighter-rouge">admin</code> of one app says nothing about their standing in another.</p>
+<h2 id="userroleassignment">
+  
+  
+    <a href="#userroleassignment" class="anchor-heading" aria-labelledby="userroleassignment"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> UserRoleAssignment
+  
+  
+</h2>
+    
+
+<p>The join record between a User and a Role.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user_id</code></td>
+      <td>string</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_id</code></td>
+      <td>string</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_id</code></td>
+      <td>string, nullable</td>
+      <td>Set only for an AppRole assignment; <code class="language-plaintext highlighter-rouge">null</code> for a PlatformRole.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">assigned_at</code></td>
+      <td>timestamp</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">assigned_by</code></td>
+      <td>object</td>
+      <td><code class="language-plaintext highlighter-rouge">{ "type": "user" \| "api_key" \| "system", "id": "…" }</code>, the same actor shape as an <a href="../orders-and-audit/#audit-event">Audit Event</a>. The <code class="language-plaintext highlighter-rouge">member</code> Role assigned at signup is <code class="language-plaintext highlighter-rouge">system</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>An Application’s <code class="language-plaintext highlighter-rouge">default_app_role</code>, if set, is held <strong>implicitly</strong> by every user with active access, with no assignment row. <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/roles</code> lists it with <code class="language-plaintext highlighter-rouge">implicit: true</code>.</p>
+<h2 id="example-a-users-role-assignments">
+  
+  
+    <a href="#example-a-users-role-assignments" class="anchor-heading" aria-labelledby="example-a-users-role-assignments"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Example: a user’s role assignments
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w"> </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_platform_member"</span><span class="p">,</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w"> </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Resolving this user’s <code class="language-plaintext highlighter-rouge">effective_permissions</code> for <code class="language-plaintext highlighter-rouge">app_timetrack</code> means taking the permissions of every app-scoped Role they hold for <code class="language-plaintext highlighter-rouge">app_timetrack</code>, explicit and implicit: here, <code class="language-plaintext highlighter-rouge">role_timetrack_admin</code>. Platform Roles (<code class="language-plaintext highlighter-rouge">role_platform_member</code>) govern what the user can do <em>on the hub</em> and never contribute to an Application’s <code class="language-plaintext highlighter-rouge">effective_permissions</code>, because platform Roles can only hold platform keys and app Roles can only hold that app’s keys. See <a href="../../access-control/#step-2-effective-permissions">Access Control</a> for the full algorithm, including how this interacts with the Entitlement check that has to pass first.</p>
+<h2 id="this-is-deliberately-not-the-same-thing-as-entitlement">
+  
+  
+    <a href="#this-is-deliberately-not-the-same-thing-as-entitlement" class="anchor-heading" aria-labelledby="this-is-deliberately-not-the-same-thing-as-entitlement"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> This is deliberately not the same thing as Entitlement
+  
+  
+</h2>
+    
+
+<p>Holding <code class="language-plaintext highlighter-rouge">role_timetrack_admin</code> grants nothing if the user’s <a href="../entitlements/">Entitlement</a> to <code class="language-plaintext highlighter-rouge">app_timetrack</code> isn’t <code class="language-plaintext highlighter-rouge">active</code>. Roles describe what a user could do; Entitlement gates whether that matters right now. Don’t model “remove access” as removing a Role — that loses the role assignment entirely, instead of just pausing it. Use the Entitlement toggle.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
