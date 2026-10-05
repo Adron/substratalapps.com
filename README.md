@@ -46,7 +46,7 @@ Requires Ruby/Bundler. The site is pinned to the exact `github-pages` gem versio
 
 The docs site is versioned automatically. Every push to `main` that touches `docs/` runs [`.github/workflows/docs.yml`](.github/workflows/docs.yml), which:
 
-1. Assigns the next docs version: a patch bump by default. Put `[docs:minor]` or `[docs:major]` in any commit message in the push to bump further, or run the workflow by hand from the Actions tab and pick the bump.
+1. Assigns the next docs version: a patch bump by default. Put `[docs:minor]` or `[docs:major]` in any commit message since the last released version to bump further, or run the workflow by hand from the Actions tab and pick the bump.
 2. Builds that version as a frozen, self-contained snapshot (its own nav, search, and links, labelled archived, linking back to latest). It commits the snapshot to the **`docs-versions`** branch along with `manifest.yml`, the version history. CI never commits to `main`.
 3. Builds the live site, adds every archived snapshot under `/versions/<version>/`, and deploys it to GitHub Pages.
 

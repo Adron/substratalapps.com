@@ -1,8 +1,8 @@
 # Versioned build + deploy of the docs site to GitHub Pages.
 #
 # Every run publishes a new docs version: patch bump by default; put
-# [docs:minor] or [docs:major] in any commit message of the push to bump
-# further, or pick the bump when running it manually. The version's frozen
+# [docs:minor] or [docs:major] in any commit message since the last released
+# version to bump further, or pick the bump when running it manually. The version's frozen
 # snapshot is committed to the docs-versions branch (never to main), and
 # every archived snapshot is served at /versions/<version>/.
 # See scripts/docs-build.rb for the build itself.
@@ -42,6 +42,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # bump markers are read from every commit since the last version
 
       - name: Check out version archive
         run: |
@@ -62,14 +64,23 @@ jobs:
       - name: Pick version bump
         id: bump
         env:
-          COMMITS: ${{ toJSON(github.event.commits.*.message) }}
           INPUT_BUMP: ${{ inputs.bump }}
+        # Scans every commit since the last archived version, not just this
+        # push's: a queued run superseded by a newer push is cancelled, and
+        # its commits' markers must still count.
         run: |
           bump="${INPUT_BUMP:-patch}"
-          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-            if grep -q '\[docs:major\]' <<<"$COMMITS"; then bump=major
-            elif grep -q '\[docs:minor\]' <<<"$COMMITS"; then bump=minor; fi
+          last=$(ruby -ryaml -e 'm = File.exist?("_archive/manifest.yml") ? YAML.load_file("_archive/manifest.yml") : nil
+            v = ((m || {})["versions"] || []).first
+            print v ? v["commit"].to_s : ""')
+          if [ -n "$last" ] && git cat-file -e "$last^{commit}" 2>/dev/null; then
+            msgs=$(git log --format=%B "$last..HEAD")
+            echo "Scanning commits since v-last at ${last::7}"
+          else
+            msgs=$(git log -1 --format=%B)
           fi
+          if grep -q '\[docs:major\]' <<<"$msgs"; then bump=major
+          elif [ "$bump" != major ] && grep -q '\[docs:minor\]' <<<"$msgs"; then bump=minor; fi
           echo "level=$bump" >> "$GITHUB_OUTPUT"
 
       - name: Build versioned site
