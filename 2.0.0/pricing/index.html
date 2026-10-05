@@ -1,0 +1,643 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(13)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(13) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(13) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(13) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/2.0.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/2.0.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Pricing | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Pricing" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/2.0.0/pricing/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/2.0.0/pricing/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Pricing" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Pricing","url":"https://adron.github.io/substratalapps.com/versions/2.0.0/pricing/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/2.0.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v2.0.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="pricing">
+  
+  
+    <a href="#pricing" class="anchor-heading" aria-labelledby="pricing"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Pricing
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">Three subscription tiers for what Substratal Apps itself charges — the platform’s own customer, in every tier below, is the <strong>Application owner</strong> (the developer), never their app’s end users.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#who-pays-whom-again" id="markdown-toc-who-pays-whom-again">Who pays whom, again</a></li>
+  <li><a href="#what-seat-means-here" id="markdown-toc-what-seat-means-here">What “seat” means here</a></li>
+  <li><a href="#the-three-tiers" id="markdown-toc-the-three-tiers">The three tiers</a></li>
+  <li><a href="#enforcement" id="markdown-toc-enforcement">Enforcement</a></li>
+  <li><a href="#subscription-lapse--downgrades" id="markdown-toc-subscription-lapse--downgrades">Subscription lapse &amp; downgrades</a></li>
+  <li><a href="#stripe-catalog" id="markdown-toc-stripe-catalog">Stripe catalog</a></li>
+  <li><a href="#enterprise-tenancy-tier-options" id="markdown-toc-enterprise-tenancy-tier-options">Enterprise tenancy tier options</a></li>
+  <li><a href="#why-these-three-and-not-something-finer-grained" id="markdown-toc-why-these-three-and-not-something-finer-grained">Why these three, and not something finer-grained</a></li>
+  <li><a href="#how-the-subscription-is-charged" id="markdown-toc-how-the-subscription-is-charged">How the subscription is charged</a></li>
+  <li><a href="#keeping-these-numbers-honest" id="markdown-toc-keeping-these-numbers-honest">Keeping these numbers honest</a></li>
+</ol><hr />
+
+<p class="decision">Illustrative, proposed numbers — grounded in the real infrastructure costs already established in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a> and <a href="../domain-model/tenancy/">Tenancy</a>, not a published price list. The tiers and their structure are settled; the dollar amounts are still a proposal until confirmed.</p>
+<h2 id="who-pays-whom-again">
+  
+  
+    <a href="#who-pays-whom-again" class="anchor-heading" aria-labelledby="who-pays-whom-again"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Who pays whom, again
+  
+  
+</h2>
+    
+
+<p>Keep this straight before reading tiers: <a href="../domain-model/orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a> establishes that Substratal Apps is not a payment processor for a developer’s own end users — a developer bills <em>their</em> customers however they choose, entirely outside this API. This page is the other, previously-unaddressed direction: <strong>what Substratal charges the developer</strong> for the platform itself — user accounts, settings, organizations, tenancy, and storage, per <a href="../#what-substratal-apps-actually-is">Home</a>. Two separate billing relationships, two separate pages; <a href="../domain-model/orders-and-audit/#billing-system-of-record">Billing system of record</a> covers the first, this page covers the second.</p>
+<h2 id="what-seat-means-here">
+  
+  
+    <a href="#what-seat-means-here" class="anchor-heading" aria-labelledby="what-seat-means-here"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What “seat” means here
+  
+  
+</h2>
+    
+
+<p class="decision"><strong>Proposed — confirm</strong> (<a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#23-seat-counting-caps--stripe-quantity-sync">DECISIONS.md #23</a>). The seat definition, Starter’s hard cap of 1,000 (<code class="language-plaintext highlighter-rouge">409 plan_limit_reached</code>), and the daily Stripe <code class="language-plaintext highlighter-rouge">quantity</code> sync with no mid-period proration (see <a href="#enforcement">Enforcement</a> and <a href="#stripe-catalog">Stripe catalog</a>) are all proposed. <strong>Alternative:</strong> real-time quantity sync with prorations. It’s more accurate, but noisier for customers and means more Stripe API calls.</p>
+
+<p>A <strong>seat</strong> is a distinct, non-test-mode User whose <em>resolved</em> access is <code class="language-plaintext highlighter-rouge">active</code> to at least one Application this Tenant owns, by a personal Entitlement or through an <a href="../domain-model/users-and-organizations/">Organization</a>’s org-wide grant that includes them (see <a href="../access-control/#the-algorithm">Access Control</a>). A User with access to three of the Tenant’s apps is <strong>one</strong> seat. An org-wide grant counts every member it includes. Suspended and deleted Users don’t count. It’s computed directly from existing Entitlement and membership rows, with no new tracking primitive. Deliberately <strong>provisioned, not activity-based</strong> (not “monthly active users”) — a seat count a customer can predict and budget against, consistent with <a href="../domain-model/entitlements/">Entitlement</a> already being a persistent on/off state rather than a usage log.</p>
+<h2 id="the-three-tiers">
+  
+  
+    <a href="#the-three-tiers" class="anchor-heading" aria-labelledby="the-three-tiers"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The three tiers
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th><strong>Starter</strong></th>
+      <th><strong>Team</strong></th>
+      <th><strong>Enterprise</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>For</td>
+      <td>A single developer (the “single-user consumer” case — this is you, building your first Application; <a href="#the-three-tiers">Team</a> is where “3+ Applications” belongs)</td>
+      <td>A company with one or more Organizations under a single Tenant</td>
+      <td>A corporate account at real scale, with infrastructure requirements of its own</td>
+    </tr>
+    <tr>
+      <td>Price</td>
+      <td><strong>$0/month</strong></td>
+      <td><strong>$49/month</strong> + $6/seat beyond 25 included</td>
+      <td><strong>From $999/month</strong> + volume seat pricing + <a href="#enterprise-tenancy-tier-options">tenancy tier</a></td>
+    </tr>
+    <tr>
+      <td>Applications</td>
+      <td>1</td>
+      <td>5</td>
+      <td>Unlimited</td>
+    </tr>
+    <tr>
+      <td>Tenant owned by an Organization</td>
+      <td>No (the owner must be an individual) — see <a href="#enforcement">Enforcement</a></td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>End-user Organizations &amp; org-wide grants in your apps</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Seats included</td>
+      <td>1,000 (hard cap)</td>
+      <td>25, then $6/seat with no cap</td>
+      <td>Negotiated (typically 500+), overage at the contract rate</td>
+    </tr>
+    <tr>
+      <td><a href="../domain-model/tenancy/">Tenant</a> tier available</td>
+      <td><code class="language-plaintext highlighter-rouge">shared</code> only</td>
+      <td><code class="language-plaintext highlighter-rouge">shared</code> only</td>
+      <td><strong>Choice of all three</strong> — see below</td>
+    </tr>
+    <tr>
+      <td>AppRoles per Application</td>
+      <td>Up to 3</td>
+      <td>Unlimited</td>
+      <td>Unlimited</td>
+    </tr>
+    <tr>
+      <td><a href="../api-reference/webhooks/">Webhook</a> subscriptions (per Tenant, across its apps)</td>
+      <td>1</td>
+      <td>10</td>
+      <td>Unlimited</td>
+    </tr>
+    <tr>
+      <td>Audit log hot-storage window</td>
+      <td>30 days</td>
+      <td>1 year</td>
+      <td>Negotiated, <a href="../compliance/">Compliance</a>-driven</td>
+    </tr>
+    <tr>
+      <td>Support</td>
+      <td>Community / best-effort email</td>
+      <td>Business-hours email</td>
+      <td>Dedicated channel, custom SLA</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p class="note">“Audit log hot-storage window” is how long an Audit Event stays in fast, directly-queryable storage — it is <strong>not</strong> a retention/deletion period. Every Audit Event is retained indefinitely regardless of plan; see <a href="../non-functional-requirements/#data-retention">Non-Functional Requirements → Data retention</a> for the cold-storage mechanism that keeps that true without keeping every plan’s hot storage the same size.</p>
+<h2 id="enforcement">
+  
+  
+    <a href="#enforcement" class="anchor-heading" aria-labelledby="enforcement"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Enforcement
+  
+  
+</h2>
+    
+
+<p>Every limit in the table above is checked server-side, at write time, on the Tenant that would own the new resource — independent of whether the calling credential otherwise has permission to make the call, the same “two independent gates” pattern <a href="../api-reference/api-keys/#agent-keys--restrict_destructive">API Keys → Agent keys</a> already uses for <code class="language-plaintext highlighter-rouge">restrict_destructive</code>. A platform admin’s <code class="language-plaintext highlighter-rouge">applications.manage</code> lets them call <code class="language-plaintext highlighter-rouge">POST /v1/applications</code>; it does not let them push a Starter Tenant past its own cap of 1.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Limit</th>
+      <th>Checked on</th>
+      <th>Rejected with</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Applications</td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/applications</code> — counts existing Applications owned by the same Tenant</td>
+      <td><code class="language-plaintext highlighter-rouge">409</code>, <code class="language-plaintext highlighter-rouge">code: "plan_limit_reached"</code>, <code class="language-plaintext highlighter-rouge">details: {"resource": "applications", "limit": 1, "current": 1}</code></td>
+    </tr>
+    <tr>
+      <td>AppRoles</td>
+      <td><code class="language-plaintext highlighter-rouge">POST</code>/<code class="language-plaintext highlighter-rouge">PATCH /v1/applications</code> (length of <code class="language-plaintext highlighter-rouge">available_app_roles</code>) and <code class="language-plaintext highlighter-rouge">POST /v1/roles</code> with an app <code class="language-plaintext highlighter-rouge">scope</code></td>
+      <td><code class="language-plaintext highlighter-rouge">409</code>, <code class="language-plaintext highlighter-rouge">code: "plan_limit_reached"</code>, <code class="language-plaintext highlighter-rouge">details: {"resource": "app_roles", "limit": 3, "current": 3}</code></td>
+    </tr>
+    <tr>
+      <td>Webhooks</td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/webhooks</code> — counts every app-scoped subscription across the Tenant’s Applications</td>
+      <td><code class="language-plaintext highlighter-rouge">409</code>, <code class="language-plaintext highlighter-rouge">code: "plan_limit_reached"</code>, <code class="language-plaintext highlighter-rouge">details: {"resource": "webhooks", ...}</code></td>
+    </tr>
+    <tr>
+      <td>Seats (Starter only)</td>
+      <td>Any write that would add a <em>new</em> seat: a personal or org grant, re-enabling, adding an org member under an <code class="language-plaintext highlighter-rouge">all_members</code>/<code class="language-plaintext highlighter-rouge">denylist</code> grant, or narrowing to an <code class="language-plaintext highlighter-rouge">allowlist</code> that includes new people</td>
+      <td><code class="language-plaintext highlighter-rouge">409</code>, <code class="language-plaintext highlighter-rouge">code: "plan_limit_reached"</code>, <code class="language-plaintext highlighter-rouge">details: {"resource": "seats", "limit": 1000, "current": 1000}</code>. Adding an org member past the cap still succeeds as a <em>membership</em>, but they don’t receive access through that org’s grants to the capped Tenant’s apps until a seat frees up or the plan is upgraded. Their <code class="language-plaintext highlighter-rouge">granted_via.member_decision</code> reads <code class="language-plaintext highlighter-rouge">seat_limit</code>.</td>
+    </tr>
+    <tr>
+      <td>Restricted Tenant</td>
+      <td>Any write above that adds usage, on a Tenant whose subscription lapsed (see <a href="#subscription-lapse--downgrades">below</a>)</td>
+      <td><code class="language-plaintext highlighter-rouge">402</code>, <code class="language-plaintext highlighter-rouge">code: "subscription_required"</code></td>
+    </tr>
+    <tr>
+      <td>Organizations</td>
+      <td>Not a count — see below</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>“Organizations: Not available” on Starter isn’t a count limit (a Tenant has exactly one owner either way) — it’s that a Starter Tenant’s owner must be a User, never an Organization: <code class="language-plaintext highlighter-rouge">check (plan != 'starter' or owner_type = 'user')</code> on <code class="language-plaintext highlighter-rouge">tenants</code>, the same database-level pattern already used for <a href="#enterprise-tenancy-tier-options"><code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> being Enterprise-only</a> — see <a href="../domain-model/database-schema/#tenants">Database Schema → tenants</a>. An Application’s owner being an Organization auto-provisions that Organization a Tenant on <code class="language-plaintext highlighter-rouge">plan: team</code>, never <code class="language-plaintext highlighter-rouge">starter</code>, specifically so this constraint is never actually reachable as a runtime error — see <a href="../domain-model/tenancy/#what-it-represents">Tenancy → What it represents</a>.</p>
+<h2 id="subscription-lapse--downgrades">
+  
+  
+    <a href="#subscription-lapse--downgrades" class="anchor-heading" aria-labelledby="subscription-lapse--downgrades"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Subscription lapse &amp; downgrades
+  
+  
+</h2>
+    
+
+<p class="decision"><strong>Proposed — confirm</strong> (<a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#24-subscription-lapse--downgrade-behavior">DECISIONS.md #24</a>). A lapsed paid Tenant becomes <code class="language-plaintext highlighter-rouge">restricted</code> rather than suspended, so no end user is cut off because of their developer’s billing problem. An Organization-owned Tenant never reverts to <code class="language-plaintext highlighter-rouge">starter</code>, which the database rejects. <strong>Alternative:</strong> suspend the Tenant on lapse. That’s rejected as proposed, because it punishes end users who did nothing wrong.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Situation</th>
+      <th>What happens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Payment fails (<code class="language-plaintext highlighter-rouge">past_due</code>)</td>
+      <td>Nothing changes for anyone. Stripe retries (Smart Retries, about 3 weeks) and emails the customer.</td>
+    </tr>
+    <tr>
+      <td>Subscription ends (<code class="language-plaintext highlighter-rouge">canceled</code>, <code class="language-plaintext highlighter-rouge">unpaid</code>, <code class="language-plaintext highlighter-rouge">incomplete_expired</code>, <code class="language-plaintext highlighter-rouge">paused</code>), and the Tenant is user-owned and its usage fits Starter</td>
+      <td><code class="language-plaintext highlighter-rouge">plan</code> drops to <code class="language-plaintext highlighter-rouge">starter</code>. Everything keeps working within Starter’s limits.</td>
+    </tr>
+    <tr>
+      <td>Subscription ends, and usage exceeds Starter, or the Tenant is Organization-owned (which Starter can’t be)</td>
+      <td><code class="language-plaintext highlighter-rouge">plan</code> stays as it was, and the Tenant becomes <strong><code class="language-plaintext highlighter-rouge">restricted: true</code></strong>. Every read, every existing grant, and every end user’s access keep working, so <strong>no end user is ever cut off by their developer’s billing problem</strong>. Anything that <em>adds usage</em> (a new Application, AppRole, or webhook subscription, or a grant that adds a seat) returns <code class="language-plaintext highlighter-rouge">402 subscription_required</code>. Resubscribing through Checkout clears it immediately.</td>
+    </tr>
+    <tr>
+      <td>Voluntary downgrade, Team → Starter</td>
+      <td>Cancel at period end in the Stripe Customer Portal. At period end, the rules above apply. <code class="language-plaintext highlighter-rouge">GET /v1/tenants/{id}/usage</code> → <code class="language-plaintext highlighter-rouge">fits_plans</code> tells the owner in advance whether they’ll land on Starter or in restricted mode.</td>
+    </tr>
+    <tr>
+      <td>Enterprise → anything</td>
+      <td>Handled by sales. An Enterprise Tenant on <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> can’t move to a non-Enterprise plan until ops has moved it back to <code class="language-plaintext highlighter-rouge">shared</code>, because the database enforces <code class="language-plaintext highlighter-rouge">plan = 'enterprise' or tier = 'shared'</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="stripe-catalog">
+  
+  
+    <a href="#stripe-catalog" class="anchor-heading" aria-labelledby="stripe-catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Stripe catalog
+  
+  
+</h2>
+    
+
+<p class="decision"><strong>Proposed — confirm</strong> (<a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#25-stripe-object-model--plan-changes">DECISIONS.md #25</a>). Starter is a Stripe Customer with no Subscription, which avoids $0 subscriptions that must be cancelled and replaced on upgrade. Team upgrades go through Stripe Checkout and self-service management through the Customer Portal; Enterprise is sales-led. Billing is monthly, USD only, and tax-exclusive with Stripe Tax. <strong>Still open, none blocking:</strong> annual plans, a Team free trial, and whether Starter requires a card on file.</p>
+
+<p>The Products and Prices configured in Stripe. Lookup keys are what the code references, never Stripe price ids, so test and live mode can share code.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Price lookup key</th>
+      <th>Amount</th>
+      <th>Shape</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Substratal Team</td>
+      <td><code class="language-plaintext highlighter-rouge">team_base_monthly_usd</code></td>
+      <td>$49.00</td>
+      <td>Flat, monthly, <code class="language-plaintext highlighter-rouge">quantity: 1</code>.</td>
+    </tr>
+    <tr>
+      <td>Substratal Team</td>
+      <td><code class="language-plaintext highlighter-rouge">team_seats_monthly_usd</code></td>
+      <td>$0 for seats 1–25, then $6.00 per seat</td>
+      <td><code class="language-plaintext highlighter-rouge">billing_scheme: tiered</code>, <code class="language-plaintext highlighter-rouge">tiers_mode: graduated</code>, licensed (not metered), <code class="language-plaintext highlighter-rouge">quantity</code> = seat count.</td>
+    </tr>
+    <tr>
+      <td>Substratal Enterprise</td>
+      <td><code class="language-plaintext highlighter-rouge">enterprise_&lt;tenant&gt;_base</code> / <code class="language-plaintext highlighter-rouge">_seats</code></td>
+      <td>Contract, at least $999/month base</td>
+      <td>Created per customer by sales, usually from a Stripe Quote.</td>
+    </tr>
+    <tr>
+      <td>Isolated tenancy add-on</td>
+      <td><code class="language-plaintext highlighter-rouge">addon_isolated_monthly_usd</code></td>
+      <td>$750.00</td>
+      <td>Enterprise only. Added to the subscription when a tier change to <code class="language-plaintext highlighter-rouge">isolated</code> completes.</td>
+    </tr>
+    <tr>
+      <td>Dedicated-region tenancy add-on</td>
+      <td><code class="language-plaintext highlighter-rouge">addon_dedicated_region_monthly_usd</code></td>
+      <td>$1,500.00</td>
+      <td>Enterprise only. Replaces the isolated add-on.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><strong>Starter has no Stripe Subscription.</strong> The Tenant has a Customer, and <code class="language-plaintext highlighter-rouge">plan: starter</code> is the absence of a paid subscription. That avoids $0 subscriptions that would need cancelling and replacing on upgrade.</li>
+  <li><strong>Monthly, USD, tax-exclusive</strong> (Stripe Tax enabled) at launch. Annual plans and a Team trial are open questions. They don’t block the build.</li>
+  <li><strong>Seat quantity</strong> is written to the <code class="language-plaintext highlighter-rouge">team_seats_monthly_usd</code> item by a daily job (00:15 UTC) with <code class="language-plaintext highlighter-rouge">proration_behavior: none</code>. Each invoice charges for the seat count on the day before it’s issued, with no mid-period proration.</li>
+  <li>Every Stripe object carries <code class="language-plaintext highlighter-rouge">metadata.tenant_id</code>. Every Product carries <code class="language-plaintext highlighter-rouge">metadata.substratal_plan</code> (<code class="language-plaintext highlighter-rouge">team</code>/<code class="language-plaintext highlighter-rouge">enterprise</code>) or <code class="language-plaintext highlighter-rouge">metadata.substratal_addon</code>, which is how the webhook handler maps a subscription back to <code class="language-plaintext highlighter-rouge">plan</code>.</li>
+</ul>
+
+<p>The API for all of this is <a href="../api-reference/billing/">API Reference → Billing</a>. The webhook handling is in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Stripe Billing</a>.</p>
+<h2 id="enterprise-tenancy-tier-options">
+  
+  
+    <a href="#enterprise-tenancy-tier-options" class="anchor-heading" aria-labelledby="enterprise-tenancy-tier-options"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Enterprise tenancy tier options
+  
+  
+</h2>
+    
+
+<p>This is the pricing dimension that maps directly onto <a href="../domain-model/tenancy/#fields">Tenant.tier</a> — an Enterprise customer picks how their data is physically isolated, and pays accordingly. Nothing new is invented here; these are the exact three tiers <a href="../domain-model/tenancy/#tiers">Tenancy → Tiers</a> already defines, priced:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Tier</th>
+      <th>What it is</th>
+      <th>Price</th>
+      <th>Why this number</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">shared</code></td>
+      <td>Included in the Enterprise base price</td>
+      <td>$0 extra</td>
+      <td>Same infrastructure as every other tenant, logically isolated by Row-Level Security — see <a href="../domain-model/tenancy/#tiers">Tenancy → Tiers</a>. Most Enterprise customers start here; it’s the volume/SLA terms that justify the Enterprise price, not the infrastructure.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">isolated</code></td>
+      <td>A dedicated Aurora Serverless v2 cluster, same region</td>
+      <td><strong>+$750/month</strong></td>
+      <td>The raw infrastructure add-on is ~$45–55/month (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a>) — the rest of this price is the value of real blast-radius isolation and the operational overhead of running and monitoring a dedicated cluster, not a cost pass-through.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dedicated_region</code></td>
+      <td>A dedicated cluster in the customer’s chosen AWS region</td>
+      <td><strong>+$1,500/month</strong></td>
+      <td>Roughly double <code class="language-plaintext highlighter-rouge">isolated</code>’s surcharge, matching <a href="../domain-model/tenancy/#tiers">Tenancy → Tiers</a>: “the <code class="language-plaintext highlighter-rouge">isolated</code> floor again, in a second region” — plus the compliance value of a genuine data-residency guarantee, the kind <a href="../compliance/#gdpr-and-ccpa--build-for-it-now">Compliance → GDPR</a> data residency conversations actually ask for.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>A tier change still goes through the exact process in <a href="../domain-model/tenancy/#how-a-tier-change-happens-today">Tenancy → How a tier change happens today</a> — support-run, scheduled maintenance window, <code class="language-plaintext highlighter-rouge">tenants.manage</code>-gated. Pricing doesn’t change that; choosing <code class="language-plaintext highlighter-rouge">isolated</code> on this page is the commercial side of the same support conversation, not a self-service toggle.</p>
+<h2 id="why-these-three-and-not-something-finer-grained">
+  
+  
+    <a href="#why-these-three-and-not-something-finer-grained" class="anchor-heading" aria-labelledby="why-these-three-and-not-something-finer-grained"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Why these three, and not something finer-grained
+  
+  
+</h2>
+    
+
+<p>Three tiers is deliberately the whole menu:</p>
+
+<ul>
+  <li><strong>Starter is free, not just cheap.</strong> <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Growth trajectory</a>’s first horizon — dozens of users, a handful of Applications — sits entirely inside Starter’s limits, and the shared-tier infrastructure cost of serving that is near-zero against the floor already being paid regardless (see <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Illustrative Tier 0 floor cost</a>). Charging for it would tax exactly the adoption this product needs most right now.</li>
+  <li><strong>Team’s per-seat price is value-based, not cost-plus.</strong> The marginal infrastructure cost of one more seat on shared <code class="language-plaintext highlighter-rouge">Tier 0</code> is effectively zero until a <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Scale-out</a> trigger fires — $6/seat is priced against what Team replaces (weeks of building user/org/settings/tenancy infrastructure, per <a href="../#what-substratal-apps-actually-is">Home</a>), not against AWS’s bill for that seat.</li>
+  <li><strong>Enterprise is the only tier where infrastructure choice is a pricing lever</strong>, because it’s the only tier where a customer’s own requirement (compliance, data residency) drives a real, named infrastructure cost — see <a href="#enterprise-tenancy-tier-options">Enterprise tenancy tier options</a> above. Below Enterprise, that choice isn’t offered at all, which is itself a deliberate simplification: a Starter or Team customer who needs <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> has outgrown those tiers by definition.</li>
+</ul>
+<h2 id="how-the-subscription-is-charged">
+  
+  
+    <a href="#how-the-subscription-is-charged" class="anchor-heading" aria-labelledby="how-the-subscription-is-charged"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> How the subscription is charged
+  
+  
+</h2>
+    
+
+<p>The platform subscription is processed through <strong>Stripe Billing</strong>. This is strictly Substratal’s own direct customer relationship: the Application owner paying for Starter/Team/Enterprise. It never covers a developer’s own end-user billing, which stays <a href="../domain-model/orders-and-audit/#billing-system-of-record">entirely outside this API</a>.</p>
+
+<p>Stripe was chosen because adopting it changes nothing else in this spec. PCI scope stays minimal by design: card data never touches this API, and Stripe is PCI-DSS Level 1 (see <a href="../compliance/#what-this-doesnt-cover">Compliance</a>). A subscription-billing product used only for Substratal’s own customers is also a far smaller integration than the marketplace payment-processor role this API explicitly doesn’t take on. Stripe is one of the platform’s two sub-processors, alongside AWS (see <a href="../compliance/#gdpr-and-ccpa--build-for-it-now">Compliance → GDPR (and CCPA)</a>).</p>
+
+<p>The implementation (object mapping, the <code class="language-plaintext highlighter-rouge">tenants</code> schema additions, webhook event handling) is specified in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Stripe Billing</a>, not here. It’s a build/ops concern, not part of the API that Applications and their developers call.</p>
+<h2 id="keeping-these-numbers-honest">
+  
+  
+    <a href="#keeping-these-numbers-honest" class="anchor-heading" aria-labelledby="keeping-these-numbers-honest"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Keeping these numbers honest
+  
+  
+</h2>
+    
+
+<p>The MCP servers researched alongside this pricing work are the ones that keep it grounded in reality rather than going stale:</p>
+
+<ul>
+  <li><strong>AWS Pricing MCP Server</strong> — verify the per-component cost assumptions in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture’s floor cost table</a> against live AWS pricing before this page’s infrastructure-derived numbers (the <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> surcharges above) are treated as current.</li>
+  <li><strong>AWS Billing and Cost Management MCP Server</strong> — once Tier 0 is live, pull actual spend and compare it against the floor-cost assumptions this page’s margins are built on; its Cost Anomaly Detection integration is also the fastest way to notice an Enterprise <code class="language-plaintext highlighter-rouge">isolated</code> Tenant’s real cost has drifted from the ~$45–55/month this page assumes.</li>
+  <li><strong>AWS Labs Postgres MCP Server</strong> — per-cluster health/usage data for <code class="language-plaintext highlighter-rouge">isolated</code> and <code class="language-plaintext highlighter-rouge">dedicated_region</code> Tenants specifically, informing whether a given Enterprise account’s actual resource consumption still matches the tier (and price) it’s on.</li>
+  <li><strong>Stripe’s official MCP server</strong> — now that these prices actually flow through <a href="#how-the-subscription-is-charged">Stripe Billing</a>, it’s the direct source for whether the Products/Prices configured in Stripe still match what this page states — the two are meant to be kept in sync by hand, the same relationship <a href="../api-reference/conventions/#machine-readable">Conventions → Machine-readable</a> already describes between this site’s prose and <code class="language-plaintext highlighter-rouge">openapi.yaml</code>.</li>
+</ul>
+
+<p>None of these are wired into the product — they’re the tooling recommendation for whoever maintains this page, so the numbers above get revisited against real data rather than left as a one-time guess.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

@@ -1,0 +1,421 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(11)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(11) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(11) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(11) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/2.0.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/2.0.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Compliance &amp; Data Protection | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Compliance &amp; Data Protection" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/2.0.0/compliance/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/2.0.0/compliance/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Compliance &amp; Data Protection" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Compliance &amp; Data Protection","url":"https://adron.github.io/substratalapps.com/versions/2.0.0/compliance/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/2.0.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v2.0.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="compliance--data-protection">
+  
+  
+    <a href="#compliance--data-protection" class="anchor-heading" aria-labelledby="compliance--data-protection"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Compliance &amp; Data Protection
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">What this API needs to do, legally and contractually, with the user data flowing through it — and a calibrated recommendation on which of SOC 2, HIPAA, GDPR, and CCPA actually apply, since “comply with everything” isn’t a real plan.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#the-short-version" id="markdown-toc-the-short-version">The short version</a></li>
+  <li><a href="#why-this-order" id="markdown-toc-why-this-order">Why this order</a></li>
+  <li><a href="#gdpr-and-ccpa--build-for-it-now" id="markdown-toc-gdpr-and-ccpa--build-for-it-now">GDPR (and CCPA) — build for it now</a></li>
+  <li><a href="#soc-2--design-the-posture-defer-the-audit" id="markdown-toc-soc-2--design-the-posture-defer-the-audit">SOC 2 — design the posture, defer the audit</a></li>
+  <li><a href="#hipaa--the-one-to-think-hardest-about" id="markdown-toc-hipaa--the-one-to-think-hardest-about">HIPAA — the one to think hardest about</a></li>
+  <li><a href="#what-this-doesnt-cover" id="markdown-toc-what-this-doesnt-cover">What this doesn’t cover</a></li>
+</ol><hr />
+
+<p class="note">This scope is decided, not just recommended: build GDPR/CCPA/CPRA mechanisms now (the hard-delete cascade, <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/export</code>, and the 72-hour breach-notification commitment below, not just a table of gaps). Build the SOC 2 posture now, and defer the formal Type I → Type II audit until a customer’s security review requires it. HIPAA is explicitly out of scope. Get real legal review before claiming any certification publicly; that caveat doesn’t go away just because the scope is decided.</p>
+<h2 id="the-short-version">
+  
+  
+    <a href="#the-short-version" class="anchor-heading" aria-labelledby="the-short-version"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The short version
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Regime</th>
+      <th>Is it optional?</th>
+      <th>Decision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>GDPR</strong></td>
+      <td>No — triggered by whose data you process, not a choice</td>
+      <td><strong>Built now.</strong> Mechanisms are cheap to add early and expensive to retrofit.</td>
+    </tr>
+    <tr>
+      <td><strong>CCPA/CPRA</strong></td>
+      <td>No, if any California residents’ data passes through</td>
+      <td><strong>Covered by the same mechanisms as GDPR</strong> below — no separate workstream.</td>
+    </tr>
+    <tr>
+      <td><strong>SOC 2</strong></td>
+      <td>Yes — a market/contractual requirement, not a law</td>
+      <td><strong>Design for the posture now</strong> (most of it is engineering practice you want anyway); <strong>defer the formal audit</strong> until a customer’s security questionnaire actually requires it.</td>
+    </tr>
+    <tr>
+      <td><strong>HIPAA</strong></td>
+      <td>Only if PHI flows through the platform</td>
+      <td><strong>Out of scope.</strong> Decided, not just recommended — see <a href="#hipaa--the-one-to-think-hardest-about">below</a> for what would have to change before revisiting this.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="why-this-order">
+  
+  
+    <a href="#why-this-order" class="anchor-heading" aria-labelledby="why-this-order"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Why this order
+  
+  
+</h2>
+    
+
+<p>Substratal Apps is infrastructure other developers’ apps are built on — per <a href="../">Home</a>, it’s the user/org/tenancy/settings/storage layer so a developer doesn’t have to build it themselves. That framing is exactly why <strong>GDPR isn’t a choice</strong>: it applies based on whose personal data is processed, regardless of what Substratal’s own business is. If even one app on the platform has an EU end user, Substratal is a data processor for that user’s data and GDPR applies — no opt-in, no “we’ll decide later.”</p>
+
+<p>SOC 2, by contrast, is a <em>trust signal</em> a B2B customer asks for in a security questionnaire — not a law. It’s extremely likely to matter here precisely because the product is B2B infrastructure (every comparable — Auth0, Clerk, WorkOS — has it), but a formal audit costs real money and months of evidence collection, so it should be timed to when a real customer actually asks, not built preemptively by a team of one plus an AI assistant with dozens of users.</p>
+<h2 id="gdpr-and-ccpa--build-for-it-now">
+  
+  
+    <a href="#gdpr-and-ccpa--build-for-it-now" class="anchor-heading" aria-labelledby="gdpr-and-ccpa--build-for-it-now"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> GDPR (and CCPA) — build for it now
+  
+  
+</h2>
+    
+
+<p>The mechanisms below cover both regimes; CCPA/CPRA’s individual-rights requirements (access, deletion, opt-out of sale) are a subset of GDPR’s. Where this spec already has the right primitive, it’s noted — where it doesn’t yet, that’s the gap to close.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Requirement</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Right to erasure</td>
+      <td><strong>Specified.</strong> A request arrives via <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/erasure-requests</code> (self-service, or support on the user’s behalf; see <a href="../api-reference/users/#post-v1usersiderasure-requests">API Reference → Users</a>). <a href="../non-functional-requirements/#hard-delete-cascade">Non-Functional Requirements → Hard-delete cascade</a> names the actual cascade: soft-delete is immediate on request, and the hard delete runs 7 days later, well inside GDPR Article 12(3)’s 30-day ceiling (not “eventually”) and, in order, deletes <code class="language-plaintext highlighter-rouge">password_hash</code>/<code class="language-plaintext highlighter-rouge">mfa_secret</code> from <a href="../domain-model/users-and-organizations/#useridentity">UserIdentity</a>, the User’s <a href="../domain-model/profiles/">Profile</a>, scrubs PII out of every <a href="../domain-model/profiles/#appprofile">AppProfile</a>/<a href="../domain-model/settings/#appsettings">AppSettings</a> <code class="language-plaintext highlighter-rouge">custom</code>/<code class="language-plaintext highlighter-rouge">overrides</code> blob the User holds, and redacts (not deletes — see below) the <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> snapshots on their <a href="../domain-model/orders-and-audit/#audit-event">Audit Events</a>. Entitlement and Order rows are retained as pseudonymized business/financial records, which GDPR permits under a legitimate-interest basis distinct from the erasure right.</td>
+    </tr>
+    <tr>
+      <td>Right to access / data portability</td>
+      <td><strong>Specified.</strong> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/export</code> — see <a href="../api-reference/users/">API Reference → Users</a> — returns everything this API holds about one User: Profile, Settings, every AppProfile/AppSettings, Entitlements, Role assignments, Organization memberships, UserIdentity methods (never <code class="language-plaintext highlighter-rouge">password_hash</code>/<code class="language-plaintext highlighter-rouge">mfa_secret</code>), and their own Audit trail, as one JSON bundle. Satisfies GDPR Article 20 portability and the equivalent CCPA/CPRA right-to-know in one endpoint rather than two.</td>
+    </tr>
+    <tr>
+      <td>Lawful basis &amp; consent records</td>
+      <td><strong>Missing from the spec on purpose</strong> — not a schema problem, a product/legal one: each Application’s developer is the one collecting consent from their own end users (Substratal doesn’t run the signup form), so this is as much about what the <em>developer</em> agrees to via Substratal’s terms of service as what the API stores. Unchanged by this round of decisions.</td>
+    </tr>
+    <tr>
+      <td>Data Processing Agreement with sub-processors</td>
+      <td><strong>Operational, not code</strong> — two sub-processors now, not one: AWS (the infrastructure in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code></a>, including Amazon SES for transactional email, so no separate email vendor) and <strong>Stripe</strong> (platform subscription billing, per <a href="../pricing/#how-the-subscription-is-charged">Pricing → How the subscription is charged</a>). Both publish standard DPAs (AWS Artifact; Stripe’s own, plus Stripe’s existing PCI-DSS Level 1 status, which is part of why <a href="../domain-model/orders-and-audit/#billing-system-of-record">the billing system of record</a> keeps this API’s own PCI scope minimal). Executing either is still a step to actually take, not code to write.</td>
+    </tr>
+    <tr>
+      <td>Data residency</td>
+      <td><strong>Resolved.</strong> <a href="../domain-model/tenancy/">Tenancy</a>’s <code class="language-plaintext highlighter-rouge">dedicated_region</code> tier is the mechanism — a customer with a hard EU-residency requirement gets a dedicated Tenant in an EU region, not a platform-wide region change. Still support-gated today, not self-service — see <a href="../domain-model/tenancy/#how-a-tier-change-happens-today">Tenancy → How a tier change happens today</a>.</td>
+    </tr>
+    <tr>
+      <td>Breach notification (72-hour clock under GDPR)</td>
+      <td><strong>Commitment stated, runbook still operational.</strong> The 72-hour clock to notify affected supervisory authorities (and, where risk is high, the data subjects themselves) starts at confirmed awareness of a breach — <a href="../domain-model/orders-and-audit/#audit-event">Audit Events</a> are the forensic source for scoping what was accessed and when. The specific internal runbook (who’s paged, who approves the notification, the template) is operational process, deliberately not specified in an API doc — but the 72-hour commitment itself is now a stated requirement, not an unnamed gap.</td>
+    </tr>
+    <tr>
+      <td>Audit trail vs. erasure tension</td>
+      <td><strong>Resolved in the data model.</strong> <a href="../domain-model/orders-and-audit/#audit-event">Audit Events</a> are retained after a user is hard-deleted, but only the <em>shape</em> of what happened (<code class="language-plaintext highlighter-rouge">action</code>, <code class="language-plaintext highlighter-rouge">timestamp</code>, which fields changed) — never a copy of the erased personal data itself. The hard-delete cascade above redacts <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> snapshot values at the same time it deletes the source data, specifically so an Audit Event never becomes the one remaining copy of something erasure was supposed to remove. This is the same redaction every Audit Event eventually gets on its own, by age rather than by request — see <a href="../non-functional-requirements/#audit-log-lifecycle">Non-Functional Requirements → Audit log lifecycle</a> — so “retained indefinitely” and <a href="../pricing/#enforcement">Pricing</a>’s plan-tiered hot-storage window describe different things, not a contradiction.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="soc-2--design-the-posture-defer-the-audit">
+  
+  
+    <a href="#soc-2--design-the-posture-defer-the-audit" class="anchor-heading" aria-labelledby="soc-2--design-the-posture-defer-the-audit"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> SOC 2 — design the posture, defer the audit
+  
+  
+</h2>
+    
+
+<p>Everything in this list is good engineering practice independent of SOC 2, which is exactly why it’s worth doing now rather than treating it as compliance overhead:</p>
+
+<ul>
+  <li><strong>Access control</strong> — already the spine of this entire spec: <a href="../domain-model/entitlements/">Entitlements</a> + <a href="../domain-model/roles-and-permissions/">Roles &amp; Permissions</a>, least-privilege <a href="../api-reference/api-keys/">API Keys</a>.</li>
+  <li><strong>Audit logging</strong> — already specified: the <a href="../domain-model/orders-and-audit/#action-catalog">Action catalog</a>.</li>
+  <li><strong>Encryption in transit and at rest</strong> — HTTPS everywhere (already assumed throughout the <a href="../api-reference/">API Reference</a>); Aurora’s encryption-at-rest in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a> should be turned on by default, not left as a checkbox for later.</li>
+  <li><strong>Change management</strong> — the <a href="../changelog/">Changelog</a> convention already <em>is</em> this, applied to the spec; the same discipline (what changed, when, why) needs to carry into infrastructure and code changes once implementation starts.</li>
+  <li><strong>Vendor risk management</strong> — two sub-processors now: AWS and Stripe (see the DPA row above). Keep the list explicit as it grows — each Application developer’s <em>own</em> payment processor choice for their own end users is their vendor risk to own, per <a href="../domain-model/orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a>, not added here.</li>
+  <li><strong>Incident response plan</strong> — the one item on this list that’s pure process, no code. Write it down before it’s needed, not during an actual incident.</li>
+</ul>
+
+<p><strong>When to pursue the formal Type I → Type II audit:</strong> the first time a prospective customer’s security review asks for it — typically the point at which a B2B infrastructure product starts closing deals with companies that have their own procurement/security process. Not before; the posture above is what makes that audit fast and cheap when the time comes, rather than a scramble.</p>
+<h2 id="hipaa--the-one-to-think-hardest-about">
+  
+  
+    <a href="#hipaa--the-one-to-think-hardest-about" class="anchor-heading" aria-labelledby="hipaa--the-one-to-think-hardest-about"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> HIPAA — the one to think hardest about
+  
+  
+</h2>
+    
+
+<p>HIPAA applies if Protected Health Information (PHI) flows through the platform — which, for Substratal Apps specifically, depends entirely on <strong>whether a healthcare-vertical app ever joins the marketplace</strong> and stores health data in <a href="../domain-model/profiles/#appprofile">AppProfile</a> or <a href="../domain-model/settings/#appsettings">AppSettings</a>’s free-form <code class="language-plaintext highlighter-rouge">custom</code> fields. Nothing about the core product (user/org/tenancy/settings/storage infrastructure) requires HIPAA — it’s entirely a function of which apps choose to build on it.</p>
+
+<p>This is the most expensive of the three to take on (a Business Associate Agreement process, PHI-specific technical safeguards beyond what GDPR/SOC 2 already cover, workforce training, breach notification under HITECH’s stricter timeline) — <strong>decided: out of scope, not pursued</strong> — not deferred as a maybe: nothing here is built for PHI. PHI is not an intended use of the current <code class="language-plaintext highlighter-rouge">AppProfile.custom</code>/<code class="language-plaintext highlighter-rouge">AppSettings.overrides</code> free-form storage; revisit only if a real healthcare-vertical developer wants to build on the platform, at which point this becomes a deliberate, scoped project — a BAA process and PHI-specific safeguards added for that purpose — not a retrofit assumed in advance.</p>
+<h2 id="what-this-doesnt-cover">
+  
+  
+    <a href="#what-this-doesnt-cover" class="anchor-heading" aria-labelledby="what-this-doesnt-cover"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What this doesn’t cover
+  
+  
+</h2>
+    
+
+<p>Payment data: per <a href="../domain-model/orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a>, Substratal Apps isn’t a payment processor — each Application’s developer handles billing with their own end users directly. That keeps PCI-DSS scope minimal here (no card data ever touches this API), but it’s each developer’s own PCI obligation for their own processor integration, not something this spec needs to solve.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

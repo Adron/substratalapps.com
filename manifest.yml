@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 2.0.0
+  released: '2026-10-05'
+  commit: 2b6efab4d1d049d244ac0660d8fd0ca0a925884e
+  summary: 'Docs workflow: read bump markers from every commit since the last version'
 - version: 1.0.1
   released: '2026-10-05'
   commit: 6d8c89473a382775f28c1eb4cb87ea2b20e697ea
