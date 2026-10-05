@@ -88,7 +88,19 @@ Every response carries an `X-Request-Id` (server-generated if the caller didn't 
 
 - Audit Events: retained indefinitely (compliance system of record).
 - Disabled/revoked Entitlements: retained, not deleted — re-enabling or investigating a dispute depends on the history.
-- Deleted Users: soft-deleted first (status transition), with a separate, deliberate hard-delete process for right-to-erasure requests that cascades through Profile, Settings, and Entitlements while preserving the Audit trail of the deletion itself.
+- Deleted Users: soft-deleted first (status transition), with a separate, deliberate hard-delete process for right-to-erasure requests — see [Hard-delete cascade](#hard-delete-cascade) immediately below for what that process actually does, not just that it exists.
+
+### Hard-delete cascade
+
+Triggered by a verified erasure request, completing well within GDPR Article 12(3)'s 30-day ceiling — soft-delete (the `status: deleted` transition) is immediate; this is the follow-up. Runs in this order, each step committed before the next:
+
+1. Delete `password_hash` and `mfa_secret` from every [UserIdentity](../domain-model/users-and-organizations/#useridentity) row the User holds — the credential itself, not the row (the row's `method`/`created_at` stays, as a record that an identity of that kind existed).
+2. Delete the User's [Profile](../domain-model/profiles/) row outright.
+3. For every [AppProfile](../domain-model/profiles/#appprofile)/[AppSettings](../domain-model/settings/#appsettings) row the User holds: scrub personally-identifying values out of `custom`/`overrides` (the Application's own `settings_schema` is consulted to know which declared fields are PII-shaped — a free-text `display_handle` or similar, not a structural `boolean` preference), rather than deleting the row, since an Application may have a legitimate reason to know an entitlement-shaped record existed.
+4. Redact `before`/`after` snapshot values (not the whole row) on every [Audit Event](../domain-model/orders-and-audit/#audit-event) where this User is `target_user_id` — preserves `action`/`timestamp`/`actor_user_id` (the *shape* of what happened) while removing the one place a deleted field's value could otherwise still be read back.
+5. Leave [Entitlement](../domain-model/entitlements/) and [Order](../domain-model/orders-and-audit/) rows in place, pseudonymized by the cascade above having already removed the identifying data they'd otherwise join against — retained under a legitimate-interest basis (financial/business records) distinct from, and not overridden by, the erasure right.
+
+`GET /v1/users/{id}/export` (see [API Reference → Users](../api-reference/users/)) reads from the same tables this cascade writes to — the two are deliberately symmetric: export answers "what do you have on me," erasure answers "stop having it," and both need to agree on what "it" actually comprises.
 
 ## Availability expectations on the trust model
 

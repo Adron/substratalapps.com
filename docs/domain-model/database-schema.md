@@ -115,7 +115,8 @@ organization_memberships (
 | `visibility` | `text` | not null, `check (visibility in ('public','invite_only','internal'))` |
 | `owner_user_id` | `text` | nullable, `references users(id)` |
 | `owner_organization_id` | `text` | nullable, `references organizations(id)` |
-| `review_status` | `text` | not null, default `'approved'`, `check (review_status in ('approved','pending_review','suspended'))` |
+| `review_status` | `text` | not null, default `'approved'`, `check (review_status in ('approved','pending_review','rejected','suspended'))` |
+| `review_notes` | `text` | nullable — `check (review_notes is not null or review_status not in ('rejected','suspended'))` enforces it's required on exactly those two transitions, at the database level, not just in application code |
 | `tenant_id` | `text` | not null, `references tenants(id)` — resolved from whichever owner column is set at insert time, see [Tenancy](../tenancy/) |
 
 **Constraint:** `check (owner_user_id is null or owner_organization_id is null)` — an Application has at most one kind of owner, never both. **Index:** `(owner_user_id)`, `(owner_organization_id)` for "my apps" queries; `(visibility, review_status) where review_status = 'approved'` for the public catalog listing; `(tenant_id)` for a support/ops query of "every Application on this Tenant" during a tier-change migration.
@@ -219,8 +220,12 @@ No `updated_at`, no soft-delete column — this table is append-only by design (
 | `scope` | `text` | not null |
 | `permissions` | `text[]` | not null |
 | `mode` | `text` | not null, `check (mode in ('live','test'))` |
+| `intended_use` | `text` | not null, default `'service'`, `check (intended_use in ('service','agent'))` |
+| `restrict_destructive` | `boolean` | not null, default computed from `intended_use` at insert time (`true` iff `intended_use = 'agent'`), overridable — see [API Keys → Agent keys](../../api-reference/api-keys/#agent-keys--restrict_destructive) |
 | `secret_hash` | `text` | not null — **never store the secret itself**, only a hash (e.g. SHA-256) of it, the same way a password would be stored. The API can verify a presented key against the hash; it can never display the original value again, which is exactly the contract [API Keys](../../api-reference/api-keys/) describes ("returned once"). |
 | `last_used_at`, `revoked_at` | `timestamptz` | nullable |
+
+**Enforcement, not just storage:** the `restrict_destructive` check happens in the same request-handling layer as the permission check — both read from the authenticated key's row, both must pass. The classification of which operations count as destructive lives in exactly one place in the implementation (a lookup by HTTP method + the specific Entitlement/Role/Organization-member/Tenant-tier mutations named in [Decisions → MCP server authorization scope](../../decisions/#14-mcp-server-authorization-scope)), shared by this check and by the MCP server's `destructiveHint` tool-annotation generation — not reimplemented twice and left to drift.
 
 ## idempotency_keys
 

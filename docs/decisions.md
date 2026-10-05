@@ -25,12 +25,12 @@ The open questions this spec currently depends on. This page is a log, not a one
 | 6 | [Session model for revocation](#6-session-model-for-revocation) | 🟢 Resolved |
 | 7 | [AWS account and region](#7-aws-account-and-region) | 🟢 Resolved |
 | 8 | [Storage primitive scope](#8-storage-primitive-scope) | 🟢 Resolved |
-| 9 | [App developer/publisher model](#9-app-developerpublisher-model) | 🟡 Open |
-| 10 | [Compliance scope](#10-compliance-scope) | 🟡 Open |
+| 9 | [App developer/publisher model](#9-app-developerpublisher-model) | 🟢 Resolved |
+| 10 | [Compliance scope](#10-compliance-scope) | 🟢 Resolved |
 | 11 | [Tenant vs. Organization](#11-tenant-vs-organization) | 🟢 Resolved |
 | 12 | [Tenancy tiers & dedicated infrastructure](#12-tenancy-tiers--dedicated-infrastructure) | 🟢 Resolved |
 | 13 | [Organization-vs-User entitlement precedence](#13-organization-vs-user-entitlement-precedence) | 🟢 Resolved |
-| 14 | [MCP server authorization scope](#14-mcp-server-authorization-scope) | 🟡 Open |
+| 14 | [MCP server authorization scope](#14-mcp-server-authorization-scope) | 🟢 Resolved |
 | 15 | [Platform subscription billing processor](#15-platform-subscription-billing-processor) | 🟢 Resolved |
 
 ---
@@ -39,7 +39,7 @@ The open questions this spec currently depends on. This page is a log, not a one
 
 **Resolved: both, not either/or — native in-house auth, architected from the start for pluggable, per-Organization SSO.**
 
-- **Native email/password is owned here**, not delegated — a real `password_hash`, real sessions, built and live from Phase 1. Not "in-house vs. delegate"; in-house is the default every User has available.
+- **Native email/password is owned here**, not delegated — a real `password_hash`, real sessions, built and live from Phase 1, requiring zero external integration to use: no Auth0/WorkOS/Cognito account, no API key for a third-party provider, nothing to configure. A single developer standing up their first Application has a fully working login system the moment Phase 1 ships. Not "in-house vs. delegate"; in-house is the default every User has available, delegation is additive on top of it.
 - **SSO is a per-Organization bridge**, not a platform-wide or per-Application choice: an Organization admin connects their own company's identity provider (Okta, Azure AD, Google Workspace, …) through a federation broker (leaning WorkOS, for exactly this "bring your own enterprise IdP" use case), and it becomes available to every member of that Organization. See [Domain Model → SSOConnection](../domain-model/users-and-organizations/#ssoconnection).
 - **A User can hold both at once** — a `password` identity and an `sso` identity simultaneously — choosing either at login, not locked to one method per account. See [Domain Model → UserIdentity](../domain-model/users-and-organizations/#useridentity).
 - **MFA (TOTP) is optional and user-enabled** for native accounts, via self-service enrollment (`POST /v1/users/{id}/mfa/totp`) — not required, not yet built for SSO identities, whose MFA policy belongs to the member's own IdP.
@@ -95,13 +95,19 @@ The product pitch names "storage" as one of the five things a developer shouldn'
 
 Third-party developers registering their own Applications is an explicit later phase, not day one (see [Home](../#what-substratal-apps-actually-is)) — but "later" still needs a real shape: self-service submission into [`review_status: pending_review`](../domain-model/applications/), who reviews it and against what criteria, what SLA a developer should expect, and what happens to an already-launched app that gets `suspended` mid-flight (do its existing users' Entitlements stay `active`, or does suspension cascade to them?).
 
-**Leans toward:** `POST /v1/applications` stays platform-admin-only through the [MVP and Phase 2](../roadmap/) — the `owner_user_id`/`owner_organization_id`/`review_status` fields on [Application](../domain-model/applications/) exist now specifically so this doesn't require a breaking schema change when self-service registration actually ships in [Phase 3](../roadmap/#phase-3). The review-queue mechanics themselves (reviewer assignment, SLA, suspension cascade) are unspecified on purpose — designing that process before there's ever been a single real submission to learn from is more likely to guess wrong than to save time.
+**Resolved — elaborated so the review-queue mechanics are no longer open:**
+
+- **`POST /v1/applications` stays platform-admin-only through [MVP and Phase 2](../roadmap/)**, confirmed. The `owner_user_id`/`owner_organization_id`/`review_status` fields on [Application](../domain-model/applications/) exist now specifically so this doesn't require a breaking schema change when self-service registration ships in [Phase 3](../roadmap/#phase-3).
+- **Reviewer assignment:** no dedicated assignment system — any platform User holding `applications.manage` can review. At this team's actual scale, a queue (`GET /v1/applications?review_status=pending_review`, admin-only) is enough; auto-assignment is exactly the kind of process worth skipping until submission volume makes a FIFO queue genuinely insufficient, which isn't knowable in advance.
+- **SLA:** a 5-business-day review target, stated as policy, not a system-enforced guarantee — nothing automatically escalates or refunds over a miss. Revisit if real volume makes that insufficient.
+- **A fourth `review_status` value, `rejected`,** closes a real gap the original three-value enum left open: there was no way to represent "reviewed, declined" distinct from "never submitted." A rejected Application is **not deleted** — it's retained with a required `review_notes` explaining why, visible to its owner, who may edit and resubmit (`review_status: rejected → pending_review`, same record, not a new Application).
+- **Suspension does not cascade to existing Entitlements, by default.** Setting `review_status: suspended` on an already-launched Application immediately removes it from the public catalog, blocks new Entitlement grants, and blocks new launch-JWT issuance — but a User who already holds an active Entitlement keeps it, and an already-open session isn't force-killed by this action alone. The alternative (suspension silently cutting off every existing paying user) is the same "an org's decision reaching into something an individual holds" problem [Decision #13](#13-organization-vs-user-entitlement-precedence) already ruled against, applied to a different relationship. A platform admin can still separately, explicitly revoke the affected Entitlements via the ordinary [Entitlements](../api-reference/entitlements/) endpoint for an egregious case — that's a distinct, deliberate action, not an automatic consequence of suspension. `review_notes` is required on a `suspended` transition too, same as `rejected`.
+
+See [API Reference → Applications](../api-reference/applications/) for the endpoint-level detail this resolution implies.
 
 ## 10. Compliance scope
 
-Which of SOC 2, HIPAA, GDPR, and CCPA actually get pursued, and on what timeline?
-
-See [Compliance & Data Protection](../compliance/) for the full recommendation — GDPR/CCPA mechanisms built now (not optional), SOC 2 posture built now with the formal audit deferred until a customer requires it, and HIPAA deliberately not pursued unless and until a healthcare-vertical Application actually wants onto the platform. This row exists to track the one decision that page can't make on its own: confirming that recommendation (or overriding it) is a real legal/business call, not an engineering one.
+**Resolved: the recommendation stands as decided.** GDPR/CCPA/CPRA mechanisms are built now — [Compliance & Data Protection](../compliance/) specifies the actual hard-delete cascade, the `GET /v1/users/{id}/export` endpoint, and the 72-hour breach-notification commitment, not just a table of gaps. SOC 2 posture is built now (access control, audit logging, encryption, change management, vendor risk management — all already load-bearing parts of this spec anyway); the formal Type I → Type II audit is deferred until a customer's security review actually requires it. **HIPAA is explicitly out of scope** — not deferred-as-a-maybe, decided: nothing here is built for PHI, and that's revisited only if a real healthcare-vertical developer wants to build on the platform, as its own scoped project at that point.
 
 This page's [Data residency](../compliance/#gdpr-and-ccpa--build-for-it-now) row, previously open, is now resolved by [Decision #12](#12-tenancy-tiers--dedicated-infrastructure) — a customer needing EU residency gets a `dedicated_region` [Tenant](../domain-model/tenancy/), not a platform-wide region change.
 
@@ -139,7 +145,14 @@ When an end-user [Organization](../domain-model/users-and-organizations/#organiz
 
 The case for a narrower default: an LLM deciding *which* tool to call based on a prompt (possibly influenced by untrusted data it has read, e.g. a `disabled_reason` or an `AppProfile.custom` field written by someone else) is a different risk shape than deterministic service code making the same call — not because the platform's own enforcement is any weaker (it isn't; [Access Control](../access-control/) doesn't know or care whether its caller is an agent), but because the *decision to call* a destructive tool at all is now made by something a prompt can influence, where a service integration's call sites are fixed at write time.
 
-**Leans toward:** no new API Key *type* (that would be a parallel, redundant scoping system next to the one that already exists) — instead, operational guidance to scope an agent-facing Key as narrowly as the integration actually needs (read-only `audit.view`/`users.list` for a query-only assistant; `entitlements.manage` only for an assistant that's actually meant to toggle access), plus the [tool annotations](../mcp-server/#tool-annotations--safety) that let a compliant client prompt for confirmation before a `destructiveHint` tool runs. Still open: whether that guidance should harden into something enforced server-side (e.g. a key flag that *disables* destructive operations outright, independent of the permissions it otherwise carries) once there's a real incident or a real customer asking for it — not built speculatively ahead of either.
+**Resolved — elaborated for implementation, not just operational guidance.** No new API Key *type* (that would be a parallel, redundant scoping system next to the one that already exists). Two concrete mechanisms instead, both shipping with [API Keys](../api-reference/api-keys/):
+
+1. **`intended_use: "service" | "agent"`** on API Key, set at creation. Pure metadata with one real effect: it changes the *default* of the field below, steering an agent-facing key toward the safer posture without forcing it.
+2. **`restrict_destructive: boolean`**, default `true` when `intended_use: "agent"` (and `false` for `"service"`). When `true`, any request this key authorizes that classifies as destructive is rejected with `403` / `code: "destructive_operation_restricted"` — **regardless of what permissions the key otherwise carries.** This is the "harden into something enforced server-side" option from the original open question, resolved yes rather than left pending an incident.
+
+**"Destructive" is not a second classification scheme** — it's the exact same rule [MCP Server → Tool annotations & safety](../mcp-server/#tool-annotations--safety) already uses to derive `destructiveHint` for MCP tool calls (a `DELETE`, or a `PATCH`/`POST` that moves an Entitlement to `disabled`/`revoked`, removes an Organization member, or requests a Tenant tier change), applied as a hard gate instead of a client-side confirmation hint. One rule, two consumers: an MCP client reads `destructiveHint` to decide whether to prompt a human before calling a tool; the API itself enforces the identical rule server-side when the calling key has `restrict_destructive: true`. A key with this flag set can still read everything its permissions allow and can still call every non-destructive write (`PATCH` updates that don't disable/revoke/remove anything) — it's scoped out of the specific small set of actions where an LLM's tool-call *decision*, not the platform's permission check, is the weaker link in the chain.
+
+This is why an agent integration is safer by default without being less capable by default: a read-only or toggle-only assistant never needs `restrict_destructive: false` at all, and the one that genuinely does (an assistant whose whole job is disabling compromised accounts, say) sets it explicitly, which is itself worth an Audit Event (`api_key.restrict_destructive_disabled`) precisely because it's the deliberate exception, not the default.
 
 ## 15. Platform subscription billing processor
 

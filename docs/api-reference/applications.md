@@ -43,7 +43,7 @@ See [Domain Model → Applications](../../domain-model/applications/) for the fu
 }
 ```
 
-List responses return a trimmed view (no `settings_schema`, no `launch_url`) — fetch the single resource for the full object when you need it.
+List responses return a trimmed view (no `settings_schema`, no `launch_url`) — fetch the single resource for the full object when you need it. Defaults to `review_status: approved` results only; a platform role with `applications.manage` may pass `?review_status=pending_review` to see the review queue — see [Domain Model → The review lifecycle](../../domain-model/applications/#the-review-lifecycle). This is the literal reviewer-queue endpoint: no separate queue resource exists.
 
 ## `GET /v1/applications/{id}`
 
@@ -111,6 +111,19 @@ Two different callers, two different scopes:
 
 `slug` cannot be changed via this call by either caller (see above). Adding a new entry to `available_app_roles` is backward compatible; removing one that's still referenced by an existing [AppRole](../../domain-model/roles-and-permissions/#approle) assignment returns `409` with `code: "app_role_in_use"`.
 
+### Reviewing a submission
+
+```json
+// Request — reject
+{ "review_status": "rejected", "review_notes": "launch_url does not resolve; resubmit once it's live." }
+```
+```json
+// Request — suspend an already-launched app
+{ "review_status": "suspended", "review_notes": "Repeated webhook signature failures suggest a compromised signing secret; paused pending developer confirmation." }
+```
+
+`review_notes` is **required** on a transition to `rejected` or `suspended` — `400` with `code: "review_notes_required"` otherwise — and optional on a transition to `approved`. Rejecting or suspending writes an [Audit Event](../../domain-model/orders-and-audit/#audit-event) (`application.review_status_changed`) and does **not** touch that Application's existing Entitlements — see [Domain Model → The review lifecycle](../../domain-model/applications/#the-review-lifecycle) for why that's deliberate, not an oversight. A rejected owner may `PATCH` their own fields and the record returns to `pending_review` automatically on their next edit — no separate "resubmit" endpoint.
+
 ## Errors specific to this resource
 
 | Code | When |
@@ -119,3 +132,4 @@ Two different callers, two different scopes:
 | `application_not_found` | `{id}` doesn't resolve. |
 | `app_role_in_use` | `PATCH` would remove an entry from `available_app_roles` that's still assigned to at least one user. |
 | `moderation_field_forbidden` | A non-admin owner's `PATCH` attempts to change `visibility` or `review_status`. |
+| `review_notes_required` | A `PATCH` transitions `review_status` to `rejected` or `suspended` without `review_notes`. |

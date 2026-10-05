@@ -34,7 +34,8 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
 | `visibility` | enum | `public` (anyone can acquire it) \| `invite_only` \| `internal` (Substratal's own tooling, not end-user-facing). |
 | `owner_user_id` | string, nullable | The developer who registered and manages this Application. Null only for Applications with no single human owner (rare — effectively a system app). |
 | `owner_organization_id` | string, nullable | Set instead of `owner_user_id` when an [Organization](../users-and-organizations/#organization), not an individual, owns the app. |
-| `review_status` | enum | `approved` \| `pending_review` \| `suspended`. Every Application created today is admin-created and defaults to `approved` — see [below](#who-can-manage-an-applications-catalog-entry). This exists now specifically so self-service submission doesn't need a breaking schema change later. |
+| `review_status` | enum | `approved` \| `pending_review` \| `rejected` \| `suspended`. Every Application created today is admin-created and defaults to `approved` — see [below](#who-can-manage-an-applications-catalog-entry). This exists now specifically so self-service submission doesn't need a breaking schema change later. |
+| `review_notes` | string, nullable | Required when `review_status` is set to `rejected` or `suspended`; optional on `approved`. The reviewer's reasoning, visible to the Application's owner. |
 | `tenant_id` | string | Denormalized from the owner's [Tenant](../tenancy/) at creation — resolves (and creates, at `tier: shared`, if the owner doesn't have one yet) from whichever of `owner_user_id`/`owner_organization_id` is set. Determines where this Application's Entitlements, AppProfile, and AppSettings rows physically live. See [Tenancy](../tenancy/). |
 | `created_at` | timestamp | |
 
@@ -60,6 +61,7 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
   "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000",
   "owner_organization_id": null,
   "review_status": "approved",
+  "review_notes": null,
   "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
   "created_at": "2025-11-03T00:00:00Z"
 }
@@ -73,6 +75,23 @@ Two distinct rights, not one:
 - **A platform role with `applications.manage`** (Substratal staff) can edit anything, including `visibility` and `review_status` — moderation, not configuration.
 
 Today, with every Application first-party, these two rights are usually held by the same people and the distinction is invisible. It stops being invisible the moment a third-party developer registers their own app — `POST /v1/applications` still requires platform `applications.manage` in the current spec (first-party only, consistent with [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model)), and self-service registration into a `pending_review` queue is the marketplace-phase feature that `review_status` already models the shape of. See [API Reference → Applications](../../api-reference/applications/) for the endpoint-level detail.
+
+## The review lifecycle
+
+```
+pending_review ──approve──► approved ──suspend──► suspended
+       │                        ▲                      │
+       └──────reject──────┐     └───────reinstate───────┘
+                           ▼
+                        rejected ──edit + resubmit──► pending_review
+```
+
+Resolved in full per [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model):
+
+- **No dedicated reviewer assignment** — any platform User holding `applications.manage` can act on anything in the queue (`GET /v1/applications?review_status=pending_review`). A 5-business-day review target is policy, not a system-enforced SLA.
+- **`rejected` is not deletion.** The record, and the owner's work configuring it, is retained with a required `review_notes`. The owner can edit and resubmit the same Application (`rejected → pending_review`) rather than starting over.
+- **`suspended` does not cascade to existing Entitlements.** It removes the Application from the public catalog, blocks new Entitlement grants, and blocks new launch-JWT issuance — but a User who already holds an active Entitlement keeps it, and the suspension alone doesn't force-kill an already-open session. Revoking existing users' access on top of a suspension is a separate, explicit act via [Entitlements](../../api-reference/entitlements/), for the admin who decides it's warranted — not an automatic consequence every suspension carries.
+- Every transition into `rejected` or `suspended` requires `review_notes` and produces an [Audit Event](../orders-and-audit/#audit-event) (`application.review_status_changed`).
 
 ## Relationship to everything else
 

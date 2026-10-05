@@ -72,7 +72,7 @@ MCP's tool-definition schema supports annotations — `readOnlyHint`, `destructi
 | `destructiveHint: true` | The operation is a `DELETE`, or a `PATCH`/`POST` that can move an [Entitlement](../domain-model/entitlements/) to `disabled`/`revoked`, remove an [Organization](../domain-model/users-and-organizations/) member, or request a [Tenant](../domain-model/tenancy/) tier change. |
 | `idempotentHint: true` | The operation already requires (or supports) an `Idempotency-Key` per [Conventions → Idempotency](../api-reference/conventions/#idempotency). |
 
-This is the one piece of *safety* behavior that's genuinely specific to this transport rather than inherited from the REST API wholesale — a `destructiveHint` doesn't change what the server permits (that's still entirely the caller's credential's own permissions), it only changes what a well-behaved client chooses to surface before calling it.
+The same classification now has a second, server-side consumer, not just this client-facing hint: per [Decisions → MCP server authorization scope](../decisions/#14-mcp-server-authorization-scope), an [API Key](../api-reference/api-keys/) with `restrict_destructive: true` — the default for `intended_use: "agent"` keys — gets a hard `403` on exactly the operations this table classifies as destructive, regardless of what permissions the key otherwise carries. One classification, two effects: a well-behaved MCP client uses `destructiveHint` to decide whether to ask a human first; the platform uses the identical rule to decide whether to allow the call at all, for keys explicitly scoped that way.
 
 ## Statelessness
 

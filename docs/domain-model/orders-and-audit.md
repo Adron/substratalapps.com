@@ -96,6 +96,8 @@ Every value `action` can take. Entries marked **admin-only** never fire for a se
 | `application.updated` | `PATCH /v1/applications/{id}` |
 | `organization.member_added` | `POST /v1/organizations/{id}/members` |
 | `organization.member_removed` | `DELETE /v1/organizations/{id}/members/{userId}` |
+| `api_key.restrict_destructive_disabled` | An API Key's `restrict_destructive` is explicitly set to `false` on an `intended_use: "agent"` key — see [Decisions → MCP server authorization scope](../../decisions/#14-mcp-server-authorization-scope). |
+| `application.review_status_changed` | A reviewer approves, rejects, or suspends an Application — see [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model). |
 
 This list is the authoritative source for `action` values — if an endpoint's page describes a write that isn't represented here, that's a spec bug; file it the same way as any other inconsistency.
 

@@ -232,6 +232,21 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/User" }
 
+  /users/{id}/export:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: users.export
+      tags: [Users]
+      summary: Export everything this API holds about this user
+      description: "Self, or a platform role with `users.manage`. GDPR Article 20 / CCPA right-to-know. Symmetric with the hard-delete cascade."
+      responses:
+        "200":
+          description: Full data export bundle
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserExport" }
+
   /users/{id}/profile:
     parameters:
       - $ref: "#/components/parameters/UserIdOrMe"
@@ -1123,6 +1138,47 @@ components:
               type: array
               items: { $ref: "#/components/schemas/User" }
 
+    UserExport:
+      type: object
+      description: "Reads from the same tables the hard-delete cascade writes to — deliberately symmetric with it."
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        profile: { $ref: "#/components/schemas/Profile" }
+        settings: { $ref: "#/components/schemas/Settings" }
+        identities:
+          type: array
+          description: "Never includes password_hash or mfa_secret."
+          items:
+            type: object
+            properties:
+              method: { type: string, enum: [password, sso] }
+              mfa_enabled: { type: boolean }
+              last_used_at: { type: [string, "null"], format: date-time }
+        organizations:
+          type: array
+          items:
+            type: object
+            properties:
+              organization_id: { type: string }
+              role: { type: string, enum: [org_admin, member] }
+              joined_at: { type: string, format: date-time }
+        roles:
+          type: array
+          items: { $ref: "#/components/schemas/UserRoleAssignment" }
+        applications:
+          type: array
+          items:
+            type: object
+            properties:
+              application_id: { type: string }
+              entitlement: { $ref: "#/components/schemas/Entitlement" }
+              app_profile: { $ref: "#/components/schemas/AppProfile" }
+              app_settings: { $ref: "#/components/schemas/AppSettingsResolved" }
+        audit_events:
+          type: array
+          description: "This user's own trail as target_user_id, not every event they triggered as an actor on someone else's record."
+          items: { $ref: "#/components/schemas/AuditEvent" }
+
     ProfileWrite:
       type: object
       properties:
@@ -1196,7 +1252,7 @@ components:
 
     ApplicationReviewStatus:
       type: string
-      enum: [approved, pending_review, suspended]
+      enum: [approved, pending_review, rejected, suspended]
 
     ApplicationWrite:
       type: object
@@ -1221,6 +1277,7 @@ components:
           properties:
             id: { type: string }
             review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
+            review_notes: { type: [string, "null"], description: "Required when review_status is set to rejected or suspended." }
             tenant_id: { type: string, description: "Read-only. Resolved from the owner's Tenant at creation — see Decisions #11." }
             created_at: { type: string, format: date-time }
 
@@ -1399,6 +1456,8 @@ components:
         - organization.member_removed
         - tenant.tier_change_requested
         - tenant.tier_changed
+        - api_key.restrict_destructive_disabled
+        - application.review_status_changed
 
     TenantOwnerType:
       type: string
@@ -1525,6 +1584,14 @@ components:
         permissions:
           type: array
           items: { type: string }
+        intended_use:
+          type: string
+          enum: [service, agent]
+          default: service
+          description: "Sets the default for restrict_destructive (true for agent, false for service)."
+        restrict_destructive:
+          type: boolean
+          description: "When true, any destructive operation (DELETE, or disabling/revoking a mutation) is rejected regardless of permissions. Defaults from intended_use unless set explicitly."
 
     ApiKey:
       allOf:
