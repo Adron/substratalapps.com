@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 1.0.1
+  released: '2026-10-05'
+  commit: 6d8c89473a382775f28c1eb4cb87ea2b20e697ea
+  summary: 'Fix Quickstart effective-permissions path: /applications/ -> /apps/'
 - version: 1.0.0
   released: '2026-10-05'
   commit: a74801c031caffa1172c90c21d3f1b2f82f863f2
