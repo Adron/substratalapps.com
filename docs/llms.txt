@@ -59,5 +59,6 @@ older single-file draft found elsewhere in the repository's history.
 - [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
 - [Changelog]({{ site.url }}{{ site.baseurl }}/changelog/): what's changed in this spec over time.
 - [Glossary]({{ site.url }}{{ site.baseurl }}/glossary/)
+- [Versions]({{ site.url }}{{ site.baseurl }}/versions/): every released version of this spec; older versions are frozen copies under `/versions/<version>/`.
 
 Deployment/infrastructure, the build plan, and other project-planning material are intentionally not part of this API-specification site — they live as plain Markdown in the repository root at https://github.com/Adron/substratalapps.com, starting from its README.md.

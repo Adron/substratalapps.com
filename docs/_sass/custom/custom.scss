@@ -62,3 +62,47 @@ kbd,
   border-bottom: 4px solid transparent;
   border-image: linear-gradient(to right, #8a7a63, $accent, #4b5159) 1;
 }
+
+// Docs version badge (_includes/header_custom.html), top right of the header.
+.docs-version {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  margin-left: auto;
+  font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.docs-version__badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid $accent;
+  border-radius: 999px;
+  color: $accent;
+  font-family: "IBM Plex Mono", SFMono-Regular, Consolas, monospace;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    background-color: $accent;
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
+.docs-version--archived .docs-version__badge {
+  border-color: #b7791f;
+  background-color: #fdf3e1;
+  color: #8a5a12;
+
+  &:hover {
+    background-color: #fdf3e1;
+    color: #8a5a12;
+  }
+}
+
+.docs-version__link {
+  color: $accent;
+}

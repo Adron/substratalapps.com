@@ -42,6 +42,23 @@ bundle exec jekyll serve
 
 Requires Ruby/Bundler. The site is pinned to the exact `github-pages` gem version GitHub's own Pages build uses, so a local build matches what actually deploys — see the comment in `docs/Gemfile`.
 
+## Docs versions and publishing
+
+The docs site is versioned automatically. Every push to `main` that touches `docs/` runs [`.github/workflows/docs.yml`](.github/workflows/docs.yml), which:
+
+1. Assigns the next docs version: a patch bump by default. Put `[docs:minor]` or `[docs:major]` in any commit message in the push to bump further, or run the workflow by hand from the Actions tab and pick the bump.
+2. Builds that version as a frozen, self-contained snapshot (its own nav, search, and links, labelled archived, linking back to latest). It commits the snapshot to the **`docs-versions`** branch along with `manifest.yml`, the version history. CI never commits to `main`.
+3. Builds the live site, adds every archived snapshot under `/versions/<version>/`, and deploys it to GitHub Pages.
+
+The current version shows in the top right of every page and links to the [Versions](https://adron.github.io/substratalapps.com/versions/) page. A local `jekyll serve` has no version data and shows `local` instead. To reproduce the full versioned build locally, check out `docs-versions` into a folder and run:
+
+```bash
+git worktree add ../docs-versions docs-versions
+scripts/docs-build.rb --archive ../docs-versions --out /tmp/docs-site
+```
+
+Don't commit the result from a local run; only the GitHub build should write to `docs-versions`.
+
 ## License
 
 [MIT](LICENSE).

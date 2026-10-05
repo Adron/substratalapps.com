@@ -14,6 +14,8 @@ What's changed in this specification over time. [Decisions](../decisions/) track
 
 ## 2026-10-05
 
+- **Docs are now versioned automatically.** Every publish of this site gets a new version number, starting at v1.0.0. The current version shows in the top right of every page's header and links to the new [Versions](../versions/) page. Each version is also kept as a frozen, read-only copy under `/versions/<version>/`, so a link to an old version keeps showing exactly what that version said. This is the version of the documentation, separate from the API's own `/v1` path version.
+
 A full consistency/UX review surfaced drift between the prose docs, `openapi.yaml`, and the root planning files — this entry is every fix that came out of it:
 
 - **Fixed a self-contradiction in [Pricing](../pricing/):** Starter's own "For" cell claimed "3+ Applications" while its own Applications row capped at 1. Reworded; "3+ Applications" is Team's case, not Starter's.

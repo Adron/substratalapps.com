@@ -8,3 +8,4 @@ docs/vendor/
 docs/Gemfile.lock
 
 .DS_Store
+docs/_data/versions.yml

@@ -1,0 +1,115 @@
+# Versioned build + deploy of the docs site to GitHub Pages.
+#
+# Every run publishes a new docs version: patch bump by default; put
+# [docs:minor] or [docs:major] in any commit message of the push to bump
+# further, or pick the bump when running it manually. The version's frozen
+# snapshot is committed to the docs-versions branch (never to main), and
+# every archived snapshot is served at /versions/<version>/.
+# See scripts/docs-build.rb for the build itself.
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/docs-build.rb"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump for this release
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write # push snapshots to docs-versions
+  pages: write
+  id-token: write
+
+# One release at a time, never cancelled midway: each run reads the archive
+# the previous run wrote, so overlapping runs would race on version numbers.
+concurrency:
+  group: docs-pages
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check out version archive
+        run: |
+          if git ls-remote --exit-code --heads origin docs-versions >/dev/null; then
+            git fetch --depth=1 origin +docs-versions:refs/remotes/origin/docs-versions
+            git worktree add _archive -B docs-versions origin/docs-versions
+          else
+            echo "No docs-versions branch yet; starting the archive at 1.0.0."
+            git worktree add --orphan -b docs-versions _archive
+          fi
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: docs
+
+      - name: Pick version bump
+        id: bump
+        env:
+          COMMITS: ${{ toJSON(github.event.commits.*.message) }}
+          INPUT_BUMP: ${{ inputs.bump }}
+        run: |
+          bump="${INPUT_BUMP:-patch}"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            if grep -q '\[docs:major\]' <<<"$COMMITS"; then bump=major
+            elif grep -q '\[docs:minor\]' <<<"$COMMITS"; then bump=minor; fi
+          fi
+          echo "level=$bump" >> "$GITHUB_OUTPUT"
+
+      - name: Build versioned site
+        id: build
+        run: |
+          ruby scripts/docs-build.rb \
+            --archive _archive \
+            --out _site \
+            --bump "${{ steps.bump.outputs.level }}" \
+            --commit "$GITHUB_SHA" \
+            --summary "$(git log -1 --format=%s)"
+
+      - name: Commit snapshot to docs-versions
+        working-directory: _archive
+        env:
+          VERSION: ${{ steps.build.outputs.version }}
+        run: |
+          if [ ! -f README.md ]; then
+            cat > README.md <<'EOF'
+          # docs-versions
+
+          Archive of every released version of the docs site, written by
+          `.github/workflows/docs.yml` on `main`. Don't edit by hand.
+
+          - `manifest.yml`: every version, newest first.
+          - `<version>/`: that version's frozen static build, served at
+            https://adron.github.io/substratalapps.com/versions/<version>/
+          EOF
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Archive docs v$VERSION from ${GITHUB_SHA::7}"
+          git push origin docs-versions
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v5
