@@ -1,8 +1,8 @@
 # Versioned build + deploy of the docs site to GitHub Pages.
 #
 # Every run publishes a new docs version: patch bump by default; put
-# [docs:minor] or [docs:major] in any commit message since the last released
-# version to bump further, or pick the bump when running it manually. The version's frozen
+# [docs:minor] or [docs:major] in the subject line of any commit since the
+# last released version to bump further, or pick the bump when running it manually. The version's frozen
 # snapshot is committed to the docs-versions branch (never to main), and
 # every archived snapshot is served at /versions/<version>/.
 # See scripts/docs-build.rb for the build itself.
@@ -67,17 +67,18 @@ jobs:
           INPUT_BUMP: ${{ inputs.bump }}
         # Scans every commit since the last archived version, not just this
         # push's: a queued run superseded by a newer push is cancelled, and
-        # its commits' markers must still count.
+        # its commits' markers must still count. Subject lines only, so a
+        # message body that merely mentions a marker doesn't trigger one.
         run: |
           bump="${INPUT_BUMP:-patch}"
           last=$(ruby -ryaml -e 'm = File.exist?("_archive/manifest.yml") ? YAML.load_file("_archive/manifest.yml") : nil
             v = ((m || {})["versions"] || []).first
             print v ? v["commit"].to_s : ""')
           if [ -n "$last" ] && git cat-file -e "$last^{commit}" 2>/dev/null; then
-            msgs=$(git log --format=%B "$last..HEAD")
+            msgs=$(git log --format=%s "$last..HEAD")
             echo "Scanning commits since v-last at ${last::7}"
           else
-            msgs=$(git log -1 --format=%B)
+            msgs=$(git log -1 --format=%s)
           fi
           if grep -q '\[docs:major\]' <<<"$msgs"; then bump=major
           elif [ "$bump" != major ] && grep -q '\[docs:minor\]' <<<"$msgs"; then bump=minor; fi
