@@ -80,7 +80,7 @@ See [Entitlements](../api-reference/entitlements/). `status: active` is the whol
 ## 4. Check what they can actually do
 
 ```bash
-curl -s "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/applications/app_timetrack/effective-permissions" \
+curl -s "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/apps/app_timetrack/effective-permissions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
