@@ -30,7 +30,7 @@ callouts:
     title: Note
     color: blue
   decision:
-    title: Decision needed
+    title: Awaiting decision
     color: yellow
   important:
     title: Important

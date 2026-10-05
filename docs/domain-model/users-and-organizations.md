@@ -20,17 +20,31 @@ A person with an account on Substratal. One identity, used everywhere in the hub
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `usr_` prefix, opaque, stable. |
-| `email` | string | Unique. Carries a separate `email_verified` flag. |
+| `email` | string | Unique among non-deleted users (case-insensitive, and separately for test-mode users). Carries a separate `email_verified` flag. |
+| `email_verified` | boolean | Set by verifying an emailed link, accepting an invitation, or completing a password reset. |
+| `pending_email` | string, nullable | A self-service email change awaiting verification of the new address. |
 | `status` | enum | `active` \| `invited` \| `suspended` \| `deleted`. |
-| `created_at` | timestamp | |
+| `signup_application_id` | string, nullable | The Application the user signed up through, if any. Informational only; used for email branding. |
+| `test_mode` | boolean | Created by a test-mode key. |
+| `created_at`, `updated_at` | timestamp | |
 | `last_login_at` | timestamp, nullable | |
 
 ### Lifecycle
 
 ```
-invited → active → suspended ⇄ active
-                 ↘ deleted (soft) → hard-deleted (right-to-erasure, separate process)
+            accept invitation / signup / admin activation
+ invited ───────────────────────────────────────────► active ◄──── reactivate ────┐
+                                                         │                         │
+                                                         ├──── suspend ──────► suspended
+                                                         │                         │
+                                                         ▼                         ▼
+                                        deleted (soft: DELETE, or erasure request)
+                                                         │
+                                                         ▼ 7 days after an erasure request
+                                              hard-deleted (cascade, `user.erased`)
 ```
+
+Signup (`POST /v1/auth/signup`) creates a User directly in `active`. An admin invite (`POST /v1/users`) or an org-membership invite by email creates an `invited` one. Suspension and deletion revoke every session and fire `access.revoked` for every Application the user had active access to.
 
 An `invited` user has an account shell (so an Entitlement or Role can be assigned before they've logged in once) but can't authenticate until they complete signup. `suspended` blocks login but preserves every record — Entitlements, Roles, Profile, Settings — unlike `deleted`, which is the start of actual data removal. See [Non-Functional Requirements → Data retention](../../non-functional-requirements/#data-retention).
 
@@ -51,7 +65,7 @@ A User's Organization memberships are not a field on this record — see [Organi
 
 ### UserIdentity
 
-How a User actually authenticates isn't a field on `User` either, for the same reason `organization_id` isn't — see [Decisions → Identity provider](../../decisions/#1-identity-provider): a User can hold **more than one** login method at once (email/password *and* a federated SSO connection), picking which to use at each login, so this is its own join, not a column.
+How a User actually authenticates isn't a field on `User` either, for the same reason `organization_id` isn't — see [Auth → Native auth and per-Organization SSO](../../api-reference/auth/#native-auth-and-per-organization-sso): a User can hold **more than one** login method at once (email/password *and* a federated SSO connection), picking which to use at each login, so this is its own join, not a column.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -66,36 +80,54 @@ How a User actually authenticates isn't a field on `User` either, for the same r
 
 **One User, multiple UserIdentity rows** is the normal case, not an edge case — the same person might hold a `password` identity *and* an `sso` identity through their employer's Organization, choosing either at login. [`POST /v1/auth/login`](../../api-reference/auth/) accepts whichever credential matches an existing row; there's no "primary" method to designate.
 
+### Session
+
+One successful login. Refresh tokens, app refresh tokens, and app-token `sid` claims all point at it, so revoking it ends everything that came from that login at once. See [Auth → Sessions](../../api-reference/auth/#sessions).
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | `ses_` prefix. Appears as `sid` in every token minted from it. |
+| `user_id` | string | |
+| `amr` | array | How the login was authenticated: `pwd`, `otp`, `recovery_code`, `sso`. |
+| `ip_address`, `user_agent` | string | Recorded at login. They're personal data: included in export, deleted by erasure. |
+| `created_at`, `last_seen_at` | timestamp | `last_seen_at` is updated at most once a minute. |
+| `idle_expires_at`, `absolute_expires_at` | timestamp | 30 days from last refresh; 90 days from creation. |
+| `revoked_at`, `revoked_reason` | timestamp/string, nullable | `logout`, `logout_all`, `password_reset`, `password_changed`, `user_suspended`, `user_deleted`, `mfa_reset`, `refresh_token_reused`, or `admin`. |
+
 ### SSOConnection
 
-The other half of [Decision #1](../../decisions/#1-identity-provider)'s resolution: SSO is configured **per-Organization**, not per-Application or platform-wide — an Organization admin connects their own company's identity provider (Okta, Azure AD, Google Workspace, …) once, and it becomes available to every member of that Organization.
+The other half of [native auth and per-Organization SSO](../../api-reference/auth/#native-auth-and-per-organization-sso): SSO is configured **per-Organization**, not per-Application or platform-wide — an Organization admin connects their own company's identity provider (Okta, Azure AD, Google Workspace, …) once, and it becomes available to every member of that Organization.
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `ssc_` prefix. |
 | `organization_id` | string | `references organizations(id)` — the Organization this connection belongs to. |
-| `provider` | string | The underlying federation service, e.g. `"workos"` — see [Decisions → Identity provider](../../decisions/#1-identity-provider) for why a federation broker rather than integrating each enterprise IdP directly. |
+| `provider` | string | The underlying federation service, e.g. `"workos"`. A federation broker, rather than integrating each enterprise IdP directly, because "bring your own enterprise IdP" is exactly the problem a broker solves; see [Auth](../../api-reference/auth/#native-auth-and-per-organization-sso). |
 | `domain` | string, nullable | An email domain (e.g. `acme.com`) this connection auto-applies to, so a new member with a matching email can be routed to the right connection without manual setup. |
 | `status` | enum | `active` \| `inactive`. |
 
-{: .decision }
-This table is deliberately thin — scoped to *that* a User can authenticate via their Organization's SSO, not *how* the broker integration works, which is explicitly deferred (see [Decisions → Identity provider](../../decisions/#1-identity-provider)). Expect fields here once that integration is actually built, not guessed at now.
+{: .note }
+This table is deliberately thin — scoped to *that* a User can authenticate via their Organization's SSO, not *how* the broker integration works, which is explicitly deferred (see [Auth → Native auth and per-Organization SSO](../../api-reference/auth/#native-auth-and-per-organization-sso)). Expect fields here once that integration is actually built, not guessed at now.
 
 ---
 
 ## Organization
 
-A domain/grouping object for Users — a company, or a group within a company (a department, a team) — used to organize who shares admin standing over a set of Users and which Applications a group is granted as a whole, rather than one admin re-granting access per person. See [Decisions → Organizations](../../decisions/#2-organizations) — both individual and team/company end users are expected, so this isn't a someday-maybe feature; it's pulled into [Phase 2](../../roadmap/#phase-2).
+A domain/grouping object for Users — a company, or a group within a company (a department, a team) — used to organize who shares admin standing over a set of Users and which Applications a group is granted as a whole, rather than one admin re-granting access per person.
+
+Both individual and team/company end users are expected, so this isn't a someday-maybe feature. It's pulled forward to [Phase 2](../../roadmap/#phase-2) rather than [Phase 3](../../roadmap/#phase-3). It isn't in the MVP itself, because the first few dozen users are expected to be mostly individual early adopters. But it's needed well before the 10x/100x growth horizon in [Deployment Architecture → Growth trajectory](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md), where team accounts are assumed to matter. Making `organization_id` load-bearing in the schema from day one (see [below](#why-it-matters-even-before-organizations-are-customer-facing-everywhere)) was never a hedge against a hypothetical.
 
 {: .note }
-Organization carries no infrastructure meaning. Where a group's data physically lives is [Tenant](../tenancy/)'s job, not this entity's — see [Decisions → Tenant vs. Organization](../../decisions/#11-tenant-vs-organization) for why these are deliberately separate. An Organization can incidentally *own* a Tenant (if it also owns an Application — see [Applications](../applications/#fields)), but most Organizations, most of the time, don't own one at all.
+Organization carries no infrastructure meaning. Where a group's data physically lives is [Tenant](../tenancy/)'s job, not this entity's — see [Tenancy → Tenant vs. Organization](../tenancy/#tenant-vs-organization) for why these are deliberately separate. An Organization can incidentally *own* a Tenant (if it also owns an Application — see [Applications](../applications/#fields)), but most Organizations, most of the time, don't own one at all.
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `org_` prefix. |
 | `name` | string | |
-| `status` | enum | `active` \| `suspended`. |
-| `created_at` | timestamp | |
+| `status` | enum | `active` \| `suspended`. Only `organizations.manage` can suspend. Suspension freezes the Organization's own admin actions but doesn't cut members' access (non-cascading). |
+| `created_by` | string | The User who created it. Any active User may create an Organization and becomes its first `org_admin`. |
+| `test_mode` | boolean | |
+| `created_at`, `updated_at` | timestamp | |
 
 ### OrganizationMembership
 
@@ -112,7 +144,7 @@ The join record between a User and an Organization — a User can belong to any 
 
 ### Why it matters even before Organizations are customer-facing everywhere
 
-[Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy) recommends every end-user-scoped table carry `organization_id` from the MVP onward, enforced at the data-access layer, specifically so Organization features can land without a backfill migration across every table that should have been scoped from day one. This `organization_id` (team/seat grouping) is a different axis from the `tenant_id` introduced in [Tenancy](../tenancy/) (infrastructure placement) — see [Decisions → Tenant vs. Organization](../../decisions/#11-tenant-vs-organization).
+[Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy) recommends every end-user-scoped table carry `organization_id` from the MVP onward, enforced at the data-access layer, specifically so Organization features can land without a backfill migration across every table that should have been scoped from day one. This `organization_id` (team/seat grouping) is a different axis from the `tenant_id` introduced in [Tenancy](../tenancy/) (infrastructure placement) — see [Tenancy → Tenant vs. Organization](../tenancy/#tenant-vs-organization). Don't conflate the two when reading [Database Schema](../database-schema/).
 
 ### Relationship to Entitlements
 

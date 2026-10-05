@@ -16,31 +16,23 @@ nav_order: 7
 ## Order
 
 {: .decision }
-Owned by billing, not this API. See [Decisions → Billing system of record](../../decisions/#4-billing-system-of-record) — the fields below are the minimum this API needs to react to, not a full commerce schema.
+**Proposed — confirm** ([DECISIONS.md #20](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#20-order-references--billing-permissions)). `order_id` as an opaque, developer-supplied reference (no entity, table, or endpoint) follows from the [billing system of record](#billing-system-of-record). `billing.manage` and `billing.refund` are re-pointed at the one billing relationship Substratal actually has, platform subscriptions. `billing.manage` lets support view a Tenant's subscription and usage and open its billing portal. `billing.refund` is reserved for Stripe credits and refunds, which are done in the Stripe dashboard today, so it has no endpoint yet.
 
-The record an [Entitlement](../entitlements/) traces back to when `source: purchase`.
+**An Order isn't an entity in this API.** There's no `orders` table, no `ord_` resource, and no Orders endpoint. The commerce record an Entitlement traces back to lives in the *developer's own* billing system (see [Billing system of record](#billing-system-of-record) below). What this API stores is a **reference** to it:
 
-| Field | Type | Notes |
+| Field (on [Entitlement](../entitlements/#fields)) | Type | Notes |
 |---|---|---|
-| `id` | string | `ord_` prefix. |
-| `user_id` / `organization_id` | string | Whoever paid. |
-| `application_id` | string or array | An order can cover more than one app (a bundle). |
-| `status` | enum | `paid` \| `past_due` \| `cancelled` \| `refunded`. |
-| `renews_at` | timestamp, nullable | Set for subscriptions. |
+| `order_id` | string, nullable, ≤ 255 characters | Opaque. Typically the developer's own Stripe subscription id (`sub_…`), invoice id, or internal order number. It isn't validated beyond its length, never dereferenced, and never used to drive state on its own. It's settable once, so it stays a stable reconciliation key, and it's filterable on `GET /v1/entitlements?order_id=…`. |
 
-A billing webhook updates the linked Entitlement's `status` off of changes here — e.g. `status: refunded` drives the Entitlement to `revoked`. This API does not process payment itself; it reacts to the outcome. See [Workflows → Purchase → access](../../workflows/#purchase--access).
+Its one behavioral effect: an Entitlement with `order_id` set can't be hard-deleted ([`entitlement_order_linked`](../../api-reference/entitlements/#delete-v1entitlementsid)), because it represents a real financial event rather than a mistake.
 
-### Example
+When the developer's billing changes, for example a refund or a lapsed subscription, **the developer's backend calls this API** to change the Entitlement: `PATCH /v1/entitlements/{id}` with `status: revoked`, or by setting `ends_at` so it lapses on schedule, using an app-scoped [API Key](../../api-reference/api-keys/#app-confined-permissions). This API never learns about the payment itself. See [Workflows → Purchase → access](../../workflows/#purchase--access).
 
-```json
-{
-  "id": "ord_01JAG5D1C2E3F4G5H6J7K8L9M0",
-  "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
-  "application_id": "app_timetrack",
-  "status": "paid",
-  "renews_at": "2026-11-14T18:05:00Z"
-}
-```
+### Billing system of record
+
+Substratal Apps is not a payment processor or marketplace billing engine for any Application, ever, including after the marketplace phase ships. Each Application's developer owns the billing relationship with their own end users (their own Stripe or equivalent), entirely outside this API, and calls [Entitlements](../../api-reference/entitlements/) to reflect the outcome. `Order`/`order_id` is reference metadata the developer supplies for their own reconciliation. It is never a record that a Substratal-run billing system pushes webhooks about. When the marketplace ships, it makes Applications discoverable, each with its developer's own pricing and billing. It is not a checkout that Substratal runs.
+
+The **only** payment flow that runs through Substratal Apps itself is its own platform subscription: what an Application owner pays Substratal for Starter/Team/Enterprise. See [Pricing → How the subscription is charged](../../pricing/#how-the-subscription-is-charged).
 
 ---
 
@@ -51,58 +43,83 @@ An immutable record of who changed what access, when. Never edited, never delete
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `evt_` prefix. |
-| `actor_user_id` | string | Who made the change. System-initiated changes (e.g. a trial expiring) use the reserved id `usr_system` rather than a null or a real user. |
 | `action` | string | See [Action catalog](#action-catalog) below. |
-| `target_user_id` | string | Whose access/data changed. |
-| `application_id` | string, nullable | Set when the action is app-scoped. |
-| `before` / `after` | object | Snapshot of the changed fields, not the whole record. |
-| `timestamp` | timestamp | |
+| `actor` | object | Who made the change: `{ "type": "user" \| "api_key" \| "system", "id": "usr_…" \| "key_…" \| "system", "via_api_key_id": null }`. A change made by a User through an MCP or agent session that used their own token is `type: user`. A change made by an API Key is `type: api_key`, with the key's id. System-initiated changes, such as a trial expiring, an erasure cascade, or a Stripe sync, are `type: system`, `id: "system"`. |
+| `target` | object | What changed: `{ "type": "user" \| "entitlement" \| "role" \| "role_assignment" \| "application" \| "organization" \| "tenant" \| "tier_change_request" \| "api_key" \| "webhook", "id": "…" }`. |
+| `target_user_id` | string, nullable | Whose access or data changed, when there is such a User. It's `null` for events with no user subject, such as `application.updated`, `api_key.created`, or `tenant.plan_changed`. For an org-wide Entitlement change it's also `null`. The per-member effect shows up as [`access.*` webhooks](../../api-reference/webhooks/#event-types), not as one Audit Event per member. |
+| `application_id`, `organization_id`, `tenant_id` | string, nullable | Scope, where relevant. `tenant_id` is denormalized from the Application. |
+| `before` / `after` | object, nullable | A snapshot of the changed fields only, not the whole record. Secrets and hashes never appear, even as before/after values. |
+| `request_id` | string, nullable | The `X-Request-Id` of the API call that caused it, or `null` for system events. It joins audit to request logs. |
+| `timestamp` | timestamp | The commit time of the change. |
 
 ### Example
 
 ```json
 {
   "id": "evt_01JAG7X3P8QY1L0M9N8O7P6Q5R",
-  "actor_user_id": "usr_01JAG9SUPPORT0000000000000",
   "action": "entitlement.disabled",
+  "actor": { "type": "user", "id": "usr_01JAG9SUPPORT0000000000000", "via_api_key_id": null },
+  "target": { "type": "entitlement", "id": "ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9" },
   "target_user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_invoicer",
+  "organization_id": null,
+  "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
   "before": { "status": "active" },
   "after": { "status": "disabled", "disabled_reason": "billing_dispute" },
+  "request_id": "req_7c1e9a2f4b",
   "timestamp": "2026-09-30T16:22:41Z"
 }
 ```
 
 ### Action catalog
 
-Every value `action` can take. Entries marked **admin-only** never fire for a self-service change — see [What triggers an Audit Event](#what-triggers-an-audit-event) below.
+Every value `action` can take. It's mirrored exactly by the `AuditAction` enum in [openapi.yaml](../../openapi.yaml), and by the `check` constraint on `audit_events.action` (see [Database Schema](../database-schema/#audit_events)). Entries marked **admin-only** never fire for a self-service change. See [What triggers an Audit Event](#what-triggers-an-audit-event) below.
 
-| Action | Fires when |
-|---|---|
-| `user.created` | `POST /v1/users` |
-| `user.suspended` | `POST /v1/users/{id}/suspend`, or `PATCH` setting `status: suspended` — **admin-only** |
-| `user.reactivated` | `PATCH` setting `status: active` on a suspended user — **admin-only** |
-| `user.deleted` | `DELETE /v1/users/{id}` |
-| `entitlement.granted` | An Entitlement is created or returns to `active` |
-| `entitlement.disabled` | An Entitlement's `status` is set to `disabled` |
-| `entitlement.revoked` | An Entitlement's `status` is set to `revoked` |
-| `entitlement.expired` | An Entitlement transitions to `expired` automatically |
-| `entitlement.member_scope_changed` | An org-wide Entitlement's `member_scope`/`member_overrides` changes with no `status` transition — see [Entitlements → Org-wide entitlements](../entitlements/#org-wide-entitlements-scoping-members-in-or-out) |
-| `role.assigned` | `POST /v1/users/{id}/roles/{roleId}` |
-| `role.removed` | `DELETE /v1/users/{id}/roles/{roleId}` |
-| `profile.updated` | An admin changes another user's Profile or AppProfile — **admin-only** |
-| `settings.updated` | An admin changes another user's Settings or AppSettings — **admin-only** |
-| `application.created` | `POST /v1/applications` |
-| `application.updated` | `PATCH /v1/applications/{id}` |
-| `organization.member_added` | `POST /v1/organizations/{id}/members` |
-| `organization.member_removed` | `DELETE /v1/organizations/{id}/members/{userId}` |
-| `tenant.tier_change_requested` | `POST /v1/tenants/{id}/tier-change-requests` — the request itself, not yet the migration. |
-| `tenant.tier_changed` | A tier-change migration completes: `tier`/`region`/`status` are updated back to `active` — see [Tenancy → How a tier change happens today](../tenancy/#how-a-tier-change-happens-today). |
-| `api_key.restrict_destructive_disabled` | An API Key's `restrict_destructive` is explicitly set to `false` on an `intended_use: "agent"` key — see [Decisions → MCP server authorization scope](../../decisions/#14-mcp-server-authorization-scope). |
-| `application.review_status_changed` | A reviewer approves, rejects, or suspends an Application — see [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model). |
+| Action | Fires when | `target.type` |
+|---|---|---|
+| `user.created` | `POST /v1/users`, `POST /v1/auth/signup`, or an invite via org membership | `user` |
+| `user.updated` | `users.manage` changes a field other than status or email (for example `invited → active`) — **admin-only** | `user` |
+| `user.email_changed` | An email change completes (self, after verification; or admin, immediately) | `user` |
+| `user.suspended` | `POST /v1/users/{id}/suspend`, or `PATCH status: suspended` — **admin-only** | `user` |
+| `user.reactivated` | `PATCH status: active` on a suspended user — **admin-only** | `user` |
+| `user.deleted` | `DELETE /v1/users/{id}`, or the soft-delete step of an erasure request | `user` |
+| `user.erasure_requested` | `POST /v1/users/{id}/erasure-requests` | `user` |
+| `user.erasure_cancelled` | `DELETE /v1/users/{id}/erasure-requests/current` — **admin-only** | `user` |
+| `user.erased` | The hard-delete cascade completes (actor `system`) | `user` |
+| `user.password_changed` | `POST /v1/users/{id}/password` | `user` |
+| `user.password_reset` | `POST /v1/auth/password/reset` | `user` |
+| `user.mfa_enabled` / `user.mfa_disabled` | TOTP confirmed / disabled by the user | `user` |
+| `user.mfa_reset` | `DELETE /v1/users/{id}/mfa/totp` — **admin-only** | `user` |
+| `entitlement.granted` | An Entitlement is created, or returns to `active` | `entitlement` |
+| `entitlement.disabled` | `status` set to `disabled` | `entitlement` |
+| `entitlement.revoked` | `status` set to `revoked` | `entitlement` |
+| `entitlement.expired` | Automatic transition to `expired` (actor `system`) | `entitlement` |
+| `entitlement.updated` | `ends_at`, `source`, or `order_id` changes without a status change | `entitlement` |
+| `entitlement.member_scope_changed` | An org grant's `member_scope`/`member_overrides` changes — see [Entitlements → Org-wide entitlements](../entitlements/#org-wide-entitlements-scoping-members-in-or-out) | `entitlement` |
+| `entitlement.deleted` | `DELETE /v1/entitlements/{id}` (error correction) | `entitlement` |
+| `role.created` / `role.updated` / `role.deleted` | Role definition changes, including Roles seeded or removed via an Application's `available_app_roles` | `role` |
+| `role.assigned` / `role.removed` | `POST`/`DELETE /v1/users/{id}/roles/{roleId}` (only when something actually changed) | `role_assignment` |
+| `profile.updated` | An admin changes another user's Profile or AppProfile — **admin-only** | `user` |
+| `settings.updated` | An admin changes another user's Settings or AppSettings — **admin-only** | `user` |
+| `application.created` | `POST /v1/applications` | `application` |
+| `application.updated` | `PATCH /v1/applications/{id}` (configuration fields) | `application` |
+| `application.review_status_changed` | A reviewer approves, rejects, suspends, or reinstates; or a rejected app is resubmitted — see [Applications → The review lifecycle](../applications/#the-review-lifecycle) | `application` |
+| `organization.created` / `organization.updated` | `POST`/`PATCH /v1/organizations…` | `organization` |
+| `organization.member_added` / `organization.member_removed` | Membership created or removed, including leaving | `organization` |
+| `organization.member_role_changed` | `PATCH /v1/organizations/{id}/members/{userId}` | `organization` |
+| `tenant.plan_changed` | `plan` changes via a Stripe sync (actor `system`) | `tenant` |
+| `tenant.subscription_status_changed` | `subscription_status` or `restricted` changes via a Stripe sync (actor `system`) | `tenant` |
+| `tenant.tier_change_requested` | `POST /v1/tenants/{id}/tier-change-requests` — the request itself, not yet the migration | `tier_change_request` |
+| `tenant.tier_change_request_updated` | `PATCH` on a tier-change request (scheduled, started, cancelled) | `tier_change_request` |
+| `tenant.tier_changed` | A tier-change request reaches `completed`: `tier`/`region` change and `status` returns to `active` — see [Tenancy → How a tier change happens today](../tenancy/#how-a-tier-change-happens-today) | `tenant` |
+| `api_key.created` / `api_key.updated` / `api_key.rotated` / `api_key.revoked` | [API Key](../../api-reference/api-keys/) lifecycle | `api_key` |
+| `api_key.restrict_destructive_disabled` | `restrict_destructive` explicitly set to `false` on an `intended_use: "agent"` key (written *in addition to* `api_key.created`/`updated`) — see [API Keys → Agent keys](../../api-reference/api-keys/#agent-keys--restrict_destructive) | `api_key` |
+| `webhook.created` / `webhook.updated` / `webhook.deleted` / `webhook.secret_rotated` | [Webhook](../../api-reference/webhooks/) subscription lifecycle | `webhook` |
 
-This list is the authoritative source for `action` values — if an endpoint's page describes a write that isn't represented here, that's a spec bug; file it the same way as any other inconsistency.
+This list is the authoritative source for `action` values. If an endpoint's page describes a write that isn't represented here, that's a spec bug; file it the same way as any other inconsistency.
 
 ### What triggers an Audit Event
 
-Every write to an [Entitlement](../entitlements/), every [Role](../roles-and-permissions/) assignment or removal, and every admin-initiated (not self-service) change to a user's [Profile](../profiles/) or [Settings](../settings/). Self-service changes a user makes to their own Profile/Settings are not audited at this level of detail — ordinary account activity, not an access-control event. See [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit).
+Every write to an [Entitlement](../entitlements/), every [Role](../roles-and-permissions/) definition or assignment change, every change to a credential (API Key, webhook secret, password, MFA), every Application, Organization, and Tenant change, and every admin-initiated (not self-service) change to a user's [Profile](../profiles/) or [Settings](../settings/). Self-service changes a user makes to their own Profile/Settings aren't audited at this level of detail. That's ordinary account activity, not an access-control event.
+
+**Not** Audit Events: logins, failed logins, token refreshes, and reads. Those go to the security log (structured application logs with `X-Request-Id`, retained 1 year in CloudWatch Logs; see [Non-Functional Requirements → Security logging](../../non-functional-requirements/#security-logging)). The Audit log records *changes to state*, and the security log records *access attempts*. See [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit).

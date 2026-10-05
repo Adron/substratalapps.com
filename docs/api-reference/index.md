@@ -14,7 +14,7 @@ Resource-oriented REST, JSON, versioned at `/v1`. Read [Conventions](conventions
 | Group | Covers |
 |---|---|
 | [Conventions](conventions/) | Base URL, auth header, pagination, idempotency, error shape, ID format. |
-| [Auth](auth/) | Login, token refresh, SSO callback, logout. |
+| [Auth](auth/) | Signup, login, MFA, sessions, password and email lifecycle, invitations, and app tokens (embedded, and hosted + PKCE). |
 | [Users](users/) | Account lifecycle. |
 | [Profiles](profiles/) | Global and per-app identity data. |
 | [Settings](settings/) | Global and per-app configuration. |
@@ -23,8 +23,9 @@ Resource-oriented REST, JSON, versioned at `/v1`. Read [Conventions](conventions
 | [Roles & Permissions](roles-and-permissions/) | Assign/remove roles; resolve effective permissions. |
 | [Organizations](organizations/) | Team/seat management. |
 | [Tenancy](tenancy/) | Where a Tenant's data lives, and the (support-only) process to change it. |
+| [Billing](billing/) | The Application owner's own Substratal subscription: plan, usage, Stripe Checkout and Portal. |
 | [Audit](audit/) | Query the audit log. |
-| [Webhooks](webhooks/) | Subscribe to access-change events. |
+| [Webhooks](webhooks/) | Subscribe to access-change events, including the required `access.revoked`. |
 | [API Keys](api-keys/) | Service-to-service credentials — how billing or an app's own backend authenticates. |
 
 {: .note }

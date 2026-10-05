@@ -33,7 +33,7 @@ older single-file draft found elsewhere in the repository's history.
 ## API reference
 
 - [Conventions]({{ site.url }}{{ site.baseurl }}/api-reference/conventions/): base URL, auth, pagination, idempotency, error shape, ID format.
-- [Auth]({{ site.url }}{{ site.baseurl }}/api-reference/auth/)
+- [Auth]({{ site.url }}{{ site.baseurl }}/api-reference/auth/): signup, login, MFA, sessions, password/email lifecycle, and how an Application obtains its per-app JWT.
 - [Users]({{ site.url }}{{ site.baseurl }}/api-reference/users/)
 - [Profiles]({{ site.url }}{{ site.baseurl }}/api-reference/profiles/)
 - [Settings]({{ site.url }}{{ site.baseurl }}/api-reference/settings/)
@@ -42,6 +42,7 @@ older single-file draft found elsewhere in the repository's history.
 - [Roles & Permissions]({{ site.url }}{{ site.baseurl }}/api-reference/roles-and-permissions/)
 - [Organizations]({{ site.url }}{{ site.baseurl }}/api-reference/organizations/)
 - [Tenancy]({{ site.url }}{{ site.baseurl }}/api-reference/tenancy/): fetch a Tenant and request a tier change — support-only today, no customer self-service.
+- [Billing]({{ site.url }}{{ site.baseurl }}/api-reference/billing/): the Application owner's own Substratal subscription — plan, usage, Stripe Checkout and Customer Portal.
 - [Audit]({{ site.url }}{{ site.baseurl }}/api-reference/audit/)
 - [Webhooks]({{ site.url }}{{ site.baseurl }}/api-reference/webhooks/)
 - [API Keys]({{ site.url }}{{ site.baseurl }}/api-reference/api-keys/): service-to-service credentials.
@@ -56,7 +57,6 @@ older single-file draft found elsewhere in the repository's history.
 - [Compliance & Data Protection]({{ site.url }}{{ site.baseurl }}/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.
 - [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
 - [Pricing]({{ site.url }}{{ site.baseurl }}/pricing/): Starter (free), Team (per-seat), and Enterprise (with a choice of Tenant tier) — what Substratal itself charges the Application-owner developer, distinct from what that developer charges their own end users.
-- [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
 - [Changelog]({{ site.url }}{{ site.baseurl }}/changelog/): what's changed in this spec over time.
 - [Glossary]({{ site.url }}{{ site.baseurl }}/glossary/)
 - [Versions]({{ site.url }}{{ site.baseurl }}/versions/): every released version of this spec; older versions are frozen copies under `/versions/<version>/`.

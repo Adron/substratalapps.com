@@ -12,10 +12,12 @@ Chosen and configured around one constraint above all others: **predictable, cap
 6. [Tenancy tiers & where they run](#tenancy-tiers--where-they-run)
 7. [MCP server](#mcp-server)
 8. [Stripe Billing](#stripe-billing)
-9. [Audit log archival](#audit-log-archival)
-10. [Scale-out](#scale-out)
-11. [Build checklist](#build-checklist)
-12. [Local development](#local-development)
+9. [Transactional email](#transactional-email)
+10. [Webhook dispatch](#webhook-dispatch)
+11. [Audit log archival](#audit-log-archival)
+12. [Scale-out](#scale-out)
+13. [Build checklist](#build-checklist)
+14. [Local development](#local-development)
 
 ---
 
@@ -182,28 +184,24 @@ This Lambda never talks to Aurora, Secrets Manager, or SQS directly — it only 
 
 ## Stripe Billing
 
-[Pricing](https://adron.github.io/substratalapps.com/pricing/) specifies three subscription tiers; this is how they're actually charged, mechanically. Stripe Billing is the chosen processor — see [root DECISIONS.md #15](https://adron.github.io/substratalapps.com/decisions/#15-platform-subscription-billing-processor) for why, and note this is strictly about **Substratal's own platform subscription** (the Application-owner developer paying for Starter/Team/Enterprise), never about a developer's own end-user billing, which [stays entirely outside this API](https://adron.github.io/substratalapps.com/decisions/#4-billing-system-of-record).
+[Pricing](https://adron.github.io/substratalapps.com/pricing/) specifies the plans and the [Stripe catalog](https://adron.github.io/substratalapps.com/pricing/#stripe-catalog). [API Reference → Billing](https://adron.github.io/substratalapps.com/api-reference/billing/) specifies the endpoints. This section is how the integration is built and run. It's strictly about **Substratal's own platform subscription** (the Application owner paying for Starter/Team/Enterprise), never about a developer's own end-user billing, which [stays entirely outside this API](https://adron.github.io/substratalapps.com/domain-model/orders-and-audit/#billing-system-of-record).
 
 ### Objects and mapping
 
 | Stripe object | Maps to |
 |---|---|
-| Stripe Customer | One per [Tenant](https://adron.github.io/substratalapps.com/domain-model/tenancy/) — created the moment a Tenant is created (at `shared`/`starter` defaults, a $0 subscription still gets a Customer record, so upgrading later never requires backfilling one). |
-| Stripe Subscription | One per Tenant, holding its current `plan` (`starter`/`team`/`enterprise`) as the subscribed Price. A tier/plan upgrade is a Stripe subscription update, not a new subscription. |
-| Stripe Price / Product | One Product per plan (Starter, Team, Enterprise), with metered/per-seat Prices attached for Team's and Enterprise's seat components — Stripe's native metered billing handles the "$6/seat beyond 25 included" shape directly rather than this API computing and reporting usage itself. |
-| Stripe Invoice | Not mirrored into this API's own schema at all — Stripe remains the system of record for invoices/receipts; this API only needs to know current subscription *status*, not billing history. |
+| Customer | One per [Tenant](https://adron.github.io/substratalapps.com/domain-model/tenancy/). Created right after the Tenant row commits (`metadata.tenant_id`). If the Stripe call fails, a retry job fills `stripe_customer_id`. |
+| Subscription | **None on Starter.** One per Team or Enterprise Tenant. Team has two items, `team_base_monthly_usd` (qty 1) and `team_seats_monthly_usd` (qty = seats, graduated tiers, first 25 at $0). Enterprise has contract prices, plus the tenancy add-on item when applicable. |
+| Product / Price | Created once per Stripe mode by an idempotent setup script (`scripts/stripe-sync-catalog`) from the catalog table on the Pricing page, keyed by `lookup_key`. Code always resolves prices by `lookup_key`, never by hard-coded price id. |
+| Checkout Session | `mode: subscription`, `customer` = the Tenant's Customer, `client_reference_id` = `tenant_id`, `subscription_data.metadata.tenant_id`, `automatic_tax: {enabled: true}`, `billing_address_collection: required`. |
+| Customer Portal | One configuration: update payment method, view invoices, cancel at period end. Plan switching is **disabled** (downgrades must pass limit checks). |
+| Invoice | Not mirrored. Stripe is the system of record for invoices and receipts. |
+
+Secrets: `STRIPE_SECRET_KEY` (restricted key: Customers, Subscriptions, Checkout, Portal, Prices read) and `STRIPE_WEBHOOK_SECRET` in Secrets Manager. Test mode and live mode are separate secrets, and the test-mode key is used for every non-production environment.
 
 ### `tenants` schema additions
 
-```sql
-alter table tenants
-  add column stripe_customer_id text unique,
-  add column stripe_subscription_id text unique,
-  add column subscription_status text
-    check (subscription_status in ('active','past_due','canceled','incomplete'));
-```
-
-`plan` (already on `tenants`, per the [Pricing](https://adron.github.io/substratalapps.com/pricing/) work) is the source of truth the rest of the API reads from; `subscription_status` is what the Stripe sync keeps current, and is what gates whether a `past_due`/`canceled` Tenant's `plan` enforcement (seat caps, Tenant tier availability) should be treated as still-active-on-good-faith or immediately restricted — a real product/business decision, not specified further here.
+Specified in full in [Database Schema → tenants](https://adron.github.io/substratalapps.com/domain-model/database-schema/#tenants): `stripe_customer_id`, `stripe_subscription_id`, `subscription_status` (`none` and Stripe's own values), `current_period_end`, `cancel_at_period_end`, `restricted`, and `seat_count_synced`. `plan` remains the source of truth the rest of the API reads. The Stripe sync is the only writer of `plan` after a Tenant is created.
 
 ### Webhook handling
 
@@ -211,24 +209,45 @@ alter table tenants
 POST /internal/stripe/webhook
 ```
 
-Not under `/v1` — same reasoning as the MCP server's `/mcp` route: this isn't a REST resource a caller invokes, it's an inbound event sink with its own, Stripe-defined contract and versioning. Not Bearer-authenticated either — verified via Stripe's own signature scheme (`Stripe-Signature` header, HMAC against the raw body and the webhook-signing secret from Secrets Manager), the same shape as this API's own outbound [webhook signature verification](https://adron.github.io/substratalapps.com/api-reference/webhooks/#verifying-the-signature) — deliberately symmetric with a pattern already specified, not a new one invented for this.
+Not under `/v1`, the same reasoning as the MCP server's `/mcp` route: it isn't a REST resource a caller invokes, it's an inbound event sink with its own Stripe-defined contract and versioning. It's not Bearer-authenticated either. It verifies the `Stripe-Signature` header against the raw body with `STRIPE_WEBHOOK_SECRET` (a 5-minute tolerance), the same shape as this API's own outbound [webhook signatures](https://adron.github.io/substratalapps.com/api-reference/webhooks/#verifying-the-signature).
+
+**Processing model:** insert the Stripe event id into `stripe_events` (on conflict do nothing, so a duplicate returns `200` immediately), return `200`, and process asynchronously from SQS. Each handler **re-fetches the Subscription from Stripe** rather than trusting the event payload, which makes out-of-order delivery harmless: whatever arrives last, the Tenant ends up matching Stripe's current state.
 
 | Stripe event | Effect |
 |---|---|
-| `customer.subscription.created` / `.updated` | Sync `plan`, `subscription_status`, `stripe_subscription_id` onto the Tenant. A plan *downgrade* that would violate the `plan = 'enterprise' or tier = 'shared'` database constraint (e.g. an Enterprise customer on `isolated` downgrading to Team) is rejected at the application layer before it reaches Stripe — the UI/API surface that initiates a downgrade needs to check this first, not discover it as a constraint violation after the fact. |
-| `customer.subscription.deleted` | `subscription_status = 'canceled'`; `plan` reverts to `starter` (never a hard account deletion — this is a billing-state transition, independent of the Tenant's and its Applications' own `status`). |
-| `invoice.payment_failed` | `subscription_status = 'past_due'`. Does not immediately change `plan` or restrict access — Stripe's own retry schedule (Smart Retries) gets a chance first; only a subsequent `customer.subscription.deleted` (after Stripe's retries are exhausted) triggers the harder transition above. |
+| `checkout.session.completed` | Link `stripe_subscription_id` to the Tenant from `client_reference_id`, then run the subscription sync below. |
+| `customer.subscription.created` / `.updated` | **Subscription sync:** derive `plan` from the subscription items' `product.metadata.substratal_plan`, and set `subscription_status`, `current_period_end`, and `cancel_at_period_end`. If the status is `active`/`trialing`/`past_due`, clear `restricted`. Write `tenant.plan_changed` / `tenant.subscription_status_changed` Audit Events on change. |
+| `customer.subscription.deleted`, or status becoming `unpaid`/`incomplete_expired`/`paused` | **Lapse.** A user-owned Tenant whose usage fits Starter gets `plan = 'starter'`, `stripe_subscription_id = null`, `subscription_status = 'canceled'`. Otherwise, including every Organization-owned Tenant, which can't be Starter, `plan` is unchanged and `restricted = true`. No hard deletion, and **no end user loses access**. See [Pricing → Subscription lapse](https://adron.github.io/substratalapps.com/pricing/#subscription-lapse--downgrades). |
+| `invoice.payment_failed` | `subscription_status = 'past_due'` (via the sync). No restriction. Stripe Smart Retries (about 3 weeks) runs, and only a subsequent lapse triggers the transition above. |
+| `invoice.paid` | Sync, which clears `past_due`. |
 
-Idempotency: Stripe retries webhook delivery on a non-2xx response, the same way this API's own outbound webhooks do — dedupe on the Stripe event's own `id`, stored the same way the [idempotency_keys](https://adron.github.io/substratalapps.com/domain-model/database-schema/) table already works for this API's inbound writes, rather than inventing a second mechanism.
+Enterprise plan changes and tenancy add-ons are made in the Stripe dashboard by staff and arrive through the same sync. The `plan = 'enterprise' or tier = 'shared'` constraint means a sync that would take an `isolated`/`dedicated_region` Tenant off Enterprise fails loudly (alarm, event left unprocessed) instead of silently corrupting placement. Ops must move the Tenant to `shared` first.
+
+### Seat sync
+
+A daily EventBridge Scheduler rule (00:15 UTC) invokes a Lambda that, for every Team/Enterprise Tenant, computes seats (distinct non-test users with active resolved access to any of the Tenant's Applications) and, if the count changed since `seat_count_synced`, updates the seat subscription item's `quantity` with `proration_behavior: "none"`. Stripe idempotency keys are `seat-sync:<tenant_id>:<date>`. Starter Tenants are skipped, because their 1,000-seat cap is enforced at grant time, not billed.
 
 ### Keeping this honest
 
-**Stripe's official MCP server** is the recommended tool for building and testing this integration — ~25 tools covering customers, products, prices, subscriptions, invoices, and payment flows, so the webhook-handling logic above can be developed and verified against real Stripe test-mode objects from within an agentic coding session, rather than hand-rolling `curl` calls against Stripe's API or waiting for a real webhook to fire during development. Two ways to run it:
+**Stripe's official MCP server** is the recommended tool for building and testing this integration. It has about 25 tools covering customers, products, prices, subscriptions, invoices, and payment flows, so the webhook-handling logic above can be developed and verified against real Stripe test-mode objects from inside an agentic coding session. Two ways to run it:
 
 - **Hosted**, at `https://mcp.stripe.com` — OAuth per the MCP spec, or an API key as a Bearer token for clients that don't speak OAuth.
-- **Local**, via `npx -y @stripe/mcp --api-key=<test-mode secret key>` — part of the `stripe/ai` toolkit monorepo, which also wires Stripe into agent frameworks (LangChain, the Vercel AI SDK, etc.) if that's ever needed beyond this API's own use.
+- **Local**, via `npx -y @stripe/mcp --api-key=<test-mode secret key>`.
 
-Point it at Stripe **test mode** only, using a `sk_test_…` key, for exactly the reason [Conventions' test-vs-live API Keys](https://adron.github.io/substratalapps.com/api-reference/conventions/#authentication) already draws the same line on this API's own side.
+Point it at Stripe **test mode** only, with a `sk_test_…` key. Use `stripe listen --forward-to localhost:<port>/internal/stripe/webhook` to drive the handler locally, and `stripe trigger customer.subscription.deleted` and friends to exercise every row of the table above.
+
+## Transactional email
+
+Native auth sends email: verification, password reset, invitations, MFA and password-change notices, and tier-change windows. That email goes through **Amazon SES** in the same account and region, so there's no new sub-processor.
+
+- The sending domain is `mail.substratalapps.com`, with DKIM, SPF, and a DMARC `p=quarantine` policy set up in Route 53 before the first send. Request SES production access (out of the sandbox) as part of the build checklist, because it takes about a day.
+- Templates are SES templates versioned in the repo. The From name is the Application's `email_from_name` when the email was triggered from inside an app, and "Substratal" otherwise.
+- Sends go through SQS so an SES throttle never fails an API request. A bounce or complaint (from the SES → SNS notification) marks the address undeliverable, and auth emails to it are skipped and logged.
+- Cost at Tier 0 volume is effectively $0 ($0.10 per 1,000 emails).
+
+## Webhook dispatch
+
+Outbound webhooks use a **transactional outbox**. Every state-changing transaction inserts its `webhook_events` rows in the same commit (see [Database Schema](https://adron.github.io/substratalapps.com/domain-model/database-schema/#webhook_subscriptions-webhook_events-webhook_deliveries)). A dispatcher Lambda, triggered every few seconds by an EventBridge Scheduler rule and also invoked directly after commit as a fast path, fans each event out to matching subscriptions as SQS messages. Delivery workers POST with a 5-second timeout, and failed attempts are re-enqueued with SQS delay (up to 15 minutes) or EventBridge Scheduler one-shot schedules for the 2-hour and 12-hour retries. No always-on component, consistent with the [cost principles](#cost-principles).
 
 ## Audit log archival
 
@@ -238,7 +257,7 @@ Point it at Stripe **test mode** only, using a `sk_test_…` key, for exactly th
 |---|---|
 | Trigger | A daily **EventBridge Scheduler** rule, the same pattern already used for trial-expiry/idempotency-key cleanup — invokes a dedicated Lambda. |
 | Select | Query `audit_events` for rows older than the owning Tenant's plan-tiered hot window (30 days / 1 year / negotiated — see [Pricing](https://adron.github.io/substratalapps.com/pricing/#enforcement)), batched by `tenant_id` using the existing `(tenant_id, timestamp desc)` index (see [Database Schema → audit_events](https://adron.github.io/substratalapps.com/domain-model/database-schema/#audit_events)). |
-| Archive | Write the shape-only fields (`id`, `actor_user_id`, `action`, `target_user_id`, `application_id`, `tenant_id`, `timestamp`) — **never** `before`/`after` — as newline-delimited JSON to **S3**, under a lifecycle rule that transitions objects straight to **S3 Glacier Deep Archive** on arrival. This is the one-way redaction step: the snapshot values are dropped here, not carried into cold storage and redacted later. |
+| Archive | Write the shape-only fields (`id`, `action`, `actor_type`, `actor_id`, `target_type`, `target_id`, `target_user_id`, `application_id`, `organization_id`, `tenant_id`, `request_id`, `timestamp`) — **never** `before`/`after` — as newline-delimited JSON to **S3**, under a lifecycle rule that transitions objects straight to **S3 Glacier Deep Archive** on arrival. This is the one-way redaction step: the snapshot values are dropped here, not carried into cold storage and redacted later. |
 | Prune | Delete the archived rows from the hot `audit_events` table once the S3 write is confirmed — keeps Aurora storage cost bounded by the hot window, not by all-time event volume. |
 | Retrieve | A Glacier Deep Archive restore job (support-initiated, ~12-hour retrieval SLA) for the rare dispute/investigation that needs an archived event's shape — there is no live API path to cold storage, deliberately; see [Non-Functional Requirements → Audit log lifecycle](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle). |
 
@@ -266,12 +285,12 @@ Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, trigger
 The order this gets stood up in, once API implementation begins:
 
 1. AWS account (dedicated member account under Organizations, `us-east-1` — see [AWS account & region](#aws-account--region)) + billing contact + **Budgets and Cost Anomaly Detection from step 1**, before any other resource.
-2. Route 53 hosted zone + ACM certificate for the chosen API domain.
-3. Secrets Manager secrets: the Aurora master credential, and Stripe's secret key + webhook-signing secret (test-mode keys first — see [Stripe Billing](#stripe-billing)). Aurora Serverless v2 cluster with Data API enabled, minimum 0.5 / maximum capacity set deliberately.
+2. Route 53 hosted zone + ACM certificate for the chosen API domain. SES domain identity for `mail.substratalapps.com` (DKIM/SPF/DMARC) and an SES production-access request, which takes about a day, so start it here.
+3. KMS keys: one asymmetric RSA-2048 signing key for JWTs (JWKS is published from its public half), and one symmetric key for encrypting TOTP and webhook secrets. Secrets Manager secrets: the Aurora master credential, and Stripe's secret key + webhook-signing secret (test-mode keys first — see [Stripe Billing](#stripe-billing)). Aurora Serverless v2 cluster with Data API enabled, minimum 0.5 / maximum capacity set deliberately.
 4. IAM: one execution role per Lambda function (API handlers, MCP server, Stripe webhook handler, webhook worker, scheduled-jobs), each scoped to only the resources it actually needs — no shared mega-role.
 5. API Gateway HTTP API + custom domain mapping; Lambda handlers deployed behind it, implementing the [API Reference](https://adron.github.io/substratalapps.com/api-reference/) / [openapi.yaml](https://adron.github.io/substratalapps.com/openapi.yaml) contract.
-6. SQS queue + webhook worker Lambda; EventBridge Scheduler rules for trial expiry, idempotency-key cleanup, and [audit log archival](#audit-log-archival).
-7. Stripe account + Products/Prices for Starter/Team/Enterprise (test mode first); `/internal/stripe/webhook` route and handler.
+6. SQS queues (webhook fan-out/delivery, email, Stripe events) and their worker Lambdas; EventBridge Scheduler rules for the entitlement-expiry sweep (every 5 minutes), the webhook outbox dispatcher, the erasure cascade (hourly), the seat sync (daily 00:15 UTC), test-mode purge, expired-token and idempotency-key cleanup (nightly), and [audit log archival](#audit-log-archival). CloudFront in front of `/.well-known/jwks.json` (1-hour cache).
+7. Stripe account: run the catalog sync script (test mode first), configure the Customer Portal (no plan switching), enable Stripe Tax, register the `/internal/stripe/webhook` endpoint for the events in [Webhook handling](#webhook-handling).
 8. CloudWatch Logs with explicit retention on every log group; a small set of alarms (error rate, Lambda throttling, Aurora ACU near max) in addition to the billing guardrails from step 1.
 9. CI/CD via OIDC federation (GitHub Actions → an AWS deploy role) — no long-lived IAM user access keys committed anywhere.
 

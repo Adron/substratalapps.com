@@ -43,7 +43,7 @@ Tier 0's implementation is deliberately the simplest conforming option: every to
 The MCP endpoint takes the exact same `Authorization: Bearer <token>` header as every other endpoint in [Conventions](../api-reference/conventions/#authentication) — a user access token, or a scoped [API Key](../api-reference/api-keys/). There is no MCP-specific credential, no separate consent/OAuth flow layered on top, and no elevated standing: the server holds no privilege of its own and simply forwards the caller's own credential to the underlying REST call it's translating a tool invocation into. A tool call a caller's credential isn't permitted to make fails exactly the way the equivalent `curl` call would — same `403`, same error `code`.
 
 {: .important }
-Because of this, the *effective* blast radius of connecting an agent to this server is entirely a function of which credential you hand it. See [Decisions → MCP server authorization scope](../decisions/#14-mcp-server-authorization-scope) for the one real open question here: whether Substratal should *recommend* (or eventually require) a narrower, purpose-scoped API Key class specifically for agent callers, given that an LLM deciding which tool to call is a different risk shape than deterministic service code doing the same thing.
+Because of this, the *effective* blast radius of connecting an agent to this server is entirely a function of which credential you hand it. Use an API Key created with `intended_use: "agent"`: it defaults to `restrict_destructive: true`, which blocks destructive operations server-side regardless of the key's permissions. An LLM deciding which tool to call is a different risk shape than deterministic service code doing the same thing. See [API Keys → Agent keys & `restrict_destructive`](../api-reference/api-keys/#agent-keys--restrict_destructive).
 
 ## Tool surface is generated, not hand-authored
 
@@ -53,13 +53,13 @@ Every MCP tool is generated from one operation in [openapi.yaml](../openapi.yaml
 |---|---|---|
 | `entitlements.listForUser` | `substratal_entitlements_listForUser` | `GET /v1/users/{id}/entitlements` |
 | `entitlements.update` | `substratal_entitlements_update` | `PATCH /v1/entitlements/{id}` |
-| `permissions.getEffective` | `substratal_permissions_getEffective` | `GET /v1/users/{id}/applications/{appId}/effective-permissions` |
+| `permissions.getEffective` | `substratal_permissions_getEffective` | `GET /v1/users/{id}/apps/{appId}/effective-permissions` |
 | `tenants.requestTierChange` | `substratal_tenants_requestTierChange` | `POST /v1/tenants/{id}/tier-change-requests` |
 | `audit.list` | `substratal_audit_list` | `GET /v1/audit-events` |
 
 (Illustrative, not exhaustive — **every** operation in `openapi.yaml` generates a tool this way, and that count grows as the spec grows. Deliberately not stated as a number here — any specific count written on this page would be wrong again the next time an endpoint is added, which is exactly the kind of drift this generation scheme exists to avoid. See [openapi.yaml](../openapi.yaml) for the current, exact set; this page doesn't duplicate that list.)
 
-{: .decision }
+{: .note }
 **Build prerequisite:** every operation in `openapi.yaml` now carries an `operationId` (added alongside this page specifically so this generation scheme is actually buildable, not aspirational) — see the [Changelog](../changelog/) entry for this addition. Adding a new endpoint going forward means adding its `operationId` at the same time, following the `<resourceGroup>.<action>` convention already in use (`entitlements.update`, `tenants.requestTierChange`), or it won't get picked up by the generator.
 
 ## Tool annotations & safety
@@ -69,10 +69,30 @@ MCP's tool-definition schema supports annotations — `readOnlyHint`, `destructi
 | Annotation | Derived from |
 |---|---|
 | `readOnlyHint: true` | The operation is a `GET`. |
-| `destructiveHint: true` | The operation is a `DELETE`, or a `PATCH`/`POST` that can move an [Entitlement](../domain-model/entitlements/) to `disabled`/`revoked`, remove an [Organization](../domain-model/users-and-organizations/) member, or request a [Tenant](../domain-model/tenancy/) tier change. |
-| `idempotentHint: true` | The operation already requires (or supports) an `Idempotency-Key` per [Conventions → Idempotency](../api-reference/conventions/#idempotency). |
+| `destructiveHint: true` | The operation carries `x-substratal-destructive` in [openapi.yaml](../openapi.yaml). That's either `always` or `conditional` (destructive only for certain request bodies; the hint is still `true`, since a client can't know in advance). The complete list is in [Destructive operations](#destructive-operations) below. |
+| `idempotentHint: true` | The operation is a `GET`, `PATCH`, or `DELETE` (all idempotent in this API), or a `POST` that *requires* an `Idempotency-Key`. For those, the MCP server derives the key from a hash of the tool-call arguments, so a retried tool call can't double-apply. |
 
-The same classification now has a second, server-side consumer, not just this client-facing hint: per [Decisions → MCP server authorization scope](../decisions/#14-mcp-server-authorization-scope), an [API Key](../api-reference/api-keys/) with `restrict_destructive: true` — the default for `intended_use: "agent"` keys — gets a hard `403` on exactly the operations this table classifies as destructive, regardless of what permissions the key otherwise carries. One classification, two effects: a well-behaved MCP client uses `destructiveHint` to decide whether to ask a human first; the platform uses the identical rule to decide whether to allow the call at all, for keys explicitly scoped that way.
+### Destructive operations
+
+This table is the single source of truth. `openapi.yaml`'s `x-substratal-destructive` extension mirrors it operation by operation, and the server-side `restrict_destructive` check reads the same classification.
+
+| Operation | When destructive |
+|---|---|
+| Every `DELETE` | Always. That covers: user soft-delete, Entitlement delete-in-error, Role delete, Role-assignment removal, Organization member removal, webhook unsubscribe, API Key revoke, session revoke, MFA support-reset, and erasure cancellation. |
+| `PATCH /v1/entitlements/{id}` | When `status` becomes `disabled` or `revoked`. |
+| `PATCH /v1/users/{id}` | When `status` becomes `suspended`. |
+| `POST /v1/users/{id}/suspend` | Always. |
+| `POST /v1/users/{id}/erasure-requests` | Always. |
+| `PATCH /v1/organizations/{id}` | When `status` becomes `suspended`. |
+| `PATCH /v1/organizations/{id}/members/{userId}` | When it demotes an `org_admin`. |
+| `PATCH /v1/applications/{id}` | When `review_status` becomes `rejected` or `suspended`, or when `available_app_roles`/`permissions` shrink. |
+| `PATCH /v1/roles/{id}` | When `permissions` shrink. |
+| `POST /v1/api-keys/{id}/rotate` | Always. It breaks the current secret with no overlap. |
+| `PATCH /v1/api-keys/{id}` | When `restrict_destructive` is set to `false`. |
+| `POST /v1/tenants/{id}/tier-change-requests` and its `PATCH` | Always. They lead to a maintenance window. |
+| `POST /v1/auth/logout` with `all_sessions: true` | Always. |
+
+The same classification now has a second, server-side consumer, not just this client-facing hint: per [API Keys → Agent keys & `restrict_destructive`](../api-reference/api-keys/#agent-keys--restrict_destructive), an [API Key](../api-reference/api-keys/) with `restrict_destructive: true` — the default for `intended_use: "agent"` keys — gets a hard `403` on exactly the operations this table classifies as destructive, regardless of what permissions the key otherwise carries. One classification, two effects: a well-behaved MCP client uses `destructiveHint` to decide whether to ask a human first; the platform uses the identical rule to decide whether to allow the call at all, for keys explicitly scoped that way.
 
 ## Statelessness
 

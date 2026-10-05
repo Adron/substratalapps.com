@@ -55,7 +55,7 @@ curl -s "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/entitlements" \
 
 ## 3. Grant access to an app
 
-In production this happens automatically off a billing webhook (see [Workflows → Purchase → access](../workflows/#purchase--access)); here, granting directly the way an admin comp or early-access grant would:
+In production, the Application developer's own backend does this with its app-scoped API Key after its own billing confirms a payment (see [Workflows → Purchase → access](../workflows/#purchase--access)). Here, we grant directly, the way an admin comp or early-access grant would:
 
 ```bash
 curl -s -X POST "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/entitlements" \
@@ -88,12 +88,28 @@ curl -s "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/applications/app_t
 {
   "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_timetrack",
+  "allowed": false,
+  "user_status": "invited",
   "entitlement_status": "active",
-  "effective_permissions": []
+  "access_paths": [ { "source": "admin_grant", "entitlement_id": "ent_01JAGA1B2C3D4E5F6G7H8J9K0L", "status": "active" } ],
+  "roles": [],
+  "effective_permissions": [],
+  "computed_at": "2026-10-05T12:00:00Z"
 }
 ```
 
-`effective_permissions` is empty because no [Role](../api-reference/roles-and-permissions/) has been assigned yet — owning an app and having a role inside it are different axes. See [Access Control](../access-control/).
+`allowed` is still `false`: the user is `invited`, and access requires an *active* user. Activate them so the rest of the walkthrough works (outside a quickstart, they'd accept the emailed invitation instead):
+
+```bash
+curl -s -X PATCH "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "status": "active" }'
+```
+
+Check again: `allowed: true`, `entitlement_status: "active"`.
+
+`effective_permissions` is still empty, because no [Role](../api-reference/roles-and-permissions/) has been assigned yet (and `app_timetrack` here has no `default_app_role`) — owning an app and having a role inside it are different axes. See [Access Control](../access-control/).
 
 ## 5. Assign a role inside the app
 
@@ -113,7 +129,7 @@ curl -s -X PATCH "$SUBSTRATAL_API/entitlements/ent_01JAGA1B2C3D4E5F6G7H8J9K0L" \
   -d '{ "status": "disabled", "disabled_reason": "quickstart_demo" }'
 ```
 
-Repeat step 4 again: `entitlement_status` is now `disabled` and `effective_permissions` is back to `[]` — the Role assignment from step 5 is still there underneath, untouched, ready the moment the entitlement is re-enabled. See [Workflows → Admin turns an app off for a user](../workflows/#admin-turns-an-app-off-for-a-user).
+Repeat step 4 again: `allowed` is `false`, `entitlement_status` is now `disabled`, and `effective_permissions` is back to `[]` — the Role assignment from step 5 is still there underneath, untouched, ready the moment the entitlement is re-enabled. See [Workflows → Admin turns an app off for a user](../workflows/#admin-turns-an-app-off-for-a-user).
 
 ## What this skipped
 

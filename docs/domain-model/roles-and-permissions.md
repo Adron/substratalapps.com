@@ -28,17 +28,17 @@ The full set of platform-scoped permission keys. App-scoped keys (`app.<slug>.*`
 
 | Key | Grants |
 |---|---|
-| `users.list` | List/search User accounts. |
+| `users.list` | List/search User accounts. On an app-scoped key, confined to users with an access path to that Application. |
 | `users.manage` | Create, update, suspend, delete User accounts. |
-| `entitlements.manage` | Grant, toggle, and revoke Entitlements for any user. |
+| `entitlements.manage` | Grant, toggle, and revoke Entitlements for any user. On an app-scoped key, confined to that Application. |
 | `applications.manage` | Create and edit Application catalog entries. |
-| `roles.manage` | Define Roles and assign/remove them on any user. |
-| `organizations.manage` | Create Organizations, manage membership and org-wide Entitlements. |
-| `billing.manage` | Manage Orders. |
-| `billing.refund` | Issue refunds specifically — split from `billing.manage` so support can be granted refund authority without full billing access. |
-| `audit.view` | Query the Audit log for any user. |
-| `webhooks.manage` | Manage this caller's own webhook subscriptions — every caller implicitly has this for their own subscriptions; the permission only matters for managing another caller's. |
-| `api_keys.manage` | Create, rotate, and revoke API Keys — see [API Keys](../../api-reference/api-keys/). |
+| `roles.manage` | Define Roles and assign/remove them on any user. Platform Roles can only be defined or assigned with permissions the caller already holds (no escalation). On an app-scoped key, confined to that Application's Roles. |
+| `organizations.manage` | Manage *any* Organization: suspend/reactivate, membership, and member scope. Creating an Organization needs no permission, since any active User may. |
+| `billing.manage` | View any Tenant's platform subscription and usage, and open its Stripe billing portal on the customer's behalf. See [API Reference → Billing](../../api-reference/billing/). (Orders aren't an entity of this API, so this permission is about Substratal's own subscription billing only.) |
+| `billing.refund` | Issue platform-subscription refunds and credits. It's split from `billing.manage` so support can be granted refund authority separately. There's no API endpoint yet; refunds are issued in the Stripe dashboard, and this permission gates the future endpoint. |
+| `audit.view` | Query the Audit log for any user. On an app-scoped key, confined to that Application's events. |
+| `webhooks.manage` | Manage *any* webhook subscription, and create `platform`-scoped ones. An Application's own keys and owner manage that app's subscriptions without it. |
+| `api_keys.manage` | Create, rotate, and revoke *any* API Key — see [API Keys](../../api-reference/api-keys/). An Application's owner manages that app's keys without it. |
 | `tenants.manage` | View any Tenant and request a tier change on a customer's behalf — see [Tenancy](../tenancy/). Deliberately held by `support`: tier changes are gatekept by support today, not a self-service customer action, so this is the one permission a Tenant's own owner never holds, even for their own Tenant. |
 
 ### Platform role grants
@@ -48,8 +48,8 @@ The exact permission set behind each built-in [PlatformRole](#platformrole):
 | Role | Permissions |
 |---|---|
 | `superadmin` | All of the above. |
-| `support` | `users.list`, `entitlements.manage`, `audit.view`, `tenants.manage` |
-| `billing_admin` | `billing.manage`, `billing.refund`, `audit.view` |
+| `support` | `users.list`, `entitlements.manage`, `audit.view`, `tenants.manage`, `billing.manage` |
+| `billing_admin` | `billing.manage`, `billing.refund`, `audit.view`, `users.list` |
 | `member` | None — the default on signup; every permission a `member` effectively has comes from self-service endpoints (`me`), not from a granted permission. |
 
 These are the platform's own seed Roles, not a fixed enum — `superadmin` can define additional PlatformRoles with narrower grants (e.g. a `support_readonly` with only `users.list` and `audit.view`, no `entitlements.manage`) via `POST /v1/roles`.
@@ -85,7 +85,9 @@ The join record between a User and a Role.
 | `role_id` | string | |
 | `application_id` | string, nullable | Set only for an AppRole assignment; `null` for a PlatformRole. |
 | `assigned_at` | timestamp | |
-| `assigned_by` | string | `user_id` of the admin who made the assignment — feeds the [Audit Event](../orders-and-audit/#audit-event). |
+| `assigned_by` | object | `{ "type": "user" \| "api_key" \| "system", "id": "…" }`, the same actor shape as an [Audit Event](../orders-and-audit/#audit-event). The `member` Role assigned at signup is `system`. |
+
+An Application's `default_app_role`, if set, is held **implicitly** by every user with active access, with no assignment row. `GET /v1/users/{id}/roles` lists it with `implicit: true`.
 
 ## Example: a user's role assignments
 
@@ -96,7 +98,7 @@ The join record between a User and a Role.
 ]
 ```
 
-Resolving this user's `effective_permissions` for `app_timetrack` means: take the permissions on `role_platform_member` (none, by default), union with the permissions on `role_timetrack_admin`. See [Access Control](../../access-control/#step-2-effective-permissions) for the full algorithm, including how this interacts with the Entitlement check that has to pass first.
+Resolving this user's `effective_permissions` for `app_timetrack` means taking the permissions of every app-scoped Role they hold for `app_timetrack`, explicit and implicit: here, `role_timetrack_admin`. Platform Roles (`role_platform_member`) govern what the user can do *on the hub* and never contribute to an Application's `effective_permissions`, because platform Roles can only hold platform keys and app Roles can only hold that app's keys. See [Access Control](../../access-control/#step-2-effective-permissions) for the full algorithm, including how this interacts with the Entitlement check that has to pass first.
 
 ## This is deliberately not the same thing as Entitlement
 

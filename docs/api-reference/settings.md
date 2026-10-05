@@ -18,12 +18,14 @@ See [Domain Model → Settings](../../domain-model/settings/) for the three-laye
 
 ## Endpoints
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/v1/users/{id}/settings` | Fetch global Settings. |
-| `PATCH` | `/v1/users/{id}/settings` | Update global Settings. |
-| `GET` | `/v1/users/{id}/apps/{appId}/settings` | Fetch the fully-resolved per-app settings. |
-| `PATCH` | `/v1/users/{id}/apps/{appId}/settings` | Write per-app overrides. |
+| Method | Path | Requires | Purpose |
+|---|---|---|---|
+| `GET` | `/v1/users/{id}/settings` | self or `users.manage` | Fetch global Settings. |
+| `PATCH` | `/v1/users/{id}/settings` | self or `users.manage` | Update global Settings. |
+| `GET` | `/v1/users/{id}/apps/{appId}/settings` | self, the app's own key, or `users.manage` | Fetch the fully resolved per-app settings. |
+| `PATCH` | `/v1/users/{id}/apps/{appId}/settings` | self, the app's own key, or `users.manage` | Write per-app overrides. |
+
+As on [Profiles](../profiles/), "the app's own key" means any app-scoped [API Key](../api-keys/) scoped to `{appId}`, with no extra permission needed. Self and app-key access to an Application's settings requires the user to have *active* access to that Application. Otherwise the call returns `403 entitlement_required`. `users.manage` bypasses that check for support investigations.
 
 ## `GET /v1/users/{id}/settings`
 
@@ -34,47 +36,112 @@ See [Domain Model → Settings](../../domain-model/settings/) for the three-laye
   "locale": "en-US",
   "timezone": "America/Denver",
   "theme": "dark",
-  "notifications": { "email": true, "sms": false },
+  "notifications": { "email": true, "sms": false, "push": true },
   "updated_at": "2026-08-11T10:00:00Z"
 }
 ```
 
-Self, or a platform role with `users.manage`. The `PATCH` counterpart carries the same requirement.
+## `PATCH /v1/users/{id}/settings`
+
+```json
+// Request
+{ "timezone": "Europe/Dublin", "notifications": { "sms": true } }
+```
+```json
+// Response — 200, full updated object — notifications merged: { "email": true, "sms": true, "push": true }
+```
+
+| Field | Validation |
+|---|---|
+| `locale` | BCP 47 tag the API recognizes. |
+| `timezone` | IANA zone name, for example `America/Denver`. |
+| `theme` | `light`, `dark`, or `system`. |
+| `notifications` | An object of channel name to boolean. Channel names match `^[a-z][a-z0-9_]{0,31}$`, with at most 20 channels. The keys are merged one level deep, and a channel sent as `null` is removed. |
+
+Defaults on user creation: `locale: "en-US"`, `timezone: "UTC"`, `theme: "system"`, `notifications: {"email": true}`.
 
 ## `GET /v1/users/{id}/apps/{appId}/settings`
 
-Returns the resolved object, plus the override layer that produced it:
+Returns the resolved object, the override layer that produced it, and the source of each resolved value:
 
 ```json
 // Response — 200
 {
+  "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_timetrack",
   "resolved": {
     "locale": "en-US",
+    "timezone": "America/Denver",
     "theme": "dark",
+    "notifications": { "email": true, "sms": false, "push": false },
     "default_billable": true,
     "week_start": "monday"
   },
-  "overrides": { "week_start": "monday" }
+  "sources": {
+    "locale": "global",
+    "timezone": "global",
+    "theme": "global",
+    "notifications": "app_override",
+    "default_billable": "app_default",
+    "week_start": "app_override"
+  },
+  "overrides": { "week_start": "monday", "notifications": { "push": false } },
+  "stale_overrides": [],
+  "updated_at": "2026-09-20T14:15:00Z"
 }
 ```
 
-See [Workflows → Settings resolution, in practice](../../workflows/#settings-resolution-in-practice) for exactly how `resolved` is computed. Caller may be the app itself (its own service [API key](../api-keys/)), the user themselves, or an admin — the same model used by [AppProfile](../profiles/).
+The exact rules are in [Domain Model → Settings → Resolution rules](../../domain-model/settings/#resolution-rules). In short:
+
+- The **reserved global keys** (`locale`, `timezone`, `theme`, `notifications`) always appear. Each comes from the per-app override if one is set, and from global Settings otherwise. For `notifications`, an override merges over the global object one channel at a time.
+- **Keys the Application declares** in its `settings_schema` come from the override if one is set, and otherwise from the schema property's `default`. A declared key with neither is **omitted** from `resolved` rather than returned as `null`.
+- **`stale_overrides`** lists override keys that no longer validate against the Application's *current* schema. This happens when the schema changed after the value was written: the property was removed, or its type changed. Stale values are skipped during resolution, so the default applies instead, and they stay in `overrides` until the next write to that key replaces or clears them.
+- If the user has no per-app record yet, `overrides` is `{}` and `updated_at` is `null`. Nothing is written on a read.
 
 ## `PATCH /v1/users/{id}/apps/{appId}/settings`
 
 ```json
-// Request — only the override being set
+// Request — set one override
 { "overrides": { "week_start": "monday" } }
 ```
 ```json
-// Response — 200, same shape as the GET above, reflecting the new override
-```
-
-Validated against the target Application's `settings_schema` (see [Applications](../applications/)) — a key not declared in the schema, or a value of the wrong type, returns `422` with `code: "settings_schema_violation"` and the schema validation error in `details`. See [Decisions → Settings schema ownership](../../decisions/#5-settings-schema-ownership) if this validation step turns out to be out of scope for the MVP.
-
-To clear a single override back to inherited, send that key's value as `null`:
-
-```json
+// Request — clear an override back to inherited
 { "overrides": { "week_start": null } }
 ```
+```json
+// Response — 200, same shape as the GET above, reflecting the write
+```
+
+Each key in `overrides` is validated on its own before anything is written:
+
+- A **reserved global key** must satisfy the same rules as on `PATCH /v1/users/{id}/settings`.
+- **Any other key** must be declared in the Application's `settings_schema`, and its value must validate against that property's schema.
+- `null` always means "clear this override" and is never validated.
+- The serialized `overrides` object is limited to 16 KB after the merge.
+
+A key the schema doesn't declare, or a value of the wrong type, returns `422 settings_schema_violation`. The error lists every failure, not just the first:
+
+```json
+{
+  "error": {
+    "code": "settings_schema_violation",
+    "message": "2 overrides failed validation against app_timetrack's settings_schema.",
+    "details": {
+      "fields": [
+        { "field": "overrides.week_start", "code": "enum_mismatch", "allowed": ["sunday", "monday"] },
+        { "field": "overrides.color", "code": "undeclared_key" }
+      ]
+    }
+  }
+}
+```
+
+A self-service write or an app-key write produces no Audit Event. An admin writing someone else's settings produces `settings.updated`. Send `If-Match` to avoid two writers clobbering each other. See [Conventions → Concurrency](../conventions/#concurrency-etag--if-match).
+
+## Errors specific to this resource
+
+| Code | Status | When |
+|---|---|---|
+| `settings_schema_violation` | 422 | An override fails the Application's `settings_schema`. Per-field detail is in `details.fields`. |
+| `entitlement_required` | 403 | Self or app-key access for a user without active access to the Application. |
+| `application_not_found` | 404 | `{appId}` doesn't resolve, or isn't the calling app key's own Application. |

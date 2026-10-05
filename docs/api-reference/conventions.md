@@ -26,7 +26,9 @@ Everything on this and the following pages is also available as a single [OpenAP
 https://api.substratalapps.com/v1
 ```
 
-Provisional — the real host is whatever gets decided alongside [Decisions → Identity provider](../../decisions/#1-identity-provider), but every example on this site uses this value so they're copy-pasteable and consistent with each other.
+This is the production base URL. Two endpoints deliberately live outside `/v1`, at the host root: `GET /.well-known/jwks.json` and `GET /.well-known/openid-configuration` (see [Auth → Signing keys](../auth/#signing-keys-jwks)), because standard JWT and OAuth libraries look for them there. So does the [MCP Server](../../mcp-server/) at `/mcp`. The Stripe webhook sink at `/internal/stripe/webhook` is internal to Substratal and not part of the public contract.
+
+Every request and response body is `application/json; charset=utf-8`. The one exception is `POST /v1/auth/oauth/token`, which also accepts `application/x-www-form-urlencoded` for OAuth-library compatibility.
 
 ## Authentication
 
@@ -51,20 +53,37 @@ Every resource ID is prefixed by type. Most are opaque ULIDs — generated, neve
 | `app_` | Application |
 | `role_` | Role |
 | `ent_` | Entitlement |
-| `ord_` | Order |
 | `evt_` | Audit Event |
 | `whk_` | Webhook subscription |
 | `key_` | API Key — see [API Keys](../api-keys/) |
 | `uid_` | UserIdentity — see [Users & Organizations](../../domain-model/users-and-organizations/#useridentity) |
 | `ssc_` | SSOConnection — see [Users & Organizations](../../domain-model/users-and-organizations/#ssoconnection) |
+| `ses_` | Session — see [Auth → Sessions](../auth/#sessions) |
+| `wev_` | Webhook event (one delivered event payload) — see [Webhooks](../webhooks/#delivery). Distinct from `evt_`, an Audit Event. |
+| `dlv_` | Webhook delivery attempt — see [Webhooks](../webhooks/#delivery-log) |
+
+`order_id` on an Entitlement is **not** a resource ID of this API. It's an opaque reference string the developer supplies from their own billing system (for example, their own Stripe subscription id), up to 255 characters. Examples on this site use `ord_…`-style values for readability only. See [Orders & Audit → Order references](../../domain-model/orders-and-audit/#order).
 
 **Role is the deliberate exception.** A Role's `id` is a human-readable slug (`role_timetrack_admin`, `role_platform_member`), not a random ULID — Roles are commonly referenced from code and config (seed scripts, permission checks), where a stable, meaningful id is more useful than an opaque one. See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissions/#role).
 
-**Credential strings are not resource IDs** and follow their own prefix conventions, since they're secrets rather than addressable resources: a refresh token is `rtk_…` (see [Auth](../auth/)), a webhook signing secret is `whsec_…` (see [Webhooks](../webhooks/)), and an API key's secret value is `satk_live_…` (see [API Keys](../api-keys/)). Never log these or echo them back after their initial issuance.
+**Credential strings are not resource IDs** and follow their own prefix conventions, since they're secrets rather than addressable resources. Never log these or echo them back after their initial issuance. All are stored hashed (SHA-256), never in plaintext.
+
+| Prefix | Credential | Lifetime |
+|---|---|---|
+| `rtk_` | Refresh token (platform or app) — see [Auth](../auth/) | 30 days idle / 90 days absolute, single-use |
+| `mfa_` | MFA challenge token | 5 minutes, single-use |
+| `ac_` | OAuth authorization code | 60 seconds, single-use |
+| `emv_` | Email-verification token | 24 hours, single-use |
+| `pwr_` | Password-reset token | 1 hour, single-use |
+| `inv_` | Invitation token | 7 days, single-use |
+| `whsec_` | Webhook signing secret — see [Webhooks](../webhooks/) | Until rotated |
+| `satk_live_` / `satk_test_` | API Key secret — see [API Keys](../api-keys/) | Until revoked |
+
+`atk_` and `apt_` appear only as `jti` values inside JWTs (platform access token and app token respectively), never as standalone credentials.
 
 ## Addressing yourself: `me`
 
-Anywhere a path takes a `{id}` for a User, you may pass the literal string `me` instead of the caller's own `usr_…` id — `GET /v1/users/me`, `GET /v1/users/me/entitlements`, `GET /v1/users/me/apps/{appId}/settings`, `PATCH /v1/users/me/profile`, and so on. This resolves server-side from the auth token, so a client never needs to know its own user id just to read or update its own data.
+Anywhere a path takes a `{id}` for a User, you may pass the literal string `me` instead of the caller's own `usr_…` id — `GET /v1/users/me`, `GET /v1/users/me/entitlements`, `GET /v1/users/me/apps/{appId}/settings`, `PATCH /v1/users/me/profile`, and so on. This resolves server-side from the auth token, so a client never needs to know its own user id just to read or update its own data. `me` only means something for a User's token. An [API Key](../api-keys/) has no User behind it, so `me` with an API Key returns `400 user_token_required`.
 
 ## Pagination
 
@@ -77,7 +96,9 @@ List endpoints take `limit` (default 25, max 100) and `cursor`, and return:
 }
 ```
 
-Pass `next_cursor` back as `cursor` to get the next page. `has_more: false` means `next_cursor` is `null` and there's nothing further.
+Pass `next_cursor` back as `cursor` to get the next page. `has_more: false` means `next_cursor` is `null` and there's nothing further. Cursors are opaque and valid for 24 hours; an expired or tampered cursor returns `400 invalid_cursor`. A cursor is only valid with the same filters it was issued under.
+
+**Ordering:** unless a page says otherwise, lists are ordered newest first by `created_at`, with ties broken by `id`. Audit Events are ordered by `timestamp`, newest first. There's no caller-selectable sort.
 
 ## Filtering
 
@@ -107,6 +128,36 @@ List endpoints that support filtering take plain query parameters named after th
 | [Settings](../../domain-model/settings/) (global) | No `DELETE` endpoint, and not touched by the hard-delete cascade either — none of its fields (`locale`, `timezone`, `theme`, `notifications`) are personally identifying, so there's nothing on it the erasure right reaches. |
 | [Audit Event](../../domain-model/orders-and-audit/#audit-event) | Never deletable through the API, by anyone, under any permission — the one exception is the scheduled archival job moving an aged-out event to cold storage, which is an infrastructure process, not a caller-facing `DELETE`. See [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle). |
 
+## Partial updates (`PATCH`)
+
+Every `PATCH` body is a partial object: send only the fields to change.
+
+- An **omitted** field is left unchanged.
+- An explicit **`null`** clears a nullable field. Sending `null` for a non-nullable field is `422 validation_failed`.
+- **Free-form object fields** ([AppProfile](../profiles/)`.custom`, [AppSettings](../settings/)`.overrides`, Settings `.notifications`) are merged one level deep. Each key you send replaces that key, a key sent as `null` is removed, and keys you don't send are untouched. Nested objects inside them are replaced wholesale, not merged recursively.
+- Arrays are always replaced wholesale (for example `member_overrides`, `permissions`, `events`, `redirect_uris`).
+- Read-only fields (`id`, `created_at`, `tenant_id`, …) sent in a `PATCH` body are rejected with `422 read_only_field`, not silently ignored, so a client bug can't hide.
+
+Every successful `PATCH` returns `200` with the full updated resource.
+
+## Concurrency (`ETag` / `If-Match`)
+
+Every single-resource `GET` and every successful write returns an `ETag` header, a weak validator over the row's version counter (`ETag: W/"7"`). Any `PATCH` or `DELETE` **may** send `If-Match: W/"7"`. If the resource has changed since, the write is rejected with `409 version_conflict` and `details.current_etag`. Without `If-Match` the write is last-write-wins. Admin tooling and agents should always send it on Entitlement, Role, Settings, and AppSettings writes. See [Non-Functional Requirements → Concurrency control](../../non-functional-requirements/#concurrency-control).
+
+## Size and length limits
+
+| Thing | Limit | Error |
+|---|---|---|
+| Request body | 1 MB | `413 payload_too_large` |
+| Any string field, unless stated otherwise | 255 characters | `422 validation_failed` (`too_long`) |
+| `description`-style free text, `review_notes`, `reason` | 2,000 characters | same |
+| `Application.settings_schema` | 64 KB serialized, ≤ 200 declared properties | same |
+| `AppProfile.custom`, `AppSettings.overrides` | 16 KB serialized each | same |
+| `member_overrides` | 1,000 user ids | same |
+| `redirect_uris` | 10 entries | same |
+| Webhook subscriptions' `events` | every event type, no duplicates | same |
+| List `limit` | 1–100 (default 25) | values above 100 are clamped to 100, not rejected |
+
 ## Single-resource responses
 
 A single resource is returned as a bare JSON object — no envelope:
@@ -129,19 +180,44 @@ A single resource is returned as a bare JSON object — no envelope:
 
 `code` is a stable, machine-matchable string — build logic against it, not against `message`, which is for humans and can change wording without notice.
 
-**There's no single global code catalog.** Each resource's own API Reference page carries an "Errors specific to this resource" table — that table is the authoritative source for the codes that resource returns, the same way [Orders & Audit → Action catalog](../../domain-model/orders-and-audit/#action-catalog) is authoritative for `action` values. A handful of codes are cross-cutting enough to define once, here, instead of repeating identically on every page: `validation_failed`, `version_conflict`, `rate_limited`. Everything else — `entitlement_required` above included — belongs to, and is defined on, one specific resource page.
+**There's no single global code catalog for resource-specific codes.** Each resource's own API Reference page carries an "Errors specific to this resource" table — that table is the authoritative source for the codes that resource returns, the same way [Orders & Audit → Action catalog](../../domain-model/orders-and-audit/#action-catalog) is authoritative for `action` values. A handful of codes are cross-cutting enough to define once, here, instead of repeating identically on every page. Everything else, `entitlement_required` above included, belongs to and is defined on one specific resource page.
+
+| Code | Status | When |
+|---|---|---|
+| `invalid_request` | 400 | Body isn't valid JSON, or a required field is missing. |
+| `invalid_cursor` | 400 | Pagination cursor expired, tampered with, or reused with different filters. |
+| `user_token_required` | 400 | An endpoint that acts *as a User* (`me`, `app-tokens`, password change, …) was called with an API Key. |
+| `idempotency_key_required` | 400 | A `POST` that requires `Idempotency-Key` was sent without one. |
+| `unauthenticated` | 401 | No Bearer token, a malformed or expired one, or a revoked API Key. |
+| `session_revoked` | 401 | The token's session was logged out or revoked. |
+| `forbidden` | 403 | Authenticated, but the caller lacks the required permission. `details.required_permission` names it. |
+| `destructive_operation_restricted` | 403 | A `restrict_destructive` API Key attempted a destructive operation — see [API Keys](../api-keys/#agent-keys--restrict_destructive). |
+| `subscription_required` | 402 | The owning Tenant is `restricted` after a lapsed subscription, and this write would add usage — see [Pricing → Subscription lapse](../../pricing/#subscription-lapse--downgrades). |
+| `not_found` | 404 | Generic not-found for a path that matches no route. Resource pages define their own `<resource>_not_found` codes. |
+| `version_conflict` | 409 | `If-Match` didn't match the current `ETag`. |
+| `idempotency_key_reused` | 409 | Same `Idempotency-Key`, different request body. |
+| `plan_limit_reached` | 409 | The owning Tenant is at a plan limit — see [Pricing → Enforcement](../../pricing/#enforcement). |
+| `payload_too_large` | 413 | Body over 1 MB. |
+| `validation_failed` | 422 | One or more fields fail validation. Uses `details.fields` — see below. |
+| `read_only_field` | 422 | A `PATCH` body included a read-only field. |
+| `rate_limited` | 429 | See [Rate limiting](../../non-functional-requirements/#rate-limiting). |
+| `internal_error` | 500 | Unexpected server error. The response carries `X-Request-Id`; quote it to support. |
+| `service_unavailable` | 503 | Planned maintenance (for example, a Tenant mid-migration on a write path) or a dependency outage. `Retry-After` is set. |
 
 HTTP status follows a fixed mapping from error *class*, not a judgment call per endpoint:
 
 | Status | Class | Example |
 |---|---|---|
 | `400` | Malformed request — the body isn't valid JSON, or is missing a required field with no sensible default. | Missing `application_id` on a grant. |
+| `402` | Payment required — the owning Tenant's subscription has lapsed, and this write would add usage. | `subscription_required`. |
 | `401` | Missing or invalid auth — no Bearer token, an expired one, or a revoked API Key's secret. | A revoked key's secret used after `revoked_at`. |
 | `403` | Authenticated, but not permitted — a real permission or ownership check failed. | `moderation_field_forbidden`, `destructive_operation_restricted`. |
 | `404` | Not found — including a soft-deleted or never-existed resource; see [Filtering](#filtering) for why a soft-deleted record 404s rather than returning a `deleted` status. | `entitlement_not_found`. |
 | `409` | Conflict — the request is individually valid, but the current state of the resource makes it impossible to apply as-is. | `entitlement_already_exists`, `version_conflict`, `plan_limit_reached`, an idempotency key reused with a different body. |
 | `422` | Semantically invalid — the request is well-formed but violates a declared rule beyond basic shape. | A `settings_schema` violation, `validation_failed`. |
+| `413` | Body too large. | `payload_too_large`. |
 | `429` | Rate limited. | See [Rate limiting](../../non-functional-requirements/#rate-limiting). |
+| `5xx` | Server-side failure; safe to retry idempotent requests with backoff. | `internal_error`, `service_unavailable`. |
 
 The dividing line between `409` and `422` worth internalizing: `409` is about *state* ("this would conflict with something that already exists or already happened"), `422` is about the *request's own content* ("this value, on its own, doesn't satisfy a rule"). `plan_limit_reached` is `409`, not `422`, for exactly this reason — the request is well-formed, it just can't be satisfied against the owning Tenant's current count.
 
@@ -169,10 +245,12 @@ A single-field error (like `entitlement_required` above) skips the array and put
 Any `POST` that creates or transitions an Entitlement- or Order-linked record accepts:
 
 ```
-Idempotency-Key: <client-generated UUID>
+Idempotency-Key: <client-generated string, 1–255 characters; a UUID v4 is recommended>
 ```
 
-A repeated key with an identical body returns the original response (same status code, same body) instead of creating a duplicate. A repeated key with a *different* body returns `409`. Keys are remembered for 24 hours, scoped per API key/caller — after that window a repeated key is treated as new. See [Non-Functional Requirements → Idempotency & retries](../../non-functional-requirements/#idempotency--retries) for why this is mandatory rather than optional on those endpoints — billing webhooks retry, and a duplicate Entitlement is a real-money bug, not a cosmetic one.
+A repeated key with an identical body returns the original response (same status code, same body) instead of creating a duplicate. A repeated key with a *different* body returns `409`. Keys are remembered for 24 hours, scoped per API key/caller — after that window a repeated key is treated as new. A request that arrives while the first one with the same key is still in flight gets `409 idempotency_key_in_flight`; retry after a second. Responses replayed from the store carry `Idempotent-Replayed: true`.
+
+Endpoints that **require** `Idempotency-Key`: `POST /v1/users/{id}/entitlements`, `POST /v1/organizations/{id}/entitlements`, and `POST /v1/tenants/{id}/billing/checkout-sessions`. Every other `POST` **accepts** it optionally and honors it the same way. See [Non-Functional Requirements → Idempotency & retries](../../non-functional-requirements/#idempotency--retries) for why this is mandatory rather than optional on those endpoints — billing webhooks retry, and a duplicate Entitlement is a real-money bug, not a cosmetic one.
 
 **Implementation note:** store `(caller_id, idempotency_key) → (request_body_hash, response_status, response_body, expires_at)`, written in the same transaction as the mutation it guards (see [Non-Functional Requirements → Transaction boundaries](../../non-functional-requirements/#transaction-boundaries)) so a crash between "wrote the Entitlement" and "recorded the idempotency key" can't produce a duplicate on retry. Compare the stored hash, not the raw body, to decide same-vs-different.
 
@@ -186,6 +264,15 @@ GET /v1/health
 ```
 
 Unauthenticated, uncached, for uptime monitoring and load balancer health checks — not a dependency check (it doesn't query the database). Always `200` unless the service itself can't respond.
+
+## Response headers on every request
+
+| Header | Meaning |
+|---|---|
+| `X-Request-Id` | Echoes the caller's `X-Request-Id` if sent (≤ 128 characters), otherwise a generated one. Quote it in support requests. |
+| `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` | The caller's current token bucket — see [Rate limiting](../../non-functional-requirements/#rate-limiting). |
+| `ETag` | On single-resource responses — see [Concurrency](#concurrency-etag--if-match). |
+| `Deprecation`, `Sunset` | Only on a deprecated version — see [Versioning](#versioning). |
 
 ## Versioning
 

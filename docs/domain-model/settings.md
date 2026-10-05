@@ -64,7 +64,9 @@ The hub resolves this fallthrough server-side. See [Workflows → Settings resol
 | `overrides` | object | Only the keys this user has explicitly overridden for this app — not a full merged object. The API's read endpoint returns the resolved merge; this is the write-layer shape. |
 | `updated_at` | timestamp | |
 
-Validated on write against `Application.settings_schema` (see [Applications](../applications/)) — see [Decisions → Settings schema ownership](../../decisions/#5-settings-schema-ownership) for whether this validation is in scope for the MVP.
+### Schema validation
+
+Validated on write against `Application.settings_schema` (see [Applications](../applications/)). The schema is on file with the hub: each Application registers its own JSON Schema, and the hub validates every write against it rather than storing an opaque blob. Centralized validation is why `GET /v1/users/{id}/apps/{appId}/settings` can promise a resolved, valid object instead of whatever was last written. The same schema also tells the storage layer which declared fields to back with typed, indexed columns; see [Database Schema → Typed fields](../database-schema/#typed-fields-per-application-views-and-expression-indexes).
 
 ### Example
 
@@ -88,6 +90,45 @@ Read, resolved (`GET /v1/users/{id}/apps/{appId}/settings`):
 ```
 
 Here, `locale` and `theme` fell through to global [Settings](#settings-global), `default_billable` fell through to the Application's declared default, and only `week_start` reflects an explicit per-app override.
+
+## Resolution rules
+
+The exact algorithm behind `GET /v1/users/{id}/apps/{appId}/settings`. Implementations and tests should follow it literally.
+
+There are two disjoint key spaces:
+
+- **Reserved global keys:** `locale`, `timezone`, `theme`, `notifications`. These are defined by the platform. An Application's `settings_schema` may **not** declare them, and declaring one returns `422 reserved_settings_key` on the Application write.
+- **Declared keys:** every property in the Application's `settings_schema`.
+
+```
+for key in reserved_global_keys:
+    if key == "notifications":
+        resolved.notifications = merge_one_level(global.notifications, valid_override("notifications") or {})
+    else:
+        resolved[key] = valid_override(key) ?? global[key]
+
+for key, property in settings_schema.properties:
+    if valid_override(key) exists:   resolved[key] = override
+    elif "default" in property:      resolved[key] = property.default
+    else:                            omit key
+
+valid_override(key) := overrides[key] if it validates against the CURRENT schema, else
+                       treat as absent and list key in stale_overrides
+```
+
+The Application's declared default is the JSON Schema `default` keyword on each property, so there's no separate defaults field to keep in sync. A user can override a reserved global key per app. For example, `theme: "light"` in one app while their global theme stays `dark`.
+
+### `settings_schema` rules
+
+The rules an Application's schema must follow. They're checked on `POST`/`PATCH /v1/applications`, and a violation returns `422 invalid_settings_schema` with per-path details.
+
+- JSON Schema **draft 2020-12**. The root must be `{"type": "object", "properties": {...}}`. The server always treats `additionalProperties` as `false`, whatever the schema says.
+- At most 200 properties, at most 64 KB serialized, and property names must match `^[a-z][a-z0-9_]{0,62}$`.
+- Supported property types: `string` (optionally `enum`, `format: "date-time"`, `maxLength`), `boolean`, `integer`, `number` (with optional `minimum`/`maximum`), and `object`/`array`. Objects and arrays are stored, but never get a typed projection; see [Database Schema → Typed fields](../database-schema/#typed-fields-per-application-views-and-expression-indexes).
+- `$ref` is supported only within the document, and remote `$ref` is rejected.
+- A `default`, if present, must itself validate against its property.
+- **`x-pii: true`** on a property marks it as personal data. The [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) removes PII-marked keys from a deleted user's overrides and leaves the rest, such as a `week_start` preference. A schema without `x-pii` marks is treated as having no PII.
+- **Changing a schema never rewrites stored data.** Removing a property, or changing its type, makes existing overrides for it *stale* (see `stale_overrides` above). It doesn't make them errors. The Application's owner can see how many users hold stale values per key in `GET /v1/applications/{id}` → `settings_schema_stats`.
 
 ## Why the write shape and the read shape differ
 

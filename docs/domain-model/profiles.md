@@ -19,7 +19,7 @@ Identity data comes in two layers. **Profile** is who the user is, site-wide. **
 
 | Field | Global `Profile` | `AppProfile` (per User × Application) |
 |---|---|---|
-| `name`, `avatar_url` | ✓ | Inherits unless explicitly overridden |
+| `display_name`, `avatar_url` | ✓ | Not stored per app. `display_handle` (below) overrides the *name* for display inside the app, and the API returns `effective_display_name` so the app never re-implements the fallback. The avatar is always the global one. |
 | `display_handle` | — | ✓ an app-local identity, e.g. a username meaningful only inside one product |
 | contact email/phone | ✓ | — |
 | custom fields | — | ✓ arbitrary JSON the owning app defines for itself |
@@ -52,7 +52,7 @@ Identity data comes in two layers. **Profile** is who the user is, site-wide. **
 
 ## AppProfile
 
-Created lazily — the first time a user's per-app profile is read or written for an app they're entitled to, a record is created seeded from defaults, rather than requiring a separate provisioning step. See [Workflows → New user, first app](../../workflows/#new-user-first-app).
+Created lazily. A read for a user with no record returns the defaults (`display_handle: null`, `custom: {}`) without writing anything, and the first write creates the row. No separate provisioning step exists. See [Workflows → New user, first app](../../workflows/#new-user-first-app).
 
 | Field | Type | Notes |
 |---|---|---|
