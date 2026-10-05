@@ -56,7 +56,8 @@ older single-file draft found elsewhere in the repository's history.
 - [Compliance & Data Protection]({{ site.url }}{{ site.baseurl }}/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.
 - [Roadmap]({{ site.url }}{{ site.baseurl }}/roadmap/): MVP through Phase 3.
 - [Pricing]({{ site.url }}{{ site.baseurl }}/pricing/): Starter (free), Team (per-seat), and Enterprise (with a choice of Tenant tier) — what Substratal itself charges the Application-owner developer, distinct from what that developer charges their own end users.
-- [Deployment Architecture]({{ site.url }}{{ site.baseurl }}/deployment-architecture/): the cost-capped first deployment on AWS, and the path to scale.
 - [Decisions]({{ site.url }}{{ site.baseurl }}/decisions/): the open questions this spec depends on, and their status.
 - [Changelog]({{ site.url }}{{ site.baseurl }}/changelog/): what's changed in this spec over time.
 - [Glossary]({{ site.url }}{{ site.baseurl }}/glossary/)
+
+Deployment/infrastructure, the build plan, and other project-planning material are intentionally not part of this API-specification site — they live as plain Markdown in the repository root at https://github.com/Adron/substratalapps.com, starting from its README.md.

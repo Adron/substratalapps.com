@@ -71,7 +71,7 @@ A Tenant's own owner can always read this — it's useful for a developer to con
 }
 ```
 
-Requires `tenants.manage`. Creating this does not itself start the migration — it's the audit trail of the request; see [Domain Model → Tenancy → How a tier change happens today](../../domain-model/tenancy/#how-a-tier-change-happens-today) for the (currently manual, ops-run) steps that follow, and [Deployment Architecture → Migration mechanics](../../deployment-architecture/#migration-mechanics) for what those steps actually do. `status` moves `pending → in_progress → completed` (or `cancelled`) as ops works the request; the Tenant's own `status` flips to `migrating` for the `in_progress` duration — see [Tenant → `status`](../../domain-model/tenancy/#fields).
+Requires `tenants.manage`. Creating this does not itself start the migration — it's the audit trail of the request; see [Domain Model → Tenancy → How a tier change happens today](../../domain-model/tenancy/#how-a-tier-change-happens-today) for the (currently manual, ops-run) steps that follow, and [Deployment Architecture → Migration mechanics](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for what those steps actually do. `status` moves `pending → in_progress → completed` (or `cancelled`) as ops works the request; the Tenant's own `status` flips to `migrating` for the `in_progress` duration — see [Tenant → `status`](../../domain-model/tenancy/#fields).
 
 ## Errors specific to this resource
 

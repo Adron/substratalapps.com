@@ -35,8 +35,8 @@ Every Application owner gets a Tenant automatically, the moment they register th
 | `owner_organization_id` | string, nullable | Set iff `owner_type: organization`. |
 | `tier` | enum | `shared` (default) \| `isolated` \| `dedicated_region`. See [Tiers](#tiers). **Infrastructure placement** — where the data lives. |
 | `plan` | enum | `starter` (default) \| `team` \| `enterprise`. See [Pricing](../../pricing/). **Commercial subscription tier** — what's being paid for. Independent of `tier`, except that `isolated`/`dedicated_region` are only offered on `enterprise` — see [Pricing → Enterprise tenancy tier options](../../pricing/#enterprise-tenancy-tier-options). |
-| `region` | string, nullable | An AWS region code. Set only when `tier: dedicated_region` — `null` otherwise, including for `isolated` (same region as [Tier 0](../../deployment-architecture/#first-deployment-tier-0), just a dedicated cluster within it). |
-| `status` | enum | `active` \| `migrating` \| `suspended`. `migrating` is the transitional state during a tier-change maintenance window — see [Deployment Architecture → Tenancy tiers](../../deployment-architecture/#tenancy-tiers--where-they-run). |
+| `region` | string, nullable | An AWS region code. Set only when `tier: dedicated_region` — `null` otherwise, including for `isolated` (same region as [Tier 0](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md), just a dedicated cluster within it). |
+| `status` | enum | `active` \| `migrating` \| `suspended`. `migrating` is the transitional state during a tier-change maintenance window — see [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md). |
 | `created_at` | timestamp | |
 
 **Constraint:** exactly one of `owner_user_id` / `owner_organization_id` is set — the same mutual-exclusivity pattern already used by [Entitlement](../entitlements/#fields) (`user_id`/`organization_id`) and [Application](../applications/#fields) (`owner_user_id`/`owner_organization_id`).
@@ -61,8 +61,8 @@ Every Application owner gets a Tenant automatically, the moment they register th
 
 | Tier | What changes physically | Cost | Who it's for |
 |---|---|---|---|
-| `shared` | Rows live in the shared Aurora Serverless v2 cluster from [Tier 0](../../deployment-architecture/#first-deployment-tier-0), logically isolated by a Postgres Row-Level Security policy keyed on `tenant_id`. | $0 incremental — the default. | Every customer, from day one, with no action taken. |
-| `isolated` | A dedicated Aurora Serverless v2 cluster (own Secrets Manager secret), same AWS account and region as Tier 0 — stronger blast-radius and noisy-neighbor separation, same Lambda codebase routed by a tenant→cluster lookup. | A full extra Aurora floor (~$45–55/month, see [Deployment Architecture](../../deployment-architecture/#illustrative-tier-0-floor-cost)) — a paid add-on, priced to at least cover it. | A customer with a real compliance or isolation requirement, not just a preference. |
+| `shared` | Rows live in the shared Aurora Serverless v2 cluster from [Tier 0](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md), logically isolated by a Postgres Row-Level Security policy keyed on `tenant_id`. | $0 incremental — the default. | Every customer, from day one, with no action taken. |
+| `isolated` | A dedicated Aurora Serverless v2 cluster (own Secrets Manager secret), same AWS account and region as Tier 0 — stronger blast-radius and noisy-neighbor separation, same Lambda codebase routed by a tenant→cluster lookup. | A full extra Aurora floor (~$45–55/month, see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) — a paid add-on, priced to at least cover it. | A customer with a real compliance or isolation requirement, not just a preference. |
 | `dedicated_region` | Like `isolated`, but the dedicated cluster sits in the customer's chosen AWS region instead of the default one. | The `isolated` floor again, in a second region — the most expensive tier. | A customer with a genuine data-residency requirement (e.g. "our EU users' data must stay in the EU"). |
 
 This is a strict ladder — `dedicated_region` implies everything `isolated` provides, plus region choice; there's no "dedicated region, still logically shared" combination.
@@ -73,7 +73,7 @@ There is no self-service API for this — `tenants.manage` (support/superadmin o
 
 1. A customer asks (support is the intake, not a self-serve button) for a tier upgrade.
 2. Support calls `POST /v1/tenants/{id}/tier-change-requests` — see [API Reference → Tenancy](../../api-reference/tenancy/).
-3. Support schedules a brief maintenance window, flips `status` to `migrating`, and runs the snapshot/restore cutover into the new infrastructure (new cluster, and for `dedicated_region`, a new region) described in [Deployment Architecture → Tenancy tiers](../../deployment-architecture/#tenancy-tiers--where-they-run).
+3. Support schedules a brief maintenance window, flips `status` to `migrating`, and runs the snapshot/restore cutover into the new infrastructure (new cluster, and for `dedicated_region`, a new region) described in [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md).
 4. `tier`, `region`, and `status` are updated back to `active`; an [Audit Event](../orders-and-audit/#audit-event) (`tenant.tier_changed`) records the change.
 
 A scheduled, brief downtime window during step 3 is an accepted tradeoff at the current scale — see [Decisions → Tenancy tiers](../../decisions/#12-tenancy-tiers--dedicated-infrastructure). Automating this into a customer-triggered, zero-downtime flow is explicitly deferred until real tier-change volume — gated by revenue, not by a roadmap phase number — justifies the engineering investment and the operational risk of removing the human from the loop.

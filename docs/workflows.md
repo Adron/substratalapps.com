@@ -71,7 +71,7 @@ Support-run today — see [Decisions → Tenancy tiers](../decisions/#12-tenancy
 
 1. A customer (an Application owner) asks support for dedicated infrastructure, or a specific region for data residency.
 2. Support calls `POST /v1/tenants/{id}/tier-change-requests` — see [API Reference → Tenancy](../api-reference/tenancy/).
-3. Support schedules a brief maintenance window, flips the [Tenant](../domain-model/tenancy/)'s `status` to `migrating`, and runs the snapshot/restore cutover described in [Deployment Architecture → Tenancy tiers](../deployment-architecture/#tenancy-tiers--where-they-run) — every [Entitlement](../domain-model/entitlements/), [AppProfile](../domain-model/profiles/#appprofile), and [AppSettings](../domain-model/settings/#appsettings) row carrying that `tenant_id` moves to the new infrastructure.
+3. Support schedules a brief maintenance window, flips the [Tenant](../domain-model/tenancy/)'s `status` to `migrating`, and runs the snapshot/restore cutover described in [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) — every [Entitlement](../domain-model/entitlements/), [AppProfile](../domain-model/profiles/#appprofile), and [AppSettings](../domain-model/settings/#appsettings) row carrying that `tenant_id` moves to the new infrastructure.
 4. `tier`/`region`/`status` are updated back to `active`; an [Audit Event](../domain-model/orders-and-audit/#audit-event) (`tenant.tier_changed`) records it.
 5. Nothing about the customer's Applications, Entitlements, or any end-user's access changes shape — this workflow only ever moves *where* the same rows live, never *what* they say.
 

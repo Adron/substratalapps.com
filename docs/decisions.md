@@ -17,13 +17,13 @@ The open questions this spec currently depends on. This page is a log, not a one
 
 | # | Decision | Status |
 |---|---|---|
-| 1 | [Identity provider](#1-identity-provider) | 🟡 Open |
-| 2 | [Organizations](#2-organizations) | 🟢 Leaning resolved |
-| 3 | [Downstream app architecture](#3-downstream-app-architecture) | 🟡 Open |
-| 4 | [Billing system of record](#4-billing-system-of-record) | 🟢 Mostly resolved |
-| 5 | [Settings schema ownership](#5-settings-schema-ownership) | 🟡 Open |
-| 6 | [Session model for revocation](#6-session-model-for-revocation) | 🟡 Open |
-| 7 | [AWS account and region](#7-aws-account-and-region) | 🟡 Open |
+| 1 | [Identity provider](#1-identity-provider) | 🟡 Open — see chat for clarifying questions in flight |
+| 2 | [Organizations](#2-organizations) | 🟢 Resolved |
+| 3 | [Downstream app architecture](#3-downstream-app-architecture) | 🟢 Resolved |
+| 4 | [Billing system of record](#4-billing-system-of-record) | 🟢 Resolved |
+| 5 | [Settings schema ownership](#5-settings-schema-ownership) | 🟢 Resolved |
+| 6 | [Session model for revocation](#6-session-model-for-revocation) | 🟢 Resolved |
+| 7 | [AWS account and region](#7-aws-account-and-region) | 🟢 Resolved |
 | 8 | [Storage primitive scope](#8-storage-primitive-scope) | 🟢 Resolved |
 | 9 | [App developer/publisher model](#9-app-developerpublisher-model) | 🟡 Open |
 | 10 | [Compliance scope](#10-compliance-scope) | 🟡 Open |
@@ -31,7 +31,7 @@ The open questions this spec currently depends on. This page is a log, not a one
 | 12 | [Tenancy tiers & dedicated infrastructure](#12-tenancy-tiers--dedicated-infrastructure) | 🟢 Resolved |
 | 13 | [Organization-vs-User entitlement precedence](#13-organization-vs-user-entitlement-precedence) | 🟢 Resolved |
 | 14 | [MCP server authorization scope](#14-mcp-server-authorization-scope) | 🟡 Open |
-| 15 | [Platform subscription billing processor](#15-platform-subscription-billing-processor) | 🟡 Open |
+| 15 | [Platform subscription billing processor](#15-platform-subscription-billing-processor) | 🟢 Resolved |
 
 ---
 
@@ -45,7 +45,7 @@ This changes what [`User.auth`](../domain-model/users-and-organizations/) actual
 
 ## 2. Organizations
 
-~~Is multi-seat/team access a day-one requirement~~ — **resolved: both individual and team/business end users are expected**, so Organizations isn't a someday-maybe feature. It's pulled forward to [Phase 2](../roadmap/#phase-2) rather than [Phase 3](../roadmap/#phase-3) — not the MVP itself (the first dozens of users are expected to be mostly individual early adopters), but needed well before the 10x/100x growth horizon in [Deployment Architecture → Growth trajectory](../deployment-architecture/#growth-trajectory) hits, where team accounts are assumed to matter.
+Both individual and team/business end users are expected, so Organizations isn't a someday-maybe feature. It's pulled forward to [Phase 2](../roadmap/#phase-2) rather than [Phase 3](../roadmap/#phase-3) — not the MVP itself (the first dozens of users are expected to be mostly individual early adopters), but needed well before the 10x/100x growth horizon in [Deployment Architecture → Growth trajectory](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) hits, where team accounts are assumed to matter.
 
 `organization_id` being load-bearing in the schema from day one (per [Non-Functional Requirements](../non-functional-requirements/#multi-tenancy)) was the right call regardless of timing — this just confirms it wasn't a hedge against a hypothetical.
 
@@ -53,45 +53,35 @@ Note this `organization_id` (end-user team/seat grouping, scoped *within* one Ap
 
 ## 3. Downstream app architecture
 
-The single biggest fork in the API's shape. Two real options:
+**Resolved: Applications are separately hosted, and not just web apps.** An Application built on this platform can be an iOS, macOS, Windows, Linux, or web app, or any other platform entirely — the one thing every option has in common is that it's a separate piece of software Substratal doesn't host, which this API serves purely as a backend: API methods for authenticating a user and for reading/writing that user's settings and related collateral, nothing about how or where the app itself runs. This confirms the "separately hosted services" assumption [Trust Model](../trust-model/) already builds on — the "apps as modules/iframes inside one deployment" alternative is ruled out, since a native iOS or desktop app can't be an iframe inside anything.
 
-- **Apps are separately hosted services** that need SSO + token verification — the assumption this entire site currently builds on (see [Trust Model](../trust-model/)).
-- **Apps are modules/iframes inside one deployment**, where access control could live entirely in the hub's own session and nothing in [Trust Model](../trust-model/) is needed at all.
-
-**This needs to be resolved before the API Reference pages are treated as final** — everything about JWT issuance, introspection, and webhooks in [Trust Model](../trust-model/) assumes the first option.
+**One real implication, not yet reflected in [Trust Model](../trust-model/):** that page's launch flow is written as a web redirect carrying a JWT. A native mobile/desktop app can't receive a browser redirect the same way — it needs the equivalent of an OAuth 2.0 Authorization Code flow with PKCE (industry-standard for exactly this: a public client with no safe place to hold a secret, handing control back via a custom URL scheme or app link rather than a server-side redirect). The underlying claims and verification model [Trust Model](../trust-model/) already specifies (short-lived JWT, `effective_permissions`, introspection, webhooks) don't change — only the mechanics of *handing the token to the app* need a second, platform-appropriate flow alongside the existing web redirect. Flagged here as a known gap to close in [Trust Model](../trust-model/), not a reason to revisit anything else already decided.
 
 ## 4. Billing system of record
 
-**Mostly resolved:** Substratal Apps is not a payment processor or marketplace billing engine — each Application's developer owns the billing relationship with their own end users (their own Stripe or equivalent), and simply calls this API's [Entitlements](../api-reference/entitlements/) endpoints to reflect the outcome. `Order`/`order_id` is reference metadata the developer supplies for their own reconciliation, not a record this API's own billing system pushes webhooks about — there is no "this API's billing processor" to choose.
+**Resolved, fully:** Substratal Apps is not a payment processor or marketplace billing engine, for any Application, ever — not even once the marketplace/eventual-UI phase ships. Each Application's developer owns the billing relationship with their own end users (their own Stripe or equivalent) entirely outside this API, and simply calls this API's [Entitlements](../api-reference/entitlements/) endpoints to reflect the outcome. `Order`/`order_id` is reference metadata the developer supplies for their own reconciliation, never a record this API's own billing system pushes webhooks about. When the marketplace ships, Applications are *made available* through it based on each developer's own pricing and billing mechanism — discovery, not a checkout Substratal runs.
 
-**Still open:** once the eventual UI (see [Home](../)) exists and end users can discover apps through a Substratal-run marketplace surface, does payment ever flow *through* Substratal on a developer's behalf (Apple App Store-style), or does every purchase always happen on the developer's own site even when discovery happens here? This doesn't block the API as specified — [Workflows → Purchase → access](../workflows/#purchase--access) already models the developer-initiated grant correctly either way — but it's a real product decision for the UI phase, not an API concern today.
+The **one and only** payment flow that runs through Substratal Apps itself is its own [Pricing](../pricing/) subscription — what an Application owner pays Substratal for the platform (Starter/Team/Enterprise). See [Decision #15](#15-platform-subscription-billing-processor) for how that one is processed.
 
 ## 5. Settings schema ownership
 
-Does each Application register its own JSON Schema with the hub (what [`AppSettings`](../domain-model/settings/) currently assumes), or does the hub stay fully opaque to app settings and just store/return a blob with no server-side validation?
-
-**Leans toward:** schema-on-file with the hub. Centralized validation is why `GET /v1/users/{id}/apps/{appId}/settings` can promise a resolved, valid object instead of "whatever blob was last written."
+**Resolved: schema-on-file with the hub.** Each Application registers its own JSON Schema (`settings_schema`), and the hub validates every write against it — confirming what [`AppSettings`](../domain-model/settings/) already assumed, rather than falling back to a fully opaque blob. Centralized validation is why `GET /v1/users/{id}/apps/{appId}/settings` can promise a resolved, valid object instead of "whatever blob was last written," and it's the same schema the [typed generated-column](../domain-model/database-schema/#typed-fields-generated-columns-over-jsonb) mechanism from [Decision #8](#8-storage-primitive-scope) reads to know what to type and index.
 
 ## 6. Session model for revocation
 
-How fast must "turn off this user's access" take effect inside an already-open app session?
+**Resolved: immediately.** "Turn off this user's access" must take effect inside an already-open app session right away — not "by next login or token refresh." This is a single global guarantee, not a per-Application opt-in.
 
-- **Immediately** — requires apps to subscribe to webhooks and force-kill live sessions.
-- **By next login / token refresh** — much simpler for apps to implement, weaker guarantee.
-
-See [Trust Model → How fast does revocation need to land?](../trust-model/#how-fast-does-revocation-need-to-land) for the tradeoff table. This likely doesn't need one global answer — it may be a per-Application setting (some apps are compliance-sensitive enough to need immediate revocation, most aren't) — but that's itself an open sub-decision.
+**What this requires of every Application**, not just permits: a short JWT TTL alone can no longer be called sufficient, since a live session must not survive a revocation for the length of that TTL. In practice this makes the [Trust Model](../trust-model/)'s three mechanisms a **required layering**, not a menu an app picks from — an Application must subscribe to the `entitlement.revoked`/`entitlement.disabled`/`role.removed` [webhooks](../api-reference/webhooks/) and force-expire the affected session the moment one arrives, with the JWT TTL as a backstop rather than the primary mechanism. [Trust Model → How fast does revocation need to land?](../trust-model/#how-fast-does-revocation-need-to-land) needs updating to reflect this as settled rather than an open tradeoff — done alongside this decision, see that page.
 
 ## 7. AWS account and region
 
-Which AWS account hosts this (new, dedicated account vs. an existing one under an AWS Organization) and which region?
-
-Doesn't change anything in [Deployment Architecture](../deployment-architecture/) — every component and cost guardrail there holds regardless of the answer — it only changes where the build checklist's step 1 actually points. A dedicated account is the safer default for billing isolation (a Budget/Cost Anomaly Detection setup on a shared account is easy to mis-scope), and a single-region start (e.g. `us-east-1` or `us-west-2`) is enough until [Scale-out](../deployment-architecture/#scale-out)'s multi-region trigger is actually hit.
+**Resolved: a dedicated AWS account, under AWS Organizations, in `us-east-1`.** Elaborated in full — the reasoning for both the dedicated account and the specific region, not just the choice — in [root `DEPLOYMENT.md` → AWS account & region](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#aws-account--region), alongside the rest of the infrastructure build-out this decision feeds into.
 
 ## 8. Storage primitive scope
 
 The product pitch names "storage" as one of the five things a developer shouldn't have to build (alongside user, settings, organization, tenancy) — but the spec as written only has two narrow storage primitives: [AppProfile](../domain-model/profiles/#appprofile)'s `custom` field and [AppSettings](../domain-model/settings/#appsettings)' `overrides`, both flat JSON blobs with no server-side structure beyond the Application's own `settings_schema`. Is that actually what "storage" means, or does a developer need something more general — arbitrary collections, file/blob storage — before this product does what it says on the label?
 
-**Resolved: Postgres-backed, and typed where it's declared.** The engine is Postgres (see [Deployment Architecture → Database engine](../deployment-architecture/#database-engine-aws-options-compared)), so the storage primitive follows that directly rather than needing a separate decision:
+**Resolved: Postgres-backed, and typed where it's declared.** The engine is Postgres (see [Deployment Architecture → Database engine](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)), so the storage primitive follows that directly rather than needing a separate decision:
 
 - **The source of truth stays `jsonb`** — `AppProfile.custom` and `AppSettings.overrides` remain flexible JSON blobs, so a developer never has to pre-declare a migration to store a new field.
 - **Every field a developer *has* declared in their `settings_schema` gets a real Postgres type, not just JSON.** The implementation backs each declared schema property with a Postgres [generated column](../domain-model/database-schema/#typed-fields-generated-columns-over-jsonb) (`GENERATED ALWAYS AS (overrides->>'week_start') STORED`, cast to the schema's declared type — `text`, `boolean`, `integer`, `timestamptz`, whatever it specifies) and an index on it. This is what "map to a respective PostgreSQL data type" means concretely: the JSON is where a value *lives*, the generated column is how it's *queried and type-checked* once a developer has told the platform what shape to expect.
@@ -123,7 +113,7 @@ Practically: a User or Organization can hold membership in many Organizations (e
 
 Some customers (Application owners) want — or need, for compliance — their own dedicated infrastructure rather than the shared Tier 0 database, and some need a specific geographic region for their data. Four sub-questions, all resolved together:
 
-- **How many tiers?** Three: `shared` (default — [Tier 0](../deployment-architecture/#first-deployment-tier-0), logical isolation only), `isolated` (a dedicated Aurora Serverless v2 cluster, same region), `dedicated_region` (a dedicated cluster in a customer-chosen AWS region — real data residency). See [Domain Model → Tenancy](../domain-model/tenancy/) and [Deployment Architecture → Tenancy tiers](../deployment-architecture/#tenancy-tiers--where-they-run).
+- **How many tiers?** Three: `shared` (default — [Tier 0](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md), logical isolation only), `isolated` (a dedicated Aurora Serverless v2 cluster, same region), `dedicated_region` (a dedicated cluster in a customer-chosen AWS region — real data residency). See [Domain Model → Tenancy](../domain-model/tenancy/) and [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md).
 - **Self-serve or gatekept?** Gatekept by support today — no public API lets a customer trigger their own migration. `tenants.manage` (support/superadmin only) is required even to request a tier change. Automated, customer-initiated tier changes are a later, explicitly revenue-gated step, not a roadmap-phase trigger: it means accepting a real amount of migration risk (a failed cutover, a narrower support safety net) that a human currently absorbs step by step, and that trade only makes sense once the volume of tier-change requests justifies building it.
 - **Downtime during a tier change?** A brief, scheduled maintenance window is acceptable — this is support-run and infrequent at current scale, so a snapshot/restore cutover is enough. Zero-downtime (logical replication) migration is a legitimate future upgrade once this is self-serve and frequent enough to need it, not a day-one requirement.
 - **Does this reach downstream Applications?** No — tenancy governs where *this API's own* data lives (Entitlements, AppProfile, AppSettings, the relevant Audit Events), never an Application's own separately-hosted infrastructure. An Application's `tenant_id`/`tier`/`region` are exposed as static metadata on the [Tenant](../domain-model/tenancy/) and [Application](../domain-model/applications/) resources, for the owning developer's own benefit — not as a live JWT claim on every request, since placement is set once per Application, not computed per end-user per request the way `effective_permissions` is.
@@ -149,6 +139,6 @@ The case for a narrower default: an LLM deciding *which* tool to call based on a
 
 ## 15. Platform subscription billing processor
 
-[Decision #4](#4-billing-system-of-record) resolved who processes payment for a developer's *own* end users (the developer, never this API). It left open the other direction, now a real question with [Pricing](../pricing/) specified: **who processes payment for the platform subscription itself** — the Starter/Team/Enterprise charge an Application owner pays Substratal?
+[Decision #4](#4-billing-system-of-record) resolved who processes payment for a developer's *own* end users (the developer, never this API, never even in the marketplace phase). This is the other direction: **who processes payment for the platform subscription itself** — the Starter/Team/Enterprise charge an Application owner pays Substratal.
 
-**Leans toward:** Stripe Billing, specifically because adopting it changes nothing already decided — [Decisions → Compliance scope](#10-compliance-scope) already keeps PCI scope minimal by design (card data never touches this API directly either way), and a subscription-billing product used only for Substratal's own direct customer relationship is a far smaller integration than the marketplace-payment-processor role [Decision #4](#4-billing-system-of-record) explicitly ruled out. Not yet built or confirmed — flagged here rather than assumed, since it's the one piece of [Pricing](../pricing/) with no corresponding API surface anywhere in this spec today (no `POST /v1/subscriptions`, no `plan` change endpoint — only the `plan` field on [Tenant](../domain-model/tenancy/#fields) recording the outcome). Building that surface is explicitly deferred until this decision is actually made.
+**Resolved: Stripe Billing.** Chosen specifically because adopting it changes nothing already decided — [Compliance scope](#10-compliance-scope) already keeps PCI scope minimal by design (card data never touches this API directly either way), and a subscription-billing product used only for Substratal's own direct customer relationship is a far smaller integration than the marketplace-payment-processor role [Decision #4](#4-billing-system-of-record) explicitly ruled out. The implementation — object mapping, the `tenants` schema additions, webhook event handling — is specified in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing), not here, since it's a build/ops concern rather than part of the API Applications and their developers call — see that doc's own framing of what lives in the project root versus this site.

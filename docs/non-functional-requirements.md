@@ -81,7 +81,7 @@ Every response carries an `X-Request-Id` (server-generated if the caller didn't 
 
 - **Contract tests** validate the implementation's actual responses against [openapi.yaml](../openapi.yaml) — this is what keeps the machine-readable spec from silently drifting from reality, which is the normal failure mode for hand-maintained API docs.
 - **Unit tests** on the [Access Control](../access-control/) resolution logic (`effective_permissions`) specifically — it's the one piece of logic every single request depends on, and it's pure/deterministic enough to be cheap to test exhaustively (every combination of entitlement status × platform role × app role).
-- **Integration tests** run against a real local Postgres (see [Deployment Architecture → Local development](../deployment-architecture/#local-development)), not a mocked data layer — the Row-Level Security policies in [Multi-tenancy](#multi-tenancy) are exactly the kind of thing a mock would let silently pass while actually being broken.
+- **Integration tests** run against a real local Postgres (see [Deployment Architecture → Local development](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)), not a mocked data layer — the Row-Level Security policies in [Multi-tenancy](#multi-tenancy) are exactly the kind of thing a mock would let silently pass while actually being broken.
 - **Seed/fixture data** for local and test environments should be generated from the same request/response examples already in the [API Reference](../api-reference/) — one source of realistic data, not a second hand-maintained copy that drifts from the docs.
 
 ## Data retention

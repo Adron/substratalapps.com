@@ -8,7 +8,7 @@ nav_order: 8
 # Database Schema
 {: .no_toc }
 
-The entity pages describe *what* each field means to an API caller. This page is for an implementer: concrete Postgres types, constraints, and the indexes the documented query patterns actually need. See [Deployment Architecture](../../deployment-architecture/) for why Postgres (Aurora Serverless v2) is the chosen engine.
+The entity pages describe *what* each field means to an API caller. This page is for an implementer: concrete Postgres types, constraints, and the indexes the documented query patterns actually need. See [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for why Postgres (Aurora Serverless v2) is the chosen engine.
 {: .fs-6 .fw-300 }
 
 1. TOC
@@ -20,7 +20,7 @@ The entity pages describe *what* each field means to an API caller. This page is
 
 - Every table's primary key is the entity's own prefixed id (`usr_…`, `ent_…`, …) stored as `text`, not a surrogate `bigint` — the prefix convention in [Conventions → IDs](../../api-reference/conventions/#ids) *is* the primary key, not a display layer on top of one.
 - Every end-user-scoped table carries `organization_id text null references organizations(id)`, per [Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy), with a Row-Level Security policy — not repeated per-table below. This is **team/seat grouping**, not infrastructure placement.
-- Every table scoped to one Application also carries `tenant_id text not null references tenants(id)`, denormalized from `applications.tenant_id` at write time — a **second, independent** RLS dimension used to route a row to the right physical cluster (see [Tenancy](../tenancy/) and [Deployment Architecture → Tenancy tiers](../../deployment-architecture/#tenancy-tiers--where-they-run)). Don't conflate this with `organization_id` above — a row can carry both, either, or neither.
+- Every table scoped to one Application also carries `tenant_id text not null references tenants(id)`, denormalized from `applications.tenant_id` at write time — a **second, independent** RLS dimension used to route a row to the right physical cluster (see [Tenancy](../tenancy/) and [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)). Don't conflate this with `organization_id` above — a row can carry both, either, or neither.
 - Every table carries `created_at timestamptz not null default now()`; tables with mutable fields also carry `updated_at timestamptz not null default now()`, maintained by a trigger, not application code (so it's correct even for a direct `UPDATE` run by a migration or a support script).
 - Soft-deletable tables carry `deleted_at timestamptz null` rather than a boolean — `null` means active, a timestamp means both *that* it's deleted and *when*, which a boolean throws away.
 
@@ -209,4 +209,4 @@ idempotency_keys (
 );
 ```
 
-Per [Conventions → Idempotency](../../api-reference/conventions/#idempotency)'s implementation note — a scheduled job (see [Deployment Architecture](../../deployment-architecture/)) deletes expired rows rather than relying on unbounded table growth.
+Per [Conventions → Idempotency](../../api-reference/conventions/#idempotency)'s implementation note — a scheduled job (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) deletes expired rows rather than relying on unbounded table growth.

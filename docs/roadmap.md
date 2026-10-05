@@ -63,4 +63,4 @@ Self-service, customer-triggered [Tenancy](../domain-model/tenancy/) tier change
 
 ## Where this runs
 
-These phases are about feature scope, not infrastructure — the MVP and Phase 2/3 all deploy onto the same [Deployment Architecture](../deployment-architecture/), which has its own, independent phasing (first deployment vs. scale-out) driven by traffic and cost, not by which of these feature phases is live.
+These phases are about feature scope, not infrastructure — the MVP and Phase 2/3 all deploy onto the same [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md), which has its own, independent phasing (first deployment vs. scale-out) driven by traffic and cost, not by which of these feature phases is live.

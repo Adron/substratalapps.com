@@ -45,7 +45,6 @@ It's written to be read by people building the API **and** by AI coding tools as
 | [Compliance & Data Protection](compliance/) | Which of SOC 2, HIPAA, GDPR, and CCPA apply, and when to act on each. |
 | [Roadmap](roadmap/) | What ships in the MVP vs. later phases. |
 | [Pricing](pricing/) | Starter, Team, and Enterprise — what Substratal itself charges the developer. |
-| [Deployment Architecture](deployment-architecture/) | Where this runs — the cost-capped first deployment, and the path to scale. |
 | [Decisions](decisions/) | The open questions this spec depends on, and their current status. |
 | [Changelog](changelog/) | What's changed in this spec over time. |
 | [Glossary](glossary/) | Precise definitions for every term used here. |
@@ -60,4 +59,4 @@ Two questions get asked, separately, every time a user touches an app:
 Everything else in this spec (profiles, settings, orders, audit) hangs off of that split. See [Access Control](access-control/) for the full model.
 
 {: .note }
-This site is self-hosting its own context: it's generated from Markdown committed to this same repository, under `docs/`, via GitHub Pages. See the repo's `docs/specs/` folder for the original single-document draft this site was built out from.
+This site is self-hosting its own context: it's generated from Markdown committed to this same repository, under `docs/`, via GitHub Pages. See the repo's `docs/specs/` folder for the original single-document draft this site was built out from. This site is deliberately scoped to **the API specification itself** — how a developer or their AI agent builds against this API. Deployment/infrastructure lives as plain Markdown in the [repository root](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) instead, not here — see the repo's `README.md` for the full map of what's where, including which other project-planning material (the decision log, the build plan, the roadmap) is slated to join it there.

@@ -15,8 +15,8 @@ How a separately-hosted app verifies a user's identity and access without mainta
 
 ---
 
-{: .decision }
-This whole page assumes each Application is an independently hosted service. If that's not the eventual architecture, see [Decisions → Downstream app architecture](../decisions/#3-downstream-app-architecture) — this page would need rewriting, not patching.
+{: .note }
+This page's core assumption is now resolved, not provisional: [Decisions → Downstream app architecture](../decisions/#3-downstream-app-architecture) confirms every Application is an independently hosted service — not just a web app, but potentially iOS, macOS, Windows, Linux, or any other platform. One gap that resolution surfaced and this page doesn't yet cover: [§1](#1-short-lived-jwt-at-launch) below describes a web-style redirect launch; a native mobile/desktop app needs the equivalent via OAuth 2.0 Authorization Code + PKCE instead, carrying the same claims. Flagged inline below rather than silently assumed away.
 
 ## Why apps shouldn't own their own user table
 
@@ -26,7 +26,7 @@ Three mechanisms, meant to be layered, not chosen between:
 
 ## 1. Short-lived JWT at launch
 
-When the hub redirects a user into an app (SSO-style launch from the dashboard, or a deep link), it issues a signed JWT scoped to that one app:
+When the hub redirects a user into an app (SSO-style launch from the dashboard, or a deep link), it issues a signed JWT scoped to that one app. This is the **web launch flow**; a native iOS/macOS/Windows/Linux app — see [Decisions → Downstream app architecture](../decisions/#3-downstream-app-architecture) — can't receive a browser redirect, and instead completes an **OAuth 2.0 Authorization Code flow with PKCE**, returning to the app via a custom URL scheme or platform app-link rather than a server redirect. Same claims, same signature, same TTL discipline below — only the hand-off mechanics differ by platform.
 
 ```json
 {
@@ -67,21 +67,21 @@ Subscribe to `entitlement.revoked`, `entitlement.disabled`, `role.removed` (see 
 
 ## How fast does revocation need to land?
 
-This is a real design tradeoff, not a solved problem — see [Decisions → Session model for revocation](../decisions/#6-session-model-for-revocation):
+**Resolved: immediately** — see [Decisions → Session model for revocation](../decisions/#6-session-model-for-revocation). This is not a per-Application choice between approaches; it's a single global requirement every Application must meet, which makes the webhook path **required integration**, not an option for the compliance-sensitive minority:
 
-| Approach | Revocation latency | App complexity |
+| Approach | Revocation latency | Status |
 |---|---|---|
-| JWT only, short TTL | Up to one TTL window | Lowest — just verify a signature |
-| JWT + webhook-driven session kill | Near-immediate | Needs a webhook receiver and a way to force-expire a live session |
-| Introspection on every sensitive action | Immediate, for the actions it guards | One extra network call per guarded action |
+| JWT only, short TTL | Up to one TTL window | **Not sufficient on its own** — a live session surviving for the length of a TTL window after revocation doesn't meet "immediately." |
+| JWT + webhook-driven session kill | Near-immediate | **Required.** The JWT TTL is the backstop for the gap between an event firing and the app acting on it, not the primary revocation mechanism. |
+| Introspection on every sensitive action | Immediate, for the actions it guards | Recommended in addition, for destructive actions specifically — same as before, still the right belt-and-suspenders check immediately before something irreversible. |
 
-Most apps will want JWT for general use plus introspection before anything destructive. Apps with a strict compliance requirement around immediate de-provisioning (e.g. "access must end within 60 seconds of revocation") need the webhook path.
+Concretely: every Application **must** subscribe to `entitlement.revoked`, `entitlement.disabled`, and `role.removed` ([Webhooks](../api-reference/webhooks/)) and force-expire the affected session the moment one arrives — not "may, if compliance-sensitive." JWT TTLs should still be kept short (minutes), but short-TTL-alone is a degraded, non-compliant integration under this resolution, not a lighter-weight valid option.
 
 ## What the hub guarantees, what it doesn't
 
 **Guarantees:** the hub is the only writer of Entitlement and Role state. `effective_permissions`, however computed (JWT claim or live call), always reflects the hub's current records at the moment it was computed.
 
-**Doesn't guarantee:** that every app enforces it correctly or promptly. A JWT with a 15-minute TTL means a revoked user can act for up to 15 minutes inside that one app. That's a choice each app makes by picking its TTL and whether it subscribes to webhooks — not something the hub can enforce on the app's behalf.
+**Doesn't guarantee:** that every app actually implements the [required webhook-driven revocation](#how-fast-does-revocation-need-to-land) correctly. The hub emits the event the moment access changes; it can't force a third-party Application's own code to act on it promptly, or at all. An Application that only relies on JWT expiry is out of compliance with [Decision #6](../decisions/#6-session-model-for-revocation)'s requirement, not exercising a lighter-weight valid option — but enforcing that compliance is an onboarding/review concern (see [Decisions → App developer/publisher model](../decisions/#9-app-developerpublisher-model)), not something this API can verify at the protocol level.
 
 ## Trust runs the other direction too
 

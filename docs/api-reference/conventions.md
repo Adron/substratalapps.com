@@ -36,7 +36,7 @@ Authorization: Bearer <token>
 
 User-facing requests carry a user access token (issued at login, see [Auth](../auth/)). Service-to-service requests (billing, an app's backend) carry a scoped [API Key](../api-keys/). Both go in the same header — the token type is distinguishable server-side by prefix, not by a different header name.
 
-**Test vs. live:** every API Key is created with `satk_test_…` or `satk_live_…` (see [API Keys](../api-keys/)) — there is no separate sandbox deployment to point at. A `test` key operates against the same database, but every record it creates is tagged `test_mode: true`, excluded from webhooks firing to any other caller's `live` subscriptions, and from rate-limit/analytics counters. This is cheaper to build and run than a parallel environment, and it's the right call at the current scale (see [Deployment Architecture](../../deployment-architecture/)) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.
+**Test vs. live:** every API Key is created with `satk_test_…` or `satk_live_…` (see [API Keys](../api-keys/)) — there is no separate sandbox deployment to point at. A `test` key operates against the same database, but every record it creates is tagged `test_mode: true`, excluded from webhooks firing to any other caller's `live` subscriptions, and from rate-limit/analytics counters. This is cheaper to build and run than a parallel environment, and it's the right call at the current scale (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.
 
 ## IDs
 
