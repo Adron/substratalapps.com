@@ -61,7 +61,7 @@ A subscription is managed by its scope's owners (the app's own keys, the app's o
   "events": ["access.revoked", "access.granted", "role.assigned", "role.removed"],
   "description": "Production session-kill listener",
   "status": "healthy",
-  "signing_secret": "whsec_7f3a9c2e1b4d8f6a0c5e7b9d1f3a5c7e",
+  "signing_secret": "whsec_EXAMPLE_not_a_real_secret_created",
   "api_version": "2026-10-05",
   "test_mode": false,
   "consecutive_failures": 0,
@@ -105,7 +105,7 @@ Writable: `url`, `events`, `description`, `api_version` (forward only), and `sta
 
 ```json
 // Response — 200
-{ "id": "whk_01JAGC3D4E5F6G7H8J9K0L1M2N", "signing_secret": "whsec_9b2d4f6a8c0e1b3d5f7a9c1e3b5d7f9a", "previous_secret_expires_at": "2026-10-06T12:10:00Z" }
+{ "id": "whk_01JAGC3D4E5F6G7H8J9K0L1M2N", "signing_secret": "whsec_EXAMPLE_not_a_real_secret_rotated", "previous_secret_expires_at": "2026-10-06T12:10:00Z" }
 ```
 
 For 24 hours, every delivery is signed with **both** secrets (two `v1=` entries in the header), so a receiver can deploy the new secret with no window where verification fails. Writes `webhook.secret_rotated`.
