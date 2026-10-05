@@ -57,7 +57,7 @@ Every MCP tool is generated from one operation in [openapi.yaml](../openapi.yaml
 | `tenants.requestTierChange` | `substratal_tenants_requestTierChange` | `POST /v1/tenants/{id}/tier-change-requests` |
 | `audit.list` | `substratal_audit_list` | `GET /v1/audit-events` |
 
-(Illustrative, not exhaustive — all 55 operations in `openapi.yaml` generate a tool this way. See [openapi.yaml](../openapi.yaml) for the full, current set; this page doesn't duplicate that list.)
+(Illustrative, not exhaustive — **every** operation in `openapi.yaml` generates a tool this way, and that count grows as the spec grows. Deliberately not stated as a number here — any specific count written on this page would be wrong again the next time an endpoint is added, which is exactly the kind of drift this generation scheme exists to avoid. See [openapi.yaml](../openapi.yaml) for the current, exact set; this page doesn't duplicate that list.)
 
 {: .decision }
 **Build prerequisite:** every operation in `openapi.yaml` now carries an `operationId` (added alongside this page specifically so this generation scheme is actually buildable, not aspirational) — see the [Changelog](../changelog/) entry for this addition. Adding a new endpoint going forward means adding its `operationId` at the same time, following the `<resourceGroup>.<action>` convention already in use (`entitlements.update`, `tenants.requestTierChange`), or it won't get picked up by the generator.

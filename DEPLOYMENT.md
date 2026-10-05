@@ -12,9 +12,10 @@ Chosen and configured around one constraint above all others: **predictable, cap
 6. [Tenancy tiers & where they run](#tenancy-tiers--where-they-run)
 7. [MCP server](#mcp-server)
 8. [Stripe Billing](#stripe-billing)
-9. [Scale-out](#scale-out)
-10. [Build checklist](#build-checklist)
-11. [Local development](#local-development)
+9. [Audit log archival](#audit-log-archival)
+10. [Scale-out](#scale-out)
+11. [Build checklist](#build-checklist)
+12. [Local development](#local-development)
 
 ---
 
@@ -229,6 +230,20 @@ Idempotency: Stripe retries webhook delivery on a non-2xx response, the same way
 
 Point it at Stripe **test mode** only, using a `sk_test_…` key, for exactly the reason [Conventions' test-vs-live API Keys](https://adron.github.io/substratalapps.com/api-reference/conventions/#authentication) already draws the same line on this API's own side.
 
+## Audit log archival
+
+[Non-Functional Requirements → Audit log lifecycle](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle) specifies the hot/cold split that keeps "retained indefinitely" true without every [Pricing](https://adron.github.io/substratalapps.com/pricing/) tier paying for the same amount of fast storage. The mechanical side of that, on top of the [Tier 0](#first-deployment-tier-0) stack above:
+
+| Step | Mechanism |
+|---|---|
+| Trigger | A daily **EventBridge Scheduler** rule, the same pattern already used for trial-expiry/idempotency-key cleanup — invokes a dedicated Lambda. |
+| Select | Query `audit_events` for rows older than the owning Tenant's plan-tiered hot window (30 days / 1 year / negotiated — see [Pricing](https://adron.github.io/substratalapps.com/pricing/#enforcement)), batched by `tenant_id` using the existing `(tenant_id, timestamp desc)` index (see [Database Schema → audit_events](https://adron.github.io/substratalapps.com/domain-model/database-schema/#audit_events)). |
+| Archive | Write the shape-only fields (`id`, `actor_user_id`, `action`, `target_user_id`, `application_id`, `tenant_id`, `timestamp`) — **never** `before`/`after` — as newline-delimited JSON to **S3**, under a lifecycle rule that transitions objects straight to **S3 Glacier Deep Archive** on arrival. This is the one-way redaction step: the snapshot values are dropped here, not carried into cold storage and redacted later. |
+| Prune | Delete the archived rows from the hot `audit_events` table once the S3 write is confirmed — keeps Aurora storage cost bounded by the hot window, not by all-time event volume. |
+| Retrieve | A Glacier Deep Archive restore job (support-initiated, ~12-hour retrieval SLA) for the rare dispute/investigation that needs an archived event's shape — there is no live API path to cold storage, deliberately; see [Non-Functional Requirements → Audit log lifecycle](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle). |
+
+Cost is negligible at Tier 0 volume (Glacier Deep Archive is priced for exactly this shape of rarely-read, kept-forever data) — this is about bounding Aurora's hot-table size and honoring the redaction-on-age guarantee, not about saving money on S3 itself.
+
 ## Scale-out
 
 Nothing below is pre-built into Tier 0 — each is a deliberate upgrade, triggered by a specific, named condition, not a default growth path.
@@ -255,7 +270,7 @@ The order this gets stood up in, once API implementation begins:
 3. Secrets Manager secrets: the Aurora master credential, and Stripe's secret key + webhook-signing secret (test-mode keys first — see [Stripe Billing](#stripe-billing)). Aurora Serverless v2 cluster with Data API enabled, minimum 0.5 / maximum capacity set deliberately.
 4. IAM: one execution role per Lambda function (API handlers, MCP server, Stripe webhook handler, webhook worker, scheduled-jobs), each scoped to only the resources it actually needs — no shared mega-role.
 5. API Gateway HTTP API + custom domain mapping; Lambda handlers deployed behind it, implementing the [API Reference](https://adron.github.io/substratalapps.com/api-reference/) / [openapi.yaml](https://adron.github.io/substratalapps.com/openapi.yaml) contract.
-6. SQS queue + webhook worker Lambda; EventBridge Scheduler rules for trial expiry and idempotency-key cleanup.
+6. SQS queue + webhook worker Lambda; EventBridge Scheduler rules for trial expiry, idempotency-key cleanup, and [audit log archival](#audit-log-archival).
 7. Stripe account + Products/Prices for Starter/Team/Enterprise (test mode first); `/internal/stripe/webhook` route and handler.
 8. CloudWatch Logs with explicit retention on every log group; a small set of alarms (error rate, Lambda throttling, Aurora ACU near max) in addition to the billing guardrails from step 1.
 9. CI/CD via OIDC federation (GitHub Actions → an AWS deploy role) — no long-lived IAM user access keys committed anywhere.

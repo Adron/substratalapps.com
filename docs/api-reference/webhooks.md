@@ -26,6 +26,8 @@ How a downstream app reacts to an access change immediately instead of polling. 
 
 A subscription belongs to whichever caller created it — there's no separate permission check beyond being authenticated as that Application's service [API key](../api-keys/) or a platform role with `webhooks.manage`. An app can only ever see and manage its own subscriptions; `webhooks.manage` is for platform admins troubleshooting another app's delivery issues.
 
+`POST /v1/webhooks` is rejected with `409`/`code: "plan_limit_reached"` if the calling Application's owning Tenant is already at its plan's webhook-subscription cap (1/10/unlimited on Starter/Team/Enterprise) — see [Pricing → Enforcement](../../pricing/#enforcement).
+
 ## `GET /v1/webhooks`
 
 ```json
@@ -85,6 +87,7 @@ Unsubscribes immediately — in-flight deliveries already queued are still attem
 | `entitlement.disabled` | An admin flips `status` to `disabled`. | `entitlement`, `disabled_reason` |
 | `entitlement.revoked` | `status` becomes `revoked` (refund, ToS action). | `entitlement` |
 | `entitlement.expired` | A trial/subscription's `ends_at` passes without renewal. | `entitlement` |
+| `entitlement.member_scope_changed` | An org-wide Entitlement's `member_scope`/`member_overrides` changes with no `status` transition — see [Domain Model → Entitlements → Org-wide entitlements](../../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out). | `entitlement`, `organization_id` |
 | `role.assigned` | A Role assignment is created. | `user_id`, `role_id`, `application_id` |
 | `role.removed` | A Role assignment is deleted. | `user_id`, `role_id`, `application_id` |
 

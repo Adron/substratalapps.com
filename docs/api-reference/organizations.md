@@ -22,6 +22,8 @@ Team/seat management — see [Decisions → Organizations](../../decisions/#2-or
 |---|---|---|
 | `GET` | `/v1/organizations` | List (admin) or, for a non-admin caller, just the orgs they're a member of. |
 | `POST` | `/v1/organizations` | Create an org. |
+| `GET` | `/v1/organizations/{id}` | Fetch one Organization. |
+| `PATCH` | `/v1/organizations/{id}` | Update `name`, or set `status` to `suspended`/`active` — the only way to reach `status: suspended`. |
 | `GET` | `/v1/organizations/{id}/members` | List member Users. |
 | `POST` | `/v1/organizations/{id}/members` | Add a member (by `user_id` or by email invite), optionally as `org_admin`. |
 | `DELETE` | `/v1/organizations/{id}/members/{userId}` | Remove a member. |
@@ -54,6 +56,27 @@ Self-scoped: a non-admin caller sees every Organization they hold an [Organizati
 ```
 
 Requires a platform role with `organizations.manage` — self-service org creation (e.g. as part of a team-plan signup flow) is a product decision for [Phase 3](../../roadmap/#phase-3), not assumed here.
+
+## `GET /v1/organizations/{id}`
+
+```json
+// Response — 200
+{ "id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P", "name": "Acme Co.", "status": "active", "created_at": "2026-10-04T09:00:00Z" }
+```
+
+Any member of the org, or a platform role with `organizations.manage`.
+
+## `PATCH /v1/organizations/{id}`
+
+```json
+// Request
+{ "status": "suspended" }
+```
+```json
+// Response — 200, full updated object
+```
+
+Requires a platform role with `organizations.manage` — org admins can manage their own members and entitlements (see [Delegated admin](#delegated-admin)) but cannot suspend their own Organization. Suspending an Organization does not, by itself, touch any org-wide (`source: org_seat`) Entitlement — the same non-cascading default [Decision #9](../../decisions/#9-app-developerpublisher-model) already established for a suspended Application; an admin revokes the affected Entitlements separately and explicitly if that's actually warranted.
 
 ## `GET /v1/organizations/{id}/members`
 

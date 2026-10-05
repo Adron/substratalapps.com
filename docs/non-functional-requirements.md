@@ -86,9 +86,19 @@ Every response carries an `X-Request-Id` (server-generated if the caller didn't 
 
 ## Data retention
 
-- Audit Events: retained indefinitely (compliance system of record).
+- Audit Events: retained indefinitely (compliance system of record) — see [Audit log lifecycle](#audit-log-lifecycle) immediately below for how that stays true without every plan paying for the same amount of hot, directly-queryable storage.
 - Disabled/revoked Entitlements: retained, not deleted — re-enabling or investigating a dispute depends on the history.
 - Deleted Users: soft-deleted first (status transition), with a separate, deliberate hard-delete process for right-to-erasure requests — see [Hard-delete cascade](#hard-delete-cascade) immediately below for what that process actually does, not just that it exists.
+
+### Audit log lifecycle
+
+"Retained indefinitely" and [Pricing](../pricing/#enforcement)'s plan-tiered "audit log hot-storage window" (30 days Starter / 1 year Team / negotiated Enterprise) are two different axes, not a contradiction:
+
+1. **Hot storage.** A freshly-written Audit Event lives in the primary `audit_events` table (Aurora Postgres) with its full `before`/`after` snapshot — queryable via [API Reference → Audit](../api-reference/audit/) exactly as specified elsewhere on this page.
+2. **Archival, at the end of the plan's hot window.** A scheduled job (see [Deployment Architecture → Audit log archival](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) moves every Audit Event older than the owning Tenant's hot window out of the hot table: `action`, `timestamp`, `actor_user_id`, and every other shape field move to cheap, indefinite cold storage; the `before`/`after` snapshot values — the one place the row could hold personal data — are dropped at this point rather than carried forward, the same redaction [Hard-delete cascade](#hard-delete-cascade) step 4 already performs for a deleted User, just applied uniformly by age instead of by erasure request.
+3. **Cold storage, forever.** The shape-only archive is never deleted, satisfying "retained indefinitely" literally — what's indefinite is the record that something happened, not a guarantee that its full payload stays warm (or stays at all) past the hot window. Retrieving an archived event for a dispute or investigation is a deliberately manual, support-mediated process, not a live API path — see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for the actual retrieval SLA.
+
+This is also why the hot/cold split doesn't weaken [Audit trail vs. erasure tension](../compliance/#gdpr-and-ccpa--build-for-it-now): a snapshot value is gone (not just hidden) the moment it leaves hot storage, on every plan, regardless of whether a User ever requests erasure.
 
 ### Hard-delete cascade
 

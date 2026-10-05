@@ -168,6 +168,9 @@ Requires a platform role with `entitlements.manage` (e.g. `support` or `superadm
 
 Requires a platform role with `entitlements.manage`. Removes the record entirely — reserved for correcting a grant made by mistake (wrong user, wrong app, duplicate), where no Audit trail of a real access change should persist. For every other case — a real purchase ending, a real admin decision to cut off access — use `PATCH` with `status: revoked` or `disabled` instead, so the history survives in the Audit log.
 
+{: .important }
+This is enforced server-side, not left to caller discipline: rejected with `409`/`code: "entitlement_order_linked"` whenever `order_id` is set, **regardless of the calling key's `restrict_destructive` setting** — an order-linked Entitlement is never hard-deletable by anyone, because it's never "a mistake" in the sense this endpoint exists for; it's a real financial record. This is a universal gate on top of, not a replacement for, [API Keys → Agent keys](../api-keys/#agent-keys--restrict_destructive)'s `restrict_destructive` check — a `restrict_destructive: true` key is blocked from calling this endpoint at all; a `restrict_destructive: false` or `service`-use key is still blocked from this one specific case.
+
 ## Errors specific to this resource
 
 | Code | When |
@@ -175,3 +178,4 @@ Requires a platform role with `entitlements.manage`. Removes the record entirely
 | `entitlement_already_exists` | A `POST` would create a duplicate active grant for the same `(user_id, application_id)`. |
 | `invalid_status_transition` | e.g. attempting to reactivate a `revoked` entitlement. |
 | `entitlement_not_found` | `{id}` doesn't resolve. |
+| `entitlement_order_linked` | A `DELETE` targets an Entitlement with `order_id` set — use `PATCH` with `status: revoked` instead. |

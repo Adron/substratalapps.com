@@ -96,6 +96,8 @@ Every value `action` can take. Entries marked **admin-only** never fire for a se
 | `application.updated` | `PATCH /v1/applications/{id}` |
 | `organization.member_added` | `POST /v1/organizations/{id}/members` |
 | `organization.member_removed` | `DELETE /v1/organizations/{id}/members/{userId}` |
+| `tenant.tier_change_requested` | `POST /v1/tenants/{id}/tier-change-requests` — the request itself, not yet the migration. |
+| `tenant.tier_changed` | A tier-change migration completes: `tier`/`region`/`status` are updated back to `active` — see [Tenancy → How a tier change happens today](../tenancy/#how-a-tier-change-happens-today). |
 | `api_key.restrict_destructive_disabled` | An API Key's `restrict_destructive` is explicitly set to `false` on an `intended_use: "agent"` key — see [Decisions → MCP server authorization scope](../../decisions/#14-mcp-server-authorization-scope). |
 | `application.review_status_changed` | A reviewer approves, rejects, or suspends an Application — see [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model). |
 

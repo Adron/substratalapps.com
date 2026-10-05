@@ -32,12 +32,14 @@ Every Application today is built by Substratal itself — `owner_user_id` is a S
 | `settings_schema` | object (JSON Schema) | What this app declares its [AppSettings](../settings/) must validate against. See [Decisions → Settings schema ownership](../../decisions/#5-settings-schema-ownership). |
 | `available_app_roles` | array of strings | The role vocabulary this app defines for itself, e.g. `["admin", "editor", "viewer"]`. Used by role-assignment UI and by [AppRole](../roles-and-permissions/#approle) validation. |
 | `visibility` | enum | `public` (anyone can acquire it) \| `invite_only` \| `internal` (Substratal's own tooling, not end-user-facing). |
-| `owner_user_id` | string, nullable | The developer who registered and manages this Application. Null only for Applications with no single human owner (rare — effectively a system app). |
+| `owner_user_id` | string, nullable | The developer who registered and manages this Application. **Exactly one** of `owner_user_id`/`owner_organization_id` is always set — see the constraint below — so this is nullable only because `owner_organization_id` is the one set instead, never because an Application can be ownerless. A Substratal-run "system" Application still sets this to Substratal's own reserved internal account (`usr_01JAG0SUBSTRATAL0000000000`, the id used throughout this site's own examples below), not a null owner — [`tenant_id`](#fields) below has to resolve from *something*, and a genuinely ownerless row would have nothing to resolve it from. |
 | `owner_organization_id` | string, nullable | Set instead of `owner_user_id` when an [Organization](../users-and-organizations/#organization), not an individual, owns the app. |
 | `review_status` | enum | `approved` \| `pending_review` \| `rejected` \| `suspended`. Every Application created today is admin-created and defaults to `approved` — see [below](#who-can-manage-an-applications-catalog-entry). This exists now specifically so self-service submission doesn't need a breaking schema change later. |
 | `review_notes` | string, nullable | Required when `review_status` is set to `rejected` or `suspended`; optional on `approved`. The reviewer's reasoning, visible to the Application's owner. |
 | `tenant_id` | string | Denormalized from the owner's [Tenant](../tenancy/) at creation — resolves (and creates, at `tier: shared`, if the owner doesn't have one yet) from whichever of `owner_user_id`/`owner_organization_id` is set. Determines where this Application's Entitlements, AppProfile, and AppSettings rows physically live. See [Tenancy](../tenancy/). |
 | `created_at` | timestamp | |
+
+**Constraint:** exactly one of `owner_user_id` / `owner_organization_id` is set — never both, never neither, the same pattern [Tenant](../tenancy/#fields) uses for its own owner fields. This is what keeps `tenant_id` always resolvable: there is no case where neither owner column has anything for it to resolve from.
 
 ## Example
 

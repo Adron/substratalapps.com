@@ -133,6 +133,29 @@ paths:
       responses:
         "204": { description: Logged out }
 
+  /users/{id}/mfa/totp:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.enrollMfaTotp
+      tags: [Auth]
+      summary: Enroll TOTP-based MFA for a password UserIdentity
+      description: "Self-service only. Meaningless for a method=sso identity — see Auth."
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: TOTP secret issued, not yet confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret: { type: string }
+                  qr_code_url: { type: string, format: uri }
+
   /users:
     get:
       operationId: users.list
@@ -562,9 +585,11 @@ paths:
       operationId: entitlements.delete
       tags: [Entitlements]
       summary: Hard-remove a grant made in error
-      description: "Requires a platform role with `entitlements.manage`. Distinct from PATCH status=revoked — see prose spec."
+      description: "Requires a platform role with `entitlements.manage`. Distinct from PATCH status=revoked — see prose spec. Rejected if order_id is set, regardless of restrict_destructive — see API Reference → Entitlements."
       responses:
         "204": { description: Removed }
+        "409":
+          description: "entitlement_order_linked"
 
   /permissions:
     get:
@@ -712,6 +737,43 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Organization" }
 
+  /organizations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: organizations.get
+      tags: [Organizations]
+      summary: Fetch one Organization
+      description: "Any member of the org, or a platform role with `organizations.manage`."
+      responses:
+        "200":
+          description: The Organization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+    patch:
+      operationId: organizations.update
+      tags: [Organizations]
+      summary: Update name, or suspend/reactivate
+      description: "Requires a platform role with `organizations.manage`. Suspending does not touch existing org-wide Entitlements."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                status: { type: string, enum: [active, suspended] }
+      responses:
+        "200":
+          description: Updated Organization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+
   /organizations/{id}/members:
     parameters:
       - name: id
@@ -786,7 +848,9 @@ paths:
       operationId: organizations.grantEntitlement
       tags: [Organizations]
       summary: Grant an app to the whole org
-      description: "Requires a platform role with `organizations.manage`, or org-admin standing on this Organization."
+      description: "Requires `Idempotency-Key`. Requires a platform role with `organizations.manage`, or org-admin standing on this Organization."
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         content:
           application/json:
@@ -1467,6 +1531,11 @@ components:
       type: string
       enum: [shared, isolated, dedicated_region]
 
+    TenantPlan:
+      type: string
+      enum: [starter, team, enterprise]
+      description: "Commercial subscription tier, independent of tier — see Pricing. isolated/dedicated_region are enterprise-only; starter is user-owned-only, see Pricing → Enforcement."
+
     TenantStatus:
       type: string
       enum: [active, migrating, suspended]
@@ -1479,6 +1548,7 @@ components:
         owner_user_id: { type: [string, "null"] }
         owner_organization_id: { type: [string, "null"] }
         tier: { $ref: "#/components/schemas/TenantTier" }
+        plan: { $ref: "#/components/schemas/TenantPlan" }
         region: { type: [string, "null"] }
         status: { $ref: "#/components/schemas/TenantStatus" }
         created_at: { type: string, format: date-time }
@@ -1545,6 +1615,7 @@ components:
         - entitlement.disabled
         - entitlement.revoked
         - entitlement.expired
+        - entitlement.member_scope_changed
         - role.assigned
         - role.removed
 
@@ -1577,13 +1648,17 @@ components:
 
     ApiKeyWrite:
       type: object
-      required: [name, scope, permissions]
+      required: [name, scope, permissions, mode]
       properties:
         name: { type: string }
         scope: { type: string, description: "'platform' or an application_id" }
         permissions:
           type: array
           items: { type: string }
+        mode:
+          type: string
+          enum: [live, test]
+          description: "Fixed at creation — a key can't switch modes, only be replaced. See Conventions → Authentication (test vs. live)."
         intended_use:
           type: string
           enum: [service, agent]

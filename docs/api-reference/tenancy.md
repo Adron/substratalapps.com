@@ -38,6 +38,7 @@ There is no customer self-service endpoint to change a Tenant's `tier` or `regio
   "owner_user_id": null,
   "owner_organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P",
   "tier": "isolated",
+  "plan": "enterprise",
   "region": null,
   "status": "active",
   "created_at": "2026-04-02T10:00:00Z"

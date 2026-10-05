@@ -85,6 +85,28 @@ List endpoints that support filtering take plain query parameters named after th
 
 **Soft-deleted and terminal-state records are excluded by default.** A list endpoint doesn't return a soft-deleted User, a `revoked` Entitlement, or a `suspended` API Key unless the caller explicitly asks for it (`?status=revoked`, or a resource-specific `?include_deleted=true` where noted on that page). This is the default precisely so "list my entitlements" doesn't require every caller to remember to filter out the ones that don't matter anymore.
 
+## Delete semantics: hard vs. soft
+
+"Delete" doesn't mean the same thing on every resource, and this site doesn't pick one convention and force every resource into it — it picks the right one per resource and documents which, here, once, instead of leaving a caller to infer it from each page's own wording.
+
+**A soft delete** flips a `status` (or sets a `deleted_at`/`revoked_at` timestamp) rather than removing the row. The record is excluded from default list results — same rule as [Filtering](#filtering) above — but remains fetchable by id for an authorized caller, and every other field is untouched. Nothing about a soft delete scrubs, redacts, or moves data anywhere; it's purely a status change. Where a soft delete is reversible, reversing it restores exactly the prior state, nothing re-provisioned.
+
+**A hard delete** removes the row entirely. Where this site allows it at all, it's reserved for correcting a mistake, not for the ordinary lifecycle of a real record — see each resource's own endpoint description for the specific line it draws.
+
+| Resource | `DELETE` behavior |
+|---|---|
+| [User](../../domain-model/users-and-organizations/) | **Soft.** `status: deleted`; 404s afterward. A separate, two-stage hard-delete cascade exists for right-to-erasure requests specifically — see [Non-Functional Requirements → Hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade). Not triggered by this call. |
+| [API Key](../api-keys/) | **Soft, but irreversible.** Sets `revoked_at`; the row and its usage history are retained, but unlike every other soft delete on this list, there is no un-revoke — a replacement means creating a new key. |
+| [Entitlement](../entitlements/) | **Hard** — but only for a grant with no `order_id`. Reserved for correcting a mistake (wrong user, wrong app, duplicate); real revocations use `PATCH status: revoked`/`disabled` instead, so the history survives. See [Entitlements → `DELETE`](../entitlements/#delete-v1entitlementsid). |
+| Organization member | **Hard.** The [OrganizationMembership](../../domain-model/users-and-organizations/#organizationmembership) join row is removed outright — membership has no "soft-removed" state of its own. |
+| Role assignment | **Hard.** The [UserRoleAssignment](../../domain-model/roles-and-permissions/#userroleassignment) join row is removed outright; idempotent (removing an already-gone assignment still returns `204`). |
+| [Webhook](../webhooks/) subscription | **Hard.** Unsubscribing removes the subscription; already-queued deliveries still attempt, nothing new is enqueued. |
+| [Application](../applications/), [Organization](../organizations/), [Role](../roles-and-permissions/) (the definition), [Tenant](../tenancy/) | **No `DELETE` endpoint at all.** Each has its own terminal-but-not-deleted state instead — `review_status: suspended`/`rejected` for an Application, `status: suspended` for an Organization (via `PATCH`) — because removing the catalog/definition entry itself would orphan everything that still references it (Entitlements, Role assignments, Roles scoped to it). |
+| [Profile](../../domain-model/profiles/) | No `DELETE` endpoint. Deleted outright, but only as step 2 of the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) above — never independently. |
+| [AppProfile](../../domain-model/profiles/#appprofile) / [AppSettings](../../domain-model/settings/#appsettings) | No `DELETE` endpoint. PII is scrubbed from `custom`/`overrides` in place by the hard-delete cascade's step 3; the row itself is retained even then. |
+| [Settings](../../domain-model/settings/) (global) | No `DELETE` endpoint, and not touched by the hard-delete cascade either — none of its fields (`locale`, `timezone`, `theme`, `notifications`) are personally identifying, so there's nothing on it the erasure right reaches. |
+| [Audit Event](../../domain-model/orders-and-audit/#audit-event) | Never deletable through the API, by anyone, under any permission — the one exception is the scheduled archival job moving an aged-out event to cold storage, which is an infrastructure process, not a caller-facing `DELETE`. See [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle). |
+
 ## Single-resource responses
 
 A single resource is returned as a bare JSON object — no envelope:
@@ -98,14 +120,30 @@ A single resource is returned as a bare JSON object — no envelope:
 ```json
 {
   "error": {
-    "code": "entitlement_not_active",
-    "message": "This user's entitlement to app_invoicer is disabled.",
-    "details": { "entitlement_id": "ent_01JAG6R2N7HX0K9T4V5W6Y7Z8A" }
+    "code": "entitlement_required",
+    "message": "This user has no active entitlement to app_invoicer.",
+    "details": { "application_id": "app_invoicer" }
   }
 }
 ```
 
-`code` is a stable, machine-matchable string — build logic against it, not against `message`, which is for humans and can change wording without notice. HTTP status follows normal semantics (`400` malformed request, `401` missing/invalid auth, `403` authenticated but not permitted, `404` not found, `409` conflict — e.g. idempotency key reuse with a different body, or a [concurrency conflict](../../non-functional-requirements/#concurrency-control), `422` semantically invalid — e.g. a `settings_schema` violation, `429` rate limited).
+`code` is a stable, machine-matchable string — build logic against it, not against `message`, which is for humans and can change wording without notice.
+
+**There's no single global code catalog.** Each resource's own API Reference page carries an "Errors specific to this resource" table — that table is the authoritative source for the codes that resource returns, the same way [Orders & Audit → Action catalog](../../domain-model/orders-and-audit/#action-catalog) is authoritative for `action` values. A handful of codes are cross-cutting enough to define once, here, instead of repeating identically on every page: `validation_failed`, `version_conflict`, `rate_limited`. Everything else — `entitlement_required` above included — belongs to, and is defined on, one specific resource page.
+
+HTTP status follows a fixed mapping from error *class*, not a judgment call per endpoint:
+
+| Status | Class | Example |
+|---|---|---|
+| `400` | Malformed request — the body isn't valid JSON, or is missing a required field with no sensible default. | Missing `application_id` on a grant. |
+| `401` | Missing or invalid auth — no Bearer token, an expired one, or a revoked API Key's secret. | A revoked key's secret used after `revoked_at`. |
+| `403` | Authenticated, but not permitted — a real permission or ownership check failed. | `moderation_field_forbidden`, `destructive_operation_restricted`. |
+| `404` | Not found — including a soft-deleted or never-existed resource; see [Filtering](#filtering) for why a soft-deleted record 404s rather than returning a `deleted` status. | `entitlement_not_found`. |
+| `409` | Conflict — the request is individually valid, but the current state of the resource makes it impossible to apply as-is. | `entitlement_already_exists`, `version_conflict`, `plan_limit_reached`, an idempotency key reused with a different body. |
+| `422` | Semantically invalid — the request is well-formed but violates a declared rule beyond basic shape. | A `settings_schema` violation, `validation_failed`. |
+| `429` | Rate limited. | See [Rate limiting](../../non-functional-requirements/#rate-limiting). |
+
+The dividing line between `409` and `422` worth internalizing: `409` is about *state* ("this would conflict with something that already exists or already happened"), `422` is about the *request's own content* ("this value, on its own, doesn't satisfy a rule"). `plan_limit_reached` is `409`, not `422`, for exactly this reason — the request is well-formed, it just can't be satisfied against the owning Tenant's current count.
 
 **Multiple field errors** (a `422` from a request that fails validation on more than one field at once) use a structured `details.fields` array instead of forcing the client to parse `message`:
 
@@ -124,7 +162,7 @@ A single resource is returned as a bare JSON object — no envelope:
 }
 ```
 
-A single-field error (like `entitlement_not_active` above) skips the array and puts the relevant IDs directly in `details` — the array form is specifically for "more than one thing wrong with this request body."
+A single-field error (like `entitlement_required` above) skips the array and puts the relevant IDs directly in `details` — the array form is specifically for "more than one thing wrong with this request body."
 
 ## Idempotency
 

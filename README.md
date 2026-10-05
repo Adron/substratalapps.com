@@ -18,7 +18,7 @@ Root-level documents:
 - **[PLAN.md](PLAN.md)** — the build order: what to implement first, which spec page governs each piece, phase-by-phase exit criteria.
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** — AWS infrastructure (cost-capped, Aurora Serverless v2, Lambda, no VPC/NAT at Tier 0), Stripe Billing implementation, the MCP servers recommended for building against AWS/Postgres/Stripe, and the scale-out triggers for when any of this needs to change.
 - **[LICENSE](LICENSE)** — MIT.
-- `docs/specs/` — the original single-document draft this whole spec was elaborated from. Kept for history.
+- **[ORIGINAL-SPEC-DRAFT.md](ORIGINAL-SPEC-DRAFT.md)** — the original single-document draft this whole spec was elaborated from. Kept for history, moved here (out of `docs/`) specifically so it can't be mistaken for current spec — it contradicts several later decisions.
 
 Not yet moved to the root, but should be, by the same reasoning above — tracked so this doesn't get silently forgotten:
 
@@ -30,7 +30,7 @@ Deliberately **staying** on the docs site despite being borderline: `compliance.
 
 ## Status
 
-**Specification-complete for an MVP build; implementation has not started.** The API described at [adron.github.io/substratalapps.com](https://adron.github.io/substratalapps.com/) is a target contract, not a running service — there is no code in this repository yet beyond the documentation site itself and this planning layer. See [PLAN.md](PLAN.md) for the build order and [the live Decisions page](https://adron.github.io/substratalapps.com/decisions/) for what's still open (as of this writing, one real item: the identity-provider architecture, [Decision #1](https://adron.github.io/substratalapps.com/decisions/#1-identity-provider)).
+**Specification-complete for an MVP build; implementation has not started.** The API described at [adron.github.io/substratalapps.com](https://adron.github.io/substratalapps.com/) is a target contract, not a running service — there is no code in this repository yet beyond the documentation site itself and this planning layer. See [PLAN.md](PLAN.md) for the build order and [the live Decisions page](https://adron.github.io/substratalapps.com/decisions/) for the full log — every numbered decision is currently 🟢 Resolved, including [#1, Identity provider](https://adron.github.io/substratalapps.com/decisions/#1-identity-provider) (native auth, real and in-house from Phase 1; per-Organization SSO architected now, broker integration deliberately deferred). It's a living log, not a one-time list — check it before starting a phase anyway, since a resolved decision can still gain new rows as real implementation surfaces a sub-question nobody asked yet.
 
 ## Working on the docs site locally
 

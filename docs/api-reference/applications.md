@@ -68,6 +68,7 @@ List responses return a trimmed view (no `settings_schema`, no `launch_url`) —
   "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000",
   "owner_organization_id": null,
   "review_status": "approved",
+  "review_notes": null,
   "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
   "created_at": "2025-11-03T00:00:00Z"
 }
@@ -93,6 +94,8 @@ List responses return a trimmed view (no `settings_schema`, no `launch_url`) —
 ```
 
 Requires a platform role with `applications.manage`. Today this is Substratal-internal only — a new product launch, not something any developer-facing flow triggers — consistent with [Decisions → App developer/publisher model](../../decisions/#9-app-developerpublisher-model): self-service registration by a third-party developer is a later phase, not supported by this endpoint yet. `slug` is immutable once set; it's embedded in permission keys (`app.<slug>.*`) that may already be referenced by Roles.
+
+Rejected with `409`/`code: "plan_limit_reached"` if the owner's Tenant is already at its plan's Applications cap (1/5/unlimited on Starter/Team/Enterprise) — see [Pricing → Enforcement](../../pricing/#enforcement). This check runs regardless of the caller's own `applications.manage` standing; it's an independent gate on the owning Tenant, not a permission check.
 
 ## `PATCH /v1/applications/{id}`
 
@@ -133,3 +136,4 @@ Two different callers, two different scopes:
 | `app_role_in_use` | `PATCH` would remove an entry from `available_app_roles` that's still assigned to at least one user. |
 | `moderation_field_forbidden` | A non-admin owner's `PATCH` attempts to change `visibility` or `review_status`. |
 | `review_notes_required` | A `PATCH` transitions `review_status` to `rejected` or `suspended` without `review_notes`. |
+| `plan_limit_reached` | `POST` would put the owner's Tenant over its plan's Applications cap — see [Pricing → Enforcement](../../pricing/#enforcement). |

@@ -30,16 +30,32 @@ A **seat** is a distinct User holding an active [Entitlement](../domain-model/en
 
 | | **Starter** | **Team** | **Enterprise** |
 |---|---|---|---|
-| For | A single developer (the "single-user consumer" case — this is you, building your own 3+ Applications) | A company with one or more Organizations under a single Tenant | A corporate account at real scale, with infrastructure requirements of its own |
+| For | A single developer (the "single-user consumer" case — this is you, building your first Application; [Team](#the-three-tiers) is where "3+ Applications" belongs) | A company with one or more Organizations under a single Tenant | A corporate account at real scale, with infrastructure requirements of its own |
 | Price | **$0/month** | **$49/month** + $6/seat beyond 25 included | **From $999/month** + volume seat pricing + [tenancy tier](#enterprise-tenancy-tier-options) |
 | Applications | 1 | 5 | Unlimited |
-| Organizations | 0 | Unlimited | Unlimited |
+| Organizations | Not available — see [Enforcement](#enforcement) | Unlimited | Unlimited |
 | Seats included | 1,000 | 25 | Negotiated (typically 500+) |
 | [Tenant](../domain-model/tenancy/) tier available | `shared` only | `shared` only | **Choice of all three** — see below |
 | Custom AppRoles | Up to 3 | Unlimited | Unlimited |
 | [Webhooks](../api-reference/webhooks/) | 1 subscription | 10 subscriptions | Unlimited |
-| Audit log retention | 30 days | 1 year | Negotiated, [Compliance](../compliance/)-driven |
+| Audit log hot-storage window | 30 days | 1 year | Negotiated, [Compliance](../compliance/)-driven |
 | Support | Community / best-effort email | Business-hours email | Dedicated channel, custom SLA |
+
+{: .note }
+"Audit log hot-storage window" is how long an Audit Event stays in fast, directly-queryable storage — it is **not** a retention/deletion period. Every Audit Event is retained indefinitely regardless of plan; see [Non-Functional Requirements → Data retention](../non-functional-requirements/#data-retention) for the cold-storage mechanism that keeps that true without keeping every plan's hot storage the same size.
+
+## Enforcement
+
+Every limit in the table above is checked server-side, at write time, on the Tenant that would own the new resource — independent of whether the calling credential otherwise has permission to make the call, the same "two independent gates" pattern [API Keys → Agent keys](../api-reference/api-keys/#agent-keys--restrict_destructive) already uses for `restrict_destructive`. A platform admin's `applications.manage` lets them call `POST /v1/applications`; it does not let them push a Starter Tenant past its own cap of 1.
+
+| Limit | Checked on | Rejected with |
+|---|---|---|
+| Applications | `POST /v1/applications` — counts existing Applications owned by the same Tenant | `409`, `code: "plan_limit_reached"`, `details: {"resource": "applications", "limit": 1, "current": 1}` |
+| Custom AppRoles | `POST /v1/roles` where `scope` is an `application_id` — counts existing Roles already defined for that Application | `409`, `code: "plan_limit_reached"`, `details: {"resource": "app_roles", ...}` |
+| Webhooks | `POST /v1/webhooks` — counts the calling Application's (or platform key's) existing subscriptions | `409`, `code: "plan_limit_reached"`, `details: {"resource": "webhooks", ...}` |
+| Organizations | Not a count — see below | — |
+
+"Organizations: Not available" on Starter isn't a count limit (a Tenant has exactly one owner either way) — it's that a Starter Tenant's owner must be a User, never an Organization: `check (plan != 'starter' or owner_type = 'user')` on `tenants`, the same database-level pattern already used for [`isolated`/`dedicated_region` being Enterprise-only](#enterprise-tenancy-tier-options) — see [Database Schema → tenants](../domain-model/database-schema/#tenants). An Application's owner being an Organization auto-provisions that Organization a Tenant on `plan: team`, never `starter`, specifically so this constraint is never actually reachable as a runtime error — see [Tenancy → What it represents](../domain-model/tenancy/#what-it-represents).
 
 ## Enterprise tenancy tier options
 

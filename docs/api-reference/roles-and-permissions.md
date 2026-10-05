@@ -90,7 +90,7 @@ Platform-scoped keys (fixed, built in) plus every app-scoped key declared by an 
 }
 ```
 
-Requires a platform role with `roles.manage`. `permissions` must be a subset of the known Permission keys (see `GET /v1/permissions` above) for the given `scope` — an unknown key returns `422` with `code: "unknown_permission"`.
+Requires a platform role with `roles.manage`. `permissions` must be a subset of the known Permission keys (see `GET /v1/permissions` above) for the given `scope` — an unknown key returns `422` with `code: "unknown_permission"`. When `scope` is an `application_id`, also rejected with `409`/`code: "plan_limit_reached"` if that Application's owning Tenant is already at its plan's custom-AppRole cap (3/unlimited/unlimited on Starter/Team/Enterprise) — see [Pricing → Enforcement](../../pricing/#enforcement). A platform-scoped Role is never limited this way.
 
 ## `POST /v1/users/{id}/roles/{roleId}`
 
@@ -152,3 +152,4 @@ Note this always returns `200` with the current state, rather than `403` — it'
 | `role_scope_mismatch` | Assigning an app-scoped Role via a call that doesn't match the Role's own `application_id`. |
 | `role_not_found` | `{roleId}` doesn't resolve. |
 | `unknown_permission` | `POST /v1/roles` includes a permission key that isn't in the known set for the given `scope`. |
+| `plan_limit_reached` | `POST /v1/roles` with an app `scope` would put that Application's owning Tenant over its plan's custom-AppRole cap — see [Pricing → Enforcement](../../pricing/#enforcement). |

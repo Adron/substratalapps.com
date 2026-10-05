@@ -8,7 +8,7 @@ has_children: true
 # Domain Model
 {: .no_toc }
 
-Ten entities. Most are small on purpose — the complexity in this system is in how they relate, not in any single one's field list.
+Ten core nouns, each small on purpose — the complexity in this system is in how they relate, not in any single one's field list — plus four supporting join/credential records that make the many-to-many relationships and multi-method auth actually work without a bigger table.
 {: .fs-6 .fw-300 }
 
 ## Overview
@@ -25,6 +25,17 @@ Ten entities. Most are small on purpose — the complexity in this system is in 
 | [Setting](settings/) / AppSettings | Configuration — global, and per-app, layered over app defaults. |
 | [Order](orders-and-audit/) | The commerce record an Entitlement traces back to. |
 | [Audit Event](orders-and-audit/#audit-event) | An immutable log of who changed what access, when. |
+
+## Supporting entities
+
+Each of these is a join or credential record behind one of the relationships above — real rows in the schema, just not independent *concepts* the way the ten above are:
+
+| Entity | Joins | What it represents |
+|---|---|---|
+| [UserIdentity](users-and-organizations/#useridentity) | User ↔ login method | How a User actually authenticates — `password` or `sso` — since a User can hold more than one at once. See [Decisions → Identity provider](../decisions/#1-identity-provider). |
+| [SSOConnection](users-and-organizations/#ssoconnection) | Organization ↔ identity provider | One Organization's federated-login configuration, referenced by its members' `sso`-method UserIdentity rows. |
+| [OrganizationMembership](users-and-organizations/#organizationmembership) | User ↔ Organization | Which Organizations a User belongs to, and their standing (`org_admin`/`member`) in each. |
+| [UserRoleAssignment](roles-and-permissions/#userroleassignment) | User ↔ Role | Which Roles a User holds, platform-wide or scoped to one Application. |
 
 ## How they relate
 

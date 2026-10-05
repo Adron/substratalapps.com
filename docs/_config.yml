@@ -41,7 +41,6 @@ footer_content: >-
   system of record; see git history for how it has changed over time.
 
 exclude:
-  - specs
   - Gemfile
   - Gemfile.lock
   - vendor
