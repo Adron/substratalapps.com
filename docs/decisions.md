@@ -17,7 +17,7 @@ The open questions this spec currently depends on. This page is a log, not a one
 
 | # | Decision | Status |
 |---|---|---|
-| 1 | [Identity provider](#1-identity-provider) | 🟡 Open — see chat for clarifying questions in flight |
+| 1 | [Identity provider](#1-identity-provider) | 🟢 Resolved |
 | 2 | [Organizations](#2-organizations) | 🟢 Resolved |
 | 3 | [Downstream app architecture](#3-downstream-app-architecture) | 🟢 Resolved |
 | 4 | [Billing system of record](#4-billing-system-of-record) | 🟢 Resolved |
@@ -37,11 +37,15 @@ The open questions this spec currently depends on. This page is a log, not a one
 
 ## 1. Identity provider
 
-Build auth in-house, or delegate to an IdP (Auth0, Clerk, WorkOS, Cognito, …)?
+**Resolved: both, not either/or — native in-house auth, architected from the start for pluggable, per-Organization SSO.**
 
-This changes what [`User.auth`](../domain-model/users-and-organizations/) actually stores (a password hash owned here, vs. a foreign subject ID), and how the JWT in the [Trust Model](../trust-model/) gets issued — self-signed by the hub either way, but the login step in front of it looks very different.
+- **Native email/password is owned here**, not delegated — a real `password_hash`, real sessions, built and live from Phase 1. Not "in-house vs. delegate"; in-house is the default every User has available.
+- **SSO is a per-Organization bridge**, not a platform-wide or per-Application choice: an Organization admin connects their own company's identity provider (Okta, Azure AD, Google Workspace, …) through a federation broker (leaning WorkOS, for exactly this "bring your own enterprise IdP" use case), and it becomes available to every member of that Organization. See [Domain Model → SSOConnection](../domain-model/users-and-organizations/#ssoconnection).
+- **A User can hold both at once** — a `password` identity and an `sso` identity simultaneously — choosing either at login, not locked to one method per account. See [Domain Model → UserIdentity](../domain-model/users-and-organizations/#useridentity).
+- **MFA (TOTP) is optional and user-enabled** for native accounts, via self-service enrollment (`POST /v1/users/{id}/mfa/totp`) — not required, not yet built for SSO identities, whose MFA policy belongs to the member's own IdP.
+- **Sequencing:** the `UserIdentity`/`SSOConnection` schema and the auth endpoints are built for this shape now, so adding a real SSO broker integration later is additive, not a breaking migration — but the broker integration itself (the actual Auth0/WorkOS/Cognito wiring) is explicitly **not** being built yet. `POST /v1/auth/sso/{provider}/callback` exists as a route with its contract still open — see [API Reference → Auth](../api-reference/auth/).
 
-**Leans toward:** delegating. Auth is a solved, security-sensitive problem; building it in-house is rarely where the differentiated value of this hub lives.
+This replaces the earlier in-house-vs-delegate framing entirely — the real question was never which one, it was how both coexist on the same User without a later rework, which is what [UserIdentity](../domain-model/users-and-organizations/#useridentity) now answers.
 
 ## 2. Organizations
 

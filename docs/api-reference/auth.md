@@ -13,17 +13,18 @@ nav_order: 2
 
 ---
 
-{: .decision }
-Whether these endpoints are implemented in-house or are a thin wrapper around a delegated identity provider is open — see [Decisions → Identity provider](../../decisions/#1-identity-provider). The contract below holds either way; what changes is what's behind it.
+{: .note }
+Resolved — see [Decisions → Identity provider](../../decisions/#1-identity-provider). Native email/password is implemented in-house and real from Phase 1. SSO (per-[Organization](../../domain-model/users-and-organizations/#ssoconnection), broker-based) is architected for now — the [UserIdentity](../../domain-model/users-and-organizations/#useridentity)/[SSOConnection](../../domain-model/users-and-organizations/#ssoconnection) shape below is built to not need a breaking change — but the actual broker integration is deferred; `POST /v1/auth/sso/{provider}/callback` is a real route today, with its request/response shape still open.
 
 ## Endpoints
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/v1/auth/login` | Exchange credentials for a session. |
+| `POST` | `/v1/auth/login` | Exchange a credential (password, or a federated assertion once SSO is live) for a session. |
 | `POST` | `/v1/auth/token/refresh` | Exchange a refresh token for a new access token. |
-| `POST` | `/v1/auth/sso/{provider}/callback` | Complete an SSO login. |
+| `POST` | `/v1/auth/sso/{provider}/callback` | Complete an SSO login. Deferred — see the note above. |
 | `POST` | `/v1/auth/logout` | Invalidate the current session. |
+| `POST` | `/v1/users/{id}/mfa/totp` | Enroll TOTP-based MFA for a `password` [UserIdentity](../../domain-model/users-and-organizations/#useridentity). Optional, user-initiated — see [Decisions → Identity provider](../../decisions/#1-identity-provider). |
 
 ## `POST /v1/auth/login`
 
@@ -55,7 +56,20 @@ Returns the same shape as login. Refresh tokens are single-use — each refresh 
 
 ## `POST /v1/auth/sso/{provider}/callback`
 
-Completes a federated login. Request/response shape depends on the provider chosen per [Decisions → Identity provider](../../decisions/#1-identity-provider); this page will be filled in once that's resolved rather than guessed at now.
+Completes a federated login, creating or matching a `method: sso` [UserIdentity](../../domain-model/users-and-organizations/#useridentity) against the Organization's [SSOConnection](../../domain-model/users-and-organizations/#ssoconnection). The exact request/response shape depends on the broker integration, which is deliberately not built yet — see [Decisions → Identity provider](../../decisions/#1-identity-provider). The response, once implemented, returns the same `AuthSession` shape as login — SSO is a different way to obtain a session, not a different kind of session.
+
+## `POST /v1/users/{id}/mfa/totp`
+
+```json
+// Request — enroll
+{}
+```
+```json
+// Response — 200
+{ "secret": "JBSWY3DPEHPK3PXP", "qr_code_url": "https://api.substratalapps.com/v1/users/usr_.../mfa/totp/qr" }
+```
+
+Self-service only — a `password` [UserIdentity](../../domain-model/users-and-organizations/#useridentity) opts itself into TOTP; nothing here is admin-initiated. Confirming enrollment (a follow-up `PATCH` with the first valid code) flips `mfa_enabled: true` on that identity. Meaningless for a `method: sso` identity — an Organization's own IdP owns MFA policy for its federated members, not this endpoint.
 
 ## `POST /v1/auth/logout`
 

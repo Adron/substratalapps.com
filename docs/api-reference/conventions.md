@@ -55,6 +55,8 @@ Every resource ID is prefixed by type. Most are opaque ULIDs — generated, neve
 | `evt_` | Audit Event |
 | `whk_` | Webhook subscription |
 | `key_` | API Key — see [API Keys](../api-keys/) |
+| `uid_` | UserIdentity — see [Users & Organizations](../../domain-model/users-and-organizations/#useridentity) |
+| `ssc_` | SSOConnection — see [Users & Organizations](../../domain-model/users-and-organizations/#ssoconnection) |
 
 **Role is the deliberate exception.** A Role's `id` is a human-readable slug (`role_timetrack_admin`, `role_platform_member`), not a random ULID — Roles are commonly referenced from code and config (seed scripts, permission checks), where a stable, meaningful id is more useful than an opaque one. See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissions/#role).
 

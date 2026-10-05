@@ -57,6 +57,6 @@ The relationship worth internalizing before reading further: **Entitlement and R
 
 ## ID format
 
-Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `org_`, `tnt_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
+Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `uid_`, `ssc_`, `org_`, `tnt_`, `app_`, `role_`, `ent_`, `ord_`, `evt_`, `whk_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
 
 Building the actual database, not just calling the API? [Database Schema](database-schema/) has the Postgres-level types, constraints, and indexes behind every entity above.

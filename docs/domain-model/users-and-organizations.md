@@ -22,7 +22,6 @@ A person with an account on Substratal. One identity, used everywhere in the hub
 | `id` | string | `usr_` prefix, opaque, stable. |
 | `email` | string | Unique. Carries a separate `email_verified` flag. |
 | `status` | enum | `active` \| `invited` \| `suspended` \| `deleted`. |
-| `auth` | object | Password hash or SSO subject + MFA state. Likely delegated to an external identity provider rather than owned here — see [Decisions](../../decisions/#1-identity-provider). |
 | `created_at` | timestamp | |
 | `last_login_at` | timestamp, nullable | |
 
@@ -49,6 +48,38 @@ An `invited` user has an account shell (so an Entitlement or Role can be assigne
 ```
 
 A User's Organization memberships are not a field on this record — see [OrganizationMembership](#organizationmembership) below. A single `organization_id` field would cap a User at one Organization; a User can belong to any number, including across different owners' Applications.
+
+### UserIdentity
+
+How a User actually authenticates isn't a field on `User` either, for the same reason `organization_id` isn't — see [Decisions → Identity provider](../../decisions/#1-identity-provider): a User can hold **more than one** login method at once (email/password *and* a federated SSO connection), picking which to use at each login, so this is its own join, not a column.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | `uid_` prefix. |
+| `user_id` | string | `references users(id)`. |
+| `method` | enum | `password` \| `sso`. |
+| `password_hash` | string, nullable | Set only when `method: password`. Native credential, owned directly by this API. |
+| `sso_connection_id` | string, nullable | Set only when `method: sso` — `references sso_connections(id)`, see below. |
+| `external_subject_id` | string, nullable | The identity provider's own user id for this person, set only when `method: sso`. |
+| `mfa_enabled` | boolean | TOTP/passkey, opt-in, meaningful only alongside `method: password` — an SSO connection's own MFA policy is that provider's concern, not re-implemented here. |
+| `last_used_at` | timestamp, nullable | Which method a User actually logs in with, in practice — not just which they've set up. |
+
+**One User, multiple UserIdentity rows** is the normal case, not an edge case — the same person might hold a `password` identity *and* an `sso` identity through their employer's Organization, choosing either at login. [`POST /v1/auth/login`](../../api-reference/auth/) accepts whichever credential matches an existing row; there's no "primary" method to designate.
+
+### SSOConnection
+
+The other half of [Decision #1](../../decisions/#1-identity-provider)'s resolution: SSO is configured **per-Organization**, not per-Application or platform-wide — an Organization admin connects their own company's identity provider (Okta, Azure AD, Google Workspace, …) once, and it becomes available to every member of that Organization.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | `ssc_` prefix. |
+| `organization_id` | string | `references organizations(id)` — the Organization this connection belongs to. |
+| `provider` | string | The underlying federation service, e.g. `"workos"` — see [Decisions → Identity provider](../../decisions/#1-identity-provider) for why a federation broker rather than integrating each enterprise IdP directly. |
+| `domain` | string, nullable | An email domain (e.g. `acme.com`) this connection auto-applies to, so a new member with a matching email can be routed to the right connection without manual setup. |
+| `status` | enum | `active` \| `inactive`. |
+
+{: .decision }
+This table is deliberately thin — scoped to *that* a User can authenticate via their Organization's SSO, not *how* the broker integration works, which is explicitly deferred (see [Decisions → Identity provider](../../decisions/#1-identity-provider)). Expect fields here once that integration is actually built, not guessed at now.
 
 ---
 

@@ -32,11 +32,38 @@ The entity pages describe *what* each field means to an API caller. This page is
 | `email` | `citext` | `unique`, not null |
 | `email_verified` | `boolean` | not null, default `false` |
 | `status` | `text` | not null, `check (status in ('active','invited','suspended','deleted'))` |
-| `auth` | `jsonb` | shape depends on [Decisions → Identity provider](../../decisions/#1-identity-provider) |
 | `created_at`, `last_login_at` | `timestamptz` | `last_login_at` nullable |
 | `deleted_at` | `timestamptz` | nullable — soft-delete |
 
-**Indexes:** `unique (email) where deleted_at is null` (a deleted user's email should be reusable by a new signup — a plain unique index would block that); `(status)` for admin filtering. No `organization_id` here — see `organization_memberships` below; a single column on `users` would cap a User at one Organization.
+**Indexes:** `unique (email) where deleted_at is null` (a deleted user's email should be reusable by a new signup — a plain unique index would block that); `(status)` for admin filtering. No `organization_id` here — see `organization_memberships` below; a single column on `users` would cap a User at one Organization. No `auth`/password column here either — see `user_identities` below; a User can hold more than one login method, per [Decisions → Identity provider](../../decisions/#1-identity-provider).
+
+## user_identities, sso_connections
+
+```sql
+user_identities (
+  id text primary key,                    -- uid_...
+  user_id text not null references users(id),
+  method text not null check (method in ('password','sso')),
+  password_hash text,                      -- set iff method = 'password'
+  sso_connection_id text references sso_connections(id),  -- set iff method = 'sso'
+  external_subject_id text,                -- the IdP's own user id, set iff method = 'sso'
+  mfa_enabled boolean not null default false,
+  mfa_secret text,                         -- encrypted TOTP secret; set iff mfa_enabled
+  last_used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+sso_connections (
+  id text primary key,                     -- ssc_...
+  organization_id text not null references organizations(id),
+  provider text not null,                  -- e.g. 'workos'
+  domain text,                             -- auto-routes a matching-email signup to this connection
+  status text not null default 'active' check (status in ('active','inactive')),
+  created_at timestamptz not null default now()
+);
+```
+
+**Constraint:** `check (method = 'password' and password_hash is not null and sso_connection_id is null) or (method = 'sso' and sso_connection_id is not null and password_hash is null)` — a `user_identities` row is exactly one method's worth of credential, never a mix. **Index:** `(user_id)` on `user_identities` — a login attempt looks up every identity a User holds and tries to match the presented credential against one of them, per [Domain Model → UserIdentity](../users-and-organizations/#useridentity): there's no single "the" credential row to look up directly. `unique (organization_id, domain) where domain is not null` on `sso_connections` — one connection claims a given email domain per Organization, not several competing for it.
 
 ## organizations
 
