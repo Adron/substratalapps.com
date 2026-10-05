@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 2.0.1
+  released: '2026-10-05'
+  commit: dd6acdaca9aa96eef1ca74c20d99cd17a9c91264
+  summary: 'Confirm Decisions #16-#30 and finish moving decisions into the spec'
 - version: 2.0.0
   released: '2026-10-05'
   commit: 2b6efab4d1d049d244ac0660d8fd0ca0a925884e

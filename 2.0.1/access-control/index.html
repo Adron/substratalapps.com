@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.1/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.1/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(5)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(5) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(5) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(5) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/2.0.1/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/2.0.1/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Access Control | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Access Control" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/2.0.1/access-control/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/2.0.1/access-control/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Access Control" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Access Control","url":"https://adron.github.io/substratalapps.com/versions/2.0.1/access-control/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/2.0.1/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.1/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.1/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v2.0.1 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="access-control">
+  
+  
+    <a href="#access-control" class="anchor-heading" aria-labelledby="access-control"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Access Control
+  
+  
+</h1>
+    
+
+<ol id="markdown-toc">
+  <li><a href="#the-two-axes" id="markdown-toc-the-two-axes">The two axes</a></li>
+  <li><a href="#the-algorithm" id="markdown-toc-the-algorithm">The algorithm</a></li>
+  <li><a href="#step-1-entitlement-status" id="markdown-toc-step-1-entitlement-status">Step 1: Entitlement status</a></li>
+  <li><a href="#step-2-effective-permissions" id="markdown-toc-step-2-effective-permissions">Step 2: Effective permissions</a>    <ol>
+      <li><a href="#worked-example" id="markdown-toc-worked-example">Worked example</a></li>
+    </ol>
+  </li>
+  <li><a href="#organization-vs-user-precedence" id="markdown-toc-organization-vs-user-precedence">Organization vs. User precedence</a>    <ol>
+      <li><a href="#worked-example-multi-org-one-application" id="markdown-toc-worked-example-multi-org-one-application">Worked example: multi-org, one Application</a></li>
+    </ol>
+  </li>
+  <li><a href="#what-apps-should-actually-call" id="markdown-toc-what-apps-should-actually-call">What apps should actually call</a></li>
+</ol><hr />
+<h2 id="the-two-axes">
+  
+  
+    <a href="#the-two-axes" class="anchor-heading" aria-labelledby="the-two-axes"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The two axes
+  
+  
+</h2>
+    
+
+<p>Every access decision in this system factors into two independent questions, checked in order:</p>
+
+<ol>
+  <li><strong>Is the app itself live for this user right now?</strong> → the <strong>Entitlement</strong>.</li>
+  <li><strong>If it is, what are they allowed to do?</strong> → <strong>Roles</strong>, resolved into <strong>Permissions</strong>.</li>
+</ol>
+
+<p>These are independent on purpose. A support agent can hold a platform Role that lets them <em>view</em> every user’s entitlements without holding a single entitlement themselves — the ability to administer access is not the same axis as the ability to use an app. Conversely, a user can own an app (active entitlement) but hold no special role inside it beyond the implicit default member role — most users, most of the time.</p>
+<h2 id="the-algorithm">
+  
+  
+    <a href="#the-algorithm" class="anchor-heading" aria-labelledby="the-algorithm"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The algorithm
+  
+  
+</h2>
+    
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>allow(user, application, permission) :=
+    user.status == "active"
+    AND resolved_entitlement_status(user, application) == "active"
+    AND permission ∈ effective_permissions(user, application)
+</code></pre></div></div>
+
+<p>Where:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>path_active(e) :=
+    e.status == "active" AND e.starts_at &lt;= now AND (e.ends_at IS NULL OR e.ends_at &gt; now)
+
+resolved_entitlement_status(user, application) :=
+    "active" if path_active(personal_entitlement(user, application))
+    "active" if ∃ org ∈ organizations(user) :
+                   path_active(org_entitlement(org, application))
+                   AND member_included(org_entitlement(org, application), user)
+    else the most relevant non-active status among the user's paths, by precedence
+         disabled &gt; expired &gt; revoked, or "none" if no path exists at all
+
+member_included(grant, user) :=
+    grant.member_scope == "all_members"
+    OR (grant.member_scope == "allowlist" AND user ∈ grant.member_overrides)
+    OR (grant.member_scope == "denylist"  AND user ∉ grant.member_overrides)
+
+effective_permissions(user, application) :=
+    ⋃ permissions(r) for r ∈ app_roles(user, application)
+      where app_roles = explicit assignments scoped to application
+                      ∪ { application.default_app_role } if set
+    — only ever app.&lt;slug&gt;.* keys; empty unless user.status and the entitlement are both active
+</code></pre></div></div>
+
+<p>Hub endpoints themselves are authorized by a separate, simpler check, <code class="language-plaintext highlighter-rouge">has_platform_permission(caller, permission)</code>. That’s the union of the permissions on the caller’s <em>platform</em> Roles, or of an API Key’s own <code class="language-plaintext highlighter-rouge">permissions</code> (confined to its Application for an app-scoped key). Platform permissions never leak into an Application’s <code class="language-plaintext highlighter-rouge">effective_permissions</code>, and app permissions never authorize a hub endpoint.</p>
+
+<p><code class="language-plaintext highlighter-rouge">resolved_entitlement_status</code> is a union across every path the user has to this one Application — their own personal Entitlement, plus every Organization they belong to that holds an org-wide grant that includes them — not a single row lookup. See <a href="#step-1-entitlement-status">Step 1</a> for why this is a union rather than a single answer, and <a href="#organization-vs-user-precedence">Organization vs. User precedence</a> for how a conflict between an Organization’s decision and a User’s own standing resolves. <code class="language-plaintext highlighter-rouge">effective_permissions</code> itself is unaffected by any of this — Role is a separate axis from <em>how</em> the entitlement was resolved.</p>
+
+<p>This is the function exposed directly as <a href="../api-reference/roles-and-permissions/"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/effective-permissions</code></a> — any service, including a downstream app, can ask the hub for the resolved answer instead of re-implementing the union above.</p>
+<h2 id="step-1-entitlement-status">
+  
+  
+    <a href="#step-1-entitlement-status" class="anchor-heading" aria-labelledby="step-1-entitlement-status"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Step 1: Entitlement status
+  
+  
+</h2>
+    
+
+<p>An <a href="../domain-model/entitlements/">Entitlement</a> is the join between a User (or Organization) and an Application, carrying a <code class="language-plaintext highlighter-rouge">status</code>. A given User can have more than one <em>path</em> to the same Application at once — their own personal Entitlement, and/or an org-wide grant through any Organization they belong to — so “the entitlement” for a (user, application) pair is really the union of every path, not guaranteed to be a single row. Each individual path still carries one of these statuses:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Meaning</th>
+      <th>Can the user reach the app?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">active</code></td>
+      <td>Owned and switched on.</td>
+      <td>Yes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">disabled</code></td>
+      <td>Owned, but an admin/support agent turned it off.</td>
+      <td>No.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">expired</code></td>
+      <td>A trial or subscription window lapsed.</td>
+      <td>No.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">revoked</code></td>
+      <td>Ownership itself was removed (refund, chargeback, ToS action).</td>
+      <td>No.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>“Turn an app on/off for a user” is a write to <code class="language-plaintext highlighter-rouge">status</code>, nothing more. It does not touch Roles, Profile, or Settings — those are preserved so that re-enabling an app restores the user’s exact prior configuration rather than re-provisioning from scratch.</p>
+
+<p class="note">A <code class="language-plaintext highlighter-rouge">disabled</code> entitlement is a soft, reversible toggle (support can flip it back to <code class="language-plaintext highlighter-rouge">active</code>). A <code class="language-plaintext highlighter-rouge">revoked</code> one implies the purchase itself is gone — re-granting access means a new Entitlement, not reinstating the old one.</p>
+<h2 id="step-2-effective-permissions">
+  
+  
+    <a href="#step-2-effective-permissions" class="anchor-heading" aria-labelledby="step-2-effective-permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Step 2: Effective permissions
+  
+  
+</h2>
+    
+
+<p><strong>Platform roles</strong> apply everywhere and typically govern the hub itself rather than any one product: <code class="language-plaintext highlighter-rouge">superadmin</code>, <code class="language-plaintext highlighter-rouge">support</code>, <code class="language-plaintext highlighter-rouge">billing_admin</code>, <code class="language-plaintext highlighter-rouge">member</code> (the default every user gets on signup, granting nothing beyond managing their own account).</p>
+
+<p><strong>App roles</strong> are scoped to one <a href="../domain-model/applications/">Application</a>. They grant only that app’s own <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> permissions. An app can name one of them its <code class="language-plaintext highlighter-rouge">default_app_role</code>, which every user with active access holds implicitly, so “every entitled user is a member” needs no assignment rows. App roles are defined by whoever owns that app’s catalog entry — one app might define <code class="language-plaintext highlighter-rouge">admin</code> / <code class="language-plaintext highlighter-rouge">editor</code> / <code class="language-plaintext highlighter-rouge">viewer</code>; another might only need <code class="language-plaintext highlighter-rouge">admin</code> / <code class="language-plaintext highlighter-rouge">member</code>. The hub stores and enforces the assignment; the app defines the vocabulary.</p>
+
+<p>A user can hold any number of app roles across different apps, and they’re independent of each other — being an <code class="language-plaintext highlighter-rouge">admin</code> of one owned app says nothing about their role in another.</p>
+<h3 id="worked-example">
+  
+  
+    <a href="#worked-example" class="anchor-heading" aria-labelledby="worked-example"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Worked example
+  
+  
+</h3>
+    
+
+<p>User <code class="language-plaintext highlighter-rouge">usr_01JAG...</code> has:</p>
+<ul>
+  <li>Platform role: <code class="language-plaintext highlighter-rouge">member</code> (default, no special permissions)</li>
+  <li>Entitlement to <code class="language-plaintext highlighter-rouge">app_timetrack</code>: <code class="language-plaintext highlighter-rouge">active</code></li>
+  <li>App role on <code class="language-plaintext highlighter-rouge">app_timetrack</code>: <code class="language-plaintext highlighter-rouge">admin</code> → grants <code class="language-plaintext highlighter-rouge">app.timetrack.export</code>, <code class="language-plaintext highlighter-rouge">app.timetrack.manage_members</code></li>
+  <li>Entitlement to <code class="language-plaintext highlighter-rouge">app_invoicer</code>: <code class="language-plaintext highlighter-rouge">disabled</code> (support turned it off after a billing dispute)</li>
+  <li>App role on <code class="language-plaintext highlighter-rouge">app_invoicer</code>: <code class="language-plaintext highlighter-rouge">member</code> → grants <code class="language-plaintext highlighter-rouge">app.invoicer.view</code></li>
+</ul>
+
+<p>Calling <code class="language-plaintext highlighter-rouge">allow(user, app_timetrack, "app.timetrack.export")</code> → entitlement is <code class="language-plaintext highlighter-rouge">active</code> and the permission is in the union → <strong>allowed</strong>.</p>
+
+<p>Calling <code class="language-plaintext highlighter-rouge">allow(user, app_invoicer, "app.invoicer.view")</code> → entitlement is <code class="language-plaintext highlighter-rouge">disabled</code> → <strong>denied</strong>, regardless of the role held. The role assignment is untouched and will apply again the moment support re-enables the entitlement.</p>
+<h2 id="organization-vs-user-precedence">
+  
+  
+    <a href="#organization-vs-user-precedence" class="anchor-heading" aria-labelledby="organization-vs-user-precedence"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Organization vs. User precedence
+  
+  
+</h2>
+    
+
+<p><a href="../domain-model/users-and-organizations/#organization">Organizations</a> are in scope from <a href="../roadmap/#phase-2">Phase 2</a> onward. Once a User can belong to an Organization that itself holds an org-wide Entitlement, a real question follows: if the Organization’s decision and the User’s own standing could point different ways, which wins?</p>
+
+<ol>
+  <li><strong>Within one Organization’s own grant, the Organization’s decision is final.</strong> An org admin’s <code class="language-plaintext highlighter-rouge">member_scope</code> (see <a href="../domain-model/entitlements/#org-wide-entitlements-scoping-members-in-or-out">Entitlements → Org-wide entitlements</a>) decides who among the org’s members actually receives that grant — a member can’t opt themselves in or out of it.</li>
+  <li><strong>A User’s own personal Entitlement to the same Application is a separate, untouched path.</strong> Being excluded from one Organization’s seat grant never revokes a personal Entitlement held some other way — see the worked example below. This is the one place the rule deliberately departs from a literal “Organization always overrides User.” The alternative, an org silently revoking something a member holds individually, creates a real billing and legal defensibility problem (“the company turned off access to something I personally paid for”). The scoped version still meets the actual goal: an org’s decision about its own grant is final.</li>
+  <li><strong>Effective access is the union of every active path</strong>, so a User in multiple Organizations never hits a real conflict between them — each Organization’s grant only ever speaks for itself. <code class="language-plaintext highlighter-rouge">resolved_entitlement_status</code> above <em>is</em> this union, formally.</li>
+  <li><strong>Attribution is always visible</strong>: a User’s own entitlements list shows which Organization a given <code class="language-plaintext highlighter-rouge">org_seat</code> path came from, and whether <code class="language-plaintext highlighter-rouge">member_scope</code> included or excluded them — never a bare allow/deny with no source. See <a href="../domain-model/entitlements/#attribution">Entitlements → Attribution</a>.</li>
+</ol>
+<h3 id="worked-example-multi-org-one-application">
+  
+  
+    <a href="#worked-example-multi-org-one-application" class="anchor-heading" aria-labelledby="worked-example-multi-org-one-application"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Worked example: multi-org, one Application
+  
+  
+</h3>
+    
+
+<p>User <code class="language-plaintext highlighter-rouge">usr_jordan</code> is:</p>
+<ul>
+  <li>A member of <code class="language-plaintext highlighter-rouge">org_acme</code>, which holds an active org-wide Entitlement to <code class="language-plaintext highlighter-rouge">app_invoicer</code> with <code class="language-plaintext highlighter-rouge">member_scope: all_members</code> (no exclusions).</li>
+  <li>A member of <code class="language-plaintext highlighter-rouge">org_beta</code>, which holds an active org-wide Entitlement to <code class="language-plaintext highlighter-rouge">app_invoicer</code> with <code class="language-plaintext highlighter-rouge">member_scope: denylist</code>, and <code class="language-plaintext highlighter-rouge">usr_jordan</code> is on that list.</li>
+  <li>The holder of their own personal (<code class="language-plaintext highlighter-rouge">source: admin_grant</code>) Entitlement to <code class="language-plaintext highlighter-rouge">app_timetrack</code> — unrelated to either Organization.</li>
+</ul>
+
+<p>Resolving <code class="language-plaintext highlighter-rouge">allow(usr_jordan, app_invoicer, "app.invoicer.view")</code>: <code class="language-plaintext highlighter-rouge">org_beta</code> excludes them from <em>its</em> grant, but that only removes <code class="language-plaintext highlighter-rouge">org_beta</code>’s path — <code class="language-plaintext highlighter-rouge">org_acme</code>’s grant still includes them, so <code class="language-plaintext highlighter-rouge">resolved_entitlement_status</code> is <code class="language-plaintext highlighter-rouge">active</code> via <code class="language-plaintext highlighter-rouge">org_acme</code>, and the call is <strong>allowed</strong>. There’s no “which Organization wins” conflict to resolve, because <code class="language-plaintext highlighter-rouge">org_beta</code>’s exclusion was never a global deny — it only ever governed <code class="language-plaintext highlighter-rouge">org_beta</code>’s own grant.</p>
+
+<p>If <code class="language-plaintext highlighter-rouge">usr_jordan</code> were <em>not</em> a member of <code class="language-plaintext highlighter-rouge">org_acme</code> at all, the same call would resolve to <strong>denied</strong> — <code class="language-plaintext highlighter-rouge">org_beta</code>’s exclusion is the only path to <code class="language-plaintext highlighter-rouge">app_invoicer</code>, and it says no. Their personal Entitlement to <code class="language-plaintext highlighter-rouge">app_timetrack</code> is unaffected either way; it was never part of either Organization’s decision.</p>
+<h2 id="what-apps-should-actually-call">
+  
+  
+    <a href="#what-apps-should-actually-call" class="anchor-heading" aria-labelledby="what-apps-should-actually-call"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What apps should actually call
+  
+  
+</h2>
+    
+
+<p>Don’t re-derive this algorithm inside a downstream app. Three options, see <a href="../trust-model/">Trust Model</a> for when to use which:</p>
+
+<ul>
+  <li>Decode the JWT issued at login/SSO — carries a pre-resolved <code class="language-plaintext highlighter-rouge">entitlement_status</code> and <code class="language-plaintext highlighter-rouge">effective_permissions</code> claim for that one app, cheap but can go stale within its TTL.</li>
+  <li>Call <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/effective-permissions</code> for a live answer.</li>
+  <li>Subscribe to the <code class="language-plaintext highlighter-rouge">access.revoked</code> and <code class="language-plaintext highlighter-rouge">role.removed</code> <a href="../api-reference/webhooks/#event-types">webhooks</a> (required) to react immediately rather than poll.</li>
+</ul>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

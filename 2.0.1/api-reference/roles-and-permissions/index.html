@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.1/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/2.0.1/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(8)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(8) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(8) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(8) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/2.0.1/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/2.0.1/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Roles &amp; Permissions | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Roles &amp; Permissions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/2.0.1/api-reference/roles-and-permissions/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/2.0.1/api-reference/roles-and-permissions/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Roles &amp; Permissions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Roles &amp; Permissions","url":"https://adron.github.io/substratalapps.com/versions/2.0.1/api-reference/roles-and-permissions/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/2.0.1/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.1/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/2.0.1/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/2.0.1/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v2.0.1 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/2.0.1/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Roles & Permissions</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="roles--permissions">
+  
+  
+    <a href="#roles--permissions" class="anchor-heading" aria-labelledby="roles--permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Roles &amp; Permissions
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">See <a href="../../domain-model/roles-and-permissions/">Domain Model → Roles &amp; Permissions</a> and <a href="../../access-control/">Access Control</a> for the underlying model.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#endpoints" id="markdown-toc-endpoints">Endpoints</a></li>
+  <li><a href="#get-v1permissions" id="markdown-toc-get-v1permissions"><code class="language-plaintext highlighter-rouge">GET /v1/permissions</code></a></li>
+  <li><a href="#the-role-object" id="markdown-toc-the-role-object">The Role object</a></li>
+  <li><a href="#get-v1roles" id="markdown-toc-get-v1roles"><code class="language-plaintext highlighter-rouge">GET /v1/roles</code></a></li>
+  <li><a href="#post-v1roles" id="markdown-toc-post-v1roles"><code class="language-plaintext highlighter-rouge">POST /v1/roles</code></a></li>
+  <li><a href="#patch-v1rolesid" id="markdown-toc-patch-v1rolesid"><code class="language-plaintext highlighter-rouge">PATCH /v1/roles/{id}</code></a></li>
+  <li><a href="#delete-v1rolesid" id="markdown-toc-delete-v1rolesid"><code class="language-plaintext highlighter-rouge">DELETE /v1/roles/{id}</code></a></li>
+  <li><a href="#get-v1usersidroles" id="markdown-toc-get-v1usersidroles"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/roles</code></a></li>
+  <li><a href="#who-may-assign-what" id="markdown-toc-who-may-assign-what">Who may assign what</a></li>
+  <li><a href="#post-v1usersidrolesroleid" id="markdown-toc-post-v1usersidrolesroleid"><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/roles/{roleId}</code></a></li>
+  <li><a href="#delete-v1usersidrolesroleid" id="markdown-toc-delete-v1usersidrolesroleid"><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/roles/{roleId}</code></a></li>
+  <li><a href="#get-v1usersidappsappideffective-permissions" id="markdown-toc-get-v1usersidappsappideffective-permissions"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/effective-permissions</code></a></li>
+  <li><a href="#errors-specific-to-this-resource" id="markdown-toc-errors-specific-to-this-resource">Errors specific to this resource</a></li>
+</ol><hr />
+<h2 id="endpoints">
+  
+  
+    <a href="#endpoints" class="anchor-heading" aria-labelledby="endpoints"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Endpoints
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Requires</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/permissions</code></td>
+      <td>any authenticated caller</td>
+      <td>List every Permission key the caller can see.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/roles</code></td>
+      <td>any authenticated caller (filtered)</td>
+      <td>List Roles.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/roles</code></td>
+      <td><code class="language-plaintext highlighter-rouge">roles.manage</code> (platform scope); owner or app-confined <code class="language-plaintext highlighter-rouge">roles.manage</code> (app scope)</td>
+      <td>Define a new Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/roles/{id}</code></td>
+      <td>same visibility as list</td>
+      <td>Fetch one Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/roles/{id}</code></td>
+      <td>same as <code class="language-plaintext highlighter-rouge">POST</code> for that scope</td>
+      <td>Change <code class="language-plaintext highlighter-rouge">permissions</code> or <code class="language-plaintext highlighter-rouge">description</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/roles/{id}</code></td>
+      <td>same as <code class="language-plaintext highlighter-rouge">POST</code> for that scope</td>
+      <td>Delete an unassigned, non-seed Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/roles</code></td>
+      <td>self, <code class="language-plaintext highlighter-rouge">roles.manage</code>, <code class="language-plaintext highlighter-rouge">users.list</code>, or app-confined</td>
+      <td>List a user’s Role assignments.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/roles/{roleId}</code></td>
+      <td>see <a href="#who-may-assign-what">Who may assign</a></td>
+      <td>Assign a Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/roles/{roleId}</code></td>
+      <td>see <a href="#who-may-assign-what">Who may assign</a></td>
+      <td>Remove a Role assignment.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/apps/{appId}/effective-permissions</code></td>
+      <td>self, the app’s own key, <code class="language-plaintext highlighter-rouge">users.list</code>, or <code class="language-plaintext highlighter-rouge">entitlements.manage</code></td>
+      <td><strong>The live access check.</strong></td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="get-v1permissions">
+  
+  
+    <a href="#get-v1permissions" class="anchor-heading" aria-labelledby="get-v1permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/permissions</code>
+  
+  
+</h2>
+    
+
+<p>Platform-scoped keys (fixed, built in), plus each visible Application’s own declared keys (from its <code class="language-plaintext highlighter-rouge">permissions</code> field — see <a href="../applications/#the-application-object">Applications</a>). See <a href="../../domain-model/roles-and-permissions/#platform-permission-catalog">Domain Model → Platform permission catalog</a> for what each platform key grants.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List/search User accounts."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"users.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Create, update, suspend, delete User accounts."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"entitlements.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Grant, toggle, and revoke Entitlements."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"applications.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Create and moderate Application catalog entries."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"roles.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Define Roles and assign/remove them."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"organizations.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manage any Organization, its members, and org-wide grants."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"View and manage any Tenant's platform subscription."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing.refund"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Issue platform-subscription refunds and credits."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Query the Audit log for any user."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"webhooks.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manage any caller's webhook subscriptions."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api_keys.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Create, rotate, and revoke any API Key."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenants.manage"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"View any Tenant and run tier changes."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Export timesheets as CSV/PDF."</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Add and remove team members inside TimeTrack."</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Filter with <code class="language-plaintext highlighter-rouge">?scope=platform</code> or <code class="language-plaintext highlighter-rouge">?scope=app_timetrack</code>. An app-scoped key sees platform keys plus its own Application’s keys only.</p>
+<h2 id="the-role-object">
+  
+  
+    <a href="#the-role-object" class="anchor-heading" aria-labelledby="the-role-object"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The Role object
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Full control inside TimeTrack."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"assignment_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-11-03T00:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-01T00:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">id</code> is derived, never chosen:</strong> <code class="language-plaintext highlighter-rouge">role_platform_&lt;name&gt;</code> for platform Roles, and <code class="language-plaintext highlighter-rouge">role_&lt;slug&gt;_&lt;name&gt;</code> for app Roles, with any <code class="language-plaintext highlighter-rouge">-</code> in the slug turned into <code class="language-plaintext highlighter-rouge">_</code>. It’s stable and human-readable, by design. See <a href="../conventions/#ids">Conventions → IDs</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">name</code> matches <code class="language-plaintext highlighter-rouge">^[a-z][a-z0-9_]{1,40}$</code> and is unique within its <code class="language-plaintext highlighter-rouge">scope</code>. For an app Role it <strong>must</strong> be one of the Application’s <code class="language-plaintext highlighter-rouge">available_app_roles</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">seed: true</code> marks the four built-in platform Roles (<code class="language-plaintext highlighter-rouge">superadmin</code>, <code class="language-plaintext highlighter-rouge">support</code>, <code class="language-plaintext highlighter-rouge">billing_admin</code>, <code class="language-plaintext highlighter-rouge">member</code>). They can’t be changed or deleted through the API.</li>
+  <li><code class="language-plaintext highlighter-rouge">permissions</code> must be keys valid for the Role’s own scope. A platform Role can hold only platform keys, and an app Role can hold only that Application’s <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys. Mixing them returns <code class="language-plaintext highlighter-rouge">422 unknown_permission</code>.</li>
+</ul>
+<h2 id="get-v1roles">
+  
+  
+    <a href="#get-v1roles" class="anchor-heading" aria-labelledby="get-v1roles"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/roles</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_platform_superadmin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"superadmin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"users.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"entitlements.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"applications.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"roles.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"organizations.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"billing.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"billing.refund"</span><span class="p">,</span><span class="w"> </span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"webhooks.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"api_keys.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tenants.manage"</span><span class="p">]</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_platform_support"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"entitlements.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tenants.manage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"billing.manage"</span><span class="p">]</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Filter by <code class="language-plaintext highlighter-rouge">?scope=platform</code> or <code class="language-plaintext highlighter-rouge">?scope=&lt;application_id&gt;</code>. What a caller sees:</p>
+
+<ul>
+  <li>Platform Roles are visible to any User with any platform permission.</li>
+  <li>An Application’s Roles are visible to its owner, its own key, and <code class="language-plaintext highlighter-rouge">roles.manage</code> holders.</li>
+</ul>
+<h2 id="post-v1roles">
+  
+  
+    <a href="#post-v1roles" class="anchor-heading" aria-labelledby="post-v1roles"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/roles</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">narrower</span><span class="w"> </span><span class="err">platform</span><span class="w"> </span><span class="err">role</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support_readonly"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Read-only support."</span><span class="p">,</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"audit.view"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_platform_support_readonly"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support_readonly"</span><span class="p">,</span><span class="w"> </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Read-only support."</span><span class="p">,</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"audit.view"</span><span class="p">],</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nl">"assignment_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T12:00:00Z"</span><span class="p">,</span><span class="w"> </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T12:00:00Z"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><strong>Platform scope:</strong> requires platform <code class="language-plaintext highlighter-rouge">roles.manage</code>, and every permission in the Role must be one the caller holds (<code class="language-plaintext highlighter-rouge">403 role_escalation_forbidden</code>), so nobody can define a Role more powerful than themselves.</li>
+  <li><strong>App scope:</strong> requires the Application’s owner, its own key holding <code class="language-plaintext highlighter-rouge">roles.manage</code>, or platform <code class="language-plaintext highlighter-rouge">roles.manage</code>. <code class="language-plaintext highlighter-rouge">name</code> must be in <code class="language-plaintext highlighter-rouge">available_app_roles</code> (<code class="language-plaintext highlighter-rouge">422 app_role_not_declared</code>), which means a new app Role usually starts with a <code class="language-plaintext highlighter-rouge">PATCH</code> to the Application’s <code class="language-plaintext highlighter-rouge">available_app_roles</code>, and that <code class="language-plaintext highlighter-rouge">PATCH</code> seeds the Role automatically. In practice, <code class="language-plaintext highlighter-rouge">POST</code> for an app scope is only needed to recreate a deleted Role.</li>
+  <li><code class="language-plaintext highlighter-rouge">409 role_name_taken</code> if the derived <code class="language-plaintext highlighter-rouge">id</code> already exists.</li>
+  <li>Writes <code class="language-plaintext highlighter-rouge">role.created</code>.</li>
+</ul>
+<h2 id="patch-v1rolesid">
+  
+  
+    <a href="#patch-v1rolesid" class="anchor-heading" aria-labelledby="patch-v1rolesid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">PATCH /v1/roles/{id}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.approve"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">updated</span><span class="w"> </span><span class="err">Role</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">permissions</code> (replaced wholesale) and <code class="language-plaintext highlighter-rouge">description</code> only. A change takes effect immediately for every holder, on their next request, introspection call, or app token. Writes <code class="language-plaintext highlighter-rouge">role.updated</code>, which records the before and after permission sets. The same escalation rule as <code class="language-plaintext highlighter-rouge">POST</code> applies to platform Roles. Seed Roles return <code class="language-plaintext highlighter-rouge">403 seed_role_immutable</code>.</p>
+
+<p class="note">Changing a Role’s permissions doesn’t fire a webhook per holder. Apps learn of the change the next time they check (an app token is valid for at most 5 minutes, so they find out within 5 minutes). A permission <em>removed</em> from a Role is the one case that could matter for immediate revocation. If that’s a concern, remove the Role assignment instead, which fires <code class="language-plaintext highlighter-rouge">role.removed</code>.</p>
+<h2 id="delete-v1rolesid">
+  
+  
+    <a href="#delete-v1rolesid" class="anchor-heading" aria-labelledby="delete-v1rolesid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">DELETE /v1/roles/{id}</code>
+  
+  
+</h2>
+    
+
+<p><code class="language-plaintext highlighter-rouge">204</code>. Only for a non-seed Role with zero assignments (<code class="language-plaintext highlighter-rouge">409 role_in_use</code>). For an app Role, it’s simpler to remove the name from <code class="language-plaintext highlighter-rouge">available_app_roles</code>, which deletes the Role too. Writes <code class="language-plaintext highlighter-rouge">role.deleted</code>. Destructive.</p>
+<h2 id="get-v1usersidroles">
+  
+  
+    <a href="#get-v1usersidroles" class="anchor-heading" aria-labelledby="get-v1usersidroles"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/roles</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w"> </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_platform_member"</span><span class="p">,</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-14T18:02:11Z"</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nl">"implicit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w"> </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-03T12:05:00Z"</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG9SUPPORT0000000000000"</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nl">"implicit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w"> </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_invoicer_member"</span><span class="p">,</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_invoicer"</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"implicit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">implicit: true</code> rows come from an Application’s <code class="language-plaintext highlighter-rouge">default_app_role</code>. They’re listed for transparency but have no assignment row, so they can’t be removed. Filter with <code class="language-plaintext highlighter-rouge">?application_id=</code>. An app-confined caller sees only its own Application’s rows.</p>
+<h2 id="who-may-assign-what">
+  
+  
+    <a href="#who-may-assign-what" class="anchor-heading" aria-labelledby="who-may-assign-what"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Who may assign what
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Role being assigned</th>
+      <th>Caller must be</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Platform Role</td>
+      <td>Platform <code class="language-plaintext highlighter-rouge">roles.manage</code> <strong>and</strong> hold every permission the Role grants (<code class="language-plaintext highlighter-rouge">403 role_escalation_forbidden</code>). Assigning <code class="language-plaintext highlighter-rouge">superadmin</code> therefore requires being a <code class="language-plaintext highlighter-rouge">superadmin</code>.</td>
+    </tr>
+    <tr>
+      <td>App Role</td>
+      <td>Platform <code class="language-plaintext highlighter-rouge">roles.manage</code>, <strong>or</strong> the Application’s owner, <strong>or</strong> the Application’s own key with <code class="language-plaintext highlighter-rouge">roles.manage</code>. An app key assigning another app’s Role gets <code class="language-plaintext highlighter-rouge">403 role_scope_mismatch</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="post-v1usersidrolesroleid">
+  
+  
+    <a href="#post-v1usersidrolesroleid" class="anchor-heading" aria-labelledby="post-v1usersidrolesroleid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/roles/{roleId}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="w"> </span><span class="err">(or</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="err">if</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">user</span><span class="w"> </span><span class="err">already</span><span class="w"> </span><span class="err">held</span><span class="w"> </span><span class="err">it</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">assignment</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">idempotent)</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"assigned_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-03T12:05:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"assigned_by"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG9SUPPORT0000000000000"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"implicit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">application_id</code> is inherited from the Role’s own <code class="language-plaintext highlighter-rouge">scope</code>, so you don’t pass it. Assigning an app Role to a user with no Entitlement to that app is allowed. The assignment is harmless until they get access, but it grants nothing in practice (see <a href="../../access-control/#worked-example">Access Control</a>). Writes <code class="language-plaintext highlighter-rouge">role.assigned</code> and emits <code class="language-plaintext highlighter-rouge">role.assigned</code>. Re-assigning a Role the user already holds returns <code class="language-plaintext highlighter-rouge">200</code> with the existing assignment, and no event fires.</p>
+<h2 id="delete-v1usersidrolesroleid">
+  
+  
+    <a href="#delete-v1usersidrolesroleid" class="anchor-heading" aria-labelledby="delete-v1usersidrolesroleid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/roles/{roleId}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Idempotent: removing an assignment that’s already gone also returns <code class="language-plaintext highlighter-rouge">204</code>, since the end state (“user doesn’t hold this Role”) is already true. Writes <code class="language-plaintext highlighter-rouge">role.removed</code> and emits <code class="language-plaintext highlighter-rouge">role.removed</code>, but only when something was actually removed. A user’s last <code class="language-plaintext highlighter-rouge">member</code> platform Role can’t be removed (<code class="language-plaintext highlighter-rouge">409 member_role_required</code>), because every User holds it. Destructive.</p>
+<h2 id="get-v1usersidappsappideffective-permissions">
+  
+  
+    <a href="#get-v1usersidappsappideffective-permissions" class="anchor-heading" aria-labelledby="get-v1usersidappsappideffective-permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/effective-permissions</code>
+  
+  
+</h2>
+    
+
+<p>The live introspection check described throughout <a href="../../trust-model/#2-live-introspection">Trust Model</a>.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"allowed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"entitlement_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_paths"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"purchase"</span><span class="p">,</span><span class="w"> </span><span class="nl">"entitlement_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ent_01JAG6R2N7HX0K9T4V5W6Y7Z8A"</span><span class="p">,</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"role_timetrack_admin"</span><span class="p">,</span><span class="w"> </span><span class="s2">"role_timetrack_member"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"effective_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"computed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T12:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">entitlement</span><span class="w"> </span><span class="err">not</span><span class="w"> </span><span class="err">active</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_invoicer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"allowed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"entitlement_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"disabled"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_paths"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"purchase"</span><span class="p">,</span><span class="w"> </span><span class="nl">"entitlement_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9"</span><span class="p">,</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"disabled"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"role_invoicer_member"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"effective_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"computed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T12:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">allowed</code> is <code class="language-plaintext highlighter-rouge">user_status == "active" &amp;&amp; entitlement_status == "active"</code>. It’s the one boolean most callers need.</li>
+  <li><code class="language-plaintext highlighter-rouge">entitlement_status</code> is the <em>resolved</em> status across every path (see <a href="../../access-control/#the-algorithm">Access Control</a>). It’s <code class="language-plaintext highlighter-rouge">"none"</code> if the user has no path at all.</li>
+  <li><code class="language-plaintext highlighter-rouge">effective_permissions</code> is <strong>always empty when <code class="language-plaintext highlighter-rouge">allowed</code> is false</strong>. When <code class="language-plaintext highlighter-rouge">allowed</code> is true, it contains only this Application’s <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys, from explicit and <code class="language-plaintext highlighter-rouge">default_app_role</code> assignments. Platform permissions never appear here.</li>
+  <li><code class="language-plaintext highlighter-rouge">access_paths</code> lists every path, including org grants with their <code class="language-plaintext highlighter-rouge">organization_id</code> and <code class="language-plaintext highlighter-rouge">member_decision</code>, so a support agent can see <em>why</em>.</li>
+  <li>This always returns <code class="language-plaintext highlighter-rouge">200</code> with the current state, never <code class="language-plaintext highlighter-rouge">403</code>. It’s an introspection query (“what’s true right now”), not an attempted action. The caller enforcing access decides what to do with <code class="language-plaintext highlighter-rouge">allowed: false</code>.</li>
+  <li>Rate limit is 300/min per key (see <a href="../../non-functional-requirements/#rate-limiting">Non-Functional Requirements → Rate limiting</a>). Apps on a hot path should prefer the app token, and call this before sensitive actions.</li>
+</ul>
+<h2 id="errors-specific-to-this-resource">
+  
+  
+    <a href="#errors-specific-to-this-resource" class="anchor-heading" aria-labelledby="errors-specific-to-this-resource"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors specific to this resource
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{roleId}</code>/<code class="language-plaintext highlighter-rouge">{id}</code> doesn’t resolve or isn’t visible.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_name_taken</code></td>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">POST</code> would create a Role whose derived id exists.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">app_role_not_declared</code></td>
+      <td>422</td>
+      <td>App Role <code class="language-plaintext highlighter-rouge">name</code> isn’t in the Application’s <code class="language-plaintext highlighter-rouge">available_app_roles</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">unknown_permission</code></td>
+      <td>422</td>
+      <td>A permission key isn’t valid for the Role’s scope.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_escalation_forbidden</code></td>
+      <td>403</td>
+      <td>Defining or assigning a platform Role with permissions the caller doesn’t hold.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_scope_mismatch</code></td>
+      <td>403</td>
+      <td>An app key acting on another Application’s Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">seed_role_immutable</code></td>
+      <td>403</td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code>/<code class="language-plaintext highlighter-rouge">DELETE</code> on a seed Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_in_use</code></td>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code> on a Role with assignments.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">member_role_required</code></td>
+      <td>409</td>
+      <td>Removing a user’s <code class="language-plaintext highlighter-rouge">member</code> platform Role.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plan_limit_reached</code></td>
+      <td>409</td>
+      <td>Exceeding the AppRoles cap — see <a href="../../pricing/#enforcement">Pricing → Enforcement</a>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
