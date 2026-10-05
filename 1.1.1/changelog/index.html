@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.1/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.1/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(14)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(14) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(14) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(14) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.1.1/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.1.1/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Changelog | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Changelog" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.1.1/changelog/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.1.1/changelog/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Changelog" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Changelog","url":"https://adron.github.io/substratalapps.com/versions/1.1.1/changelog/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.1.1/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.1/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.1/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.1.1 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="changelog">
+  
+  
+    <a href="#changelog" class="anchor-heading" aria-labelledby="changelog"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Changelog
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">What’s changed in this specification over time. Questions still awaiting a decision are tracked in the repo’s <a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md"><code class="language-plaintext highlighter-rouge">DECISIONS.md</code></a> and marked with an “Awaiting decision” callout on the pages they affect; this page tracks what’s already <em>changed</em>. When a decision is made, add a new dated entry here rather than editing an old one.</p><hr />
+<h2 id="2026-10-05--decisions-moved-into-the-spec">
+  
+  
+    <a href="#2026-10-05--decisions-moved-into-the-spec" class="anchor-heading" aria-labelledby="2026-10-05--decisions-moved-into-the-spec"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2026-10-05 — decisions moved into the spec
+  
+  
+</h2>
+    
+
+<ul>
+  <li><strong>Removed the Decisions page.</strong> Every resolved decision (#1–#15) now lives on the page an implementer would actually read, with its rationale, instead of on a separate log. For example, identity is in <a href="../api-reference/auth/#native-auth-and-per-organization-sso">Auth → Native auth and per-Organization SSO</a>, and billing ownership is in <a href="../domain-model/orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a>. New sections were added where a page didn’t yet carry the reasoning, among them <a href="../trust-model/#applications-are-separately-hosted">Trust Model → Applications are separately hosted</a>, <a href="../domain-model/tenancy/#tenant-vs-organization">Tenancy → Tenant vs. Organization</a>, <a href="../domain-model/settings/#schema-validation">Settings → Schema validation</a>, and <a href="../pricing/#how-the-subscription-is-charged">Pricing → How the subscription is charged</a>. Every link to the old page was repointed.</li>
+  <li><strong>Confirmed decisions #16–#30</strong>, which the implementation-readiness pass below had written into the spec as proposals. The spec already implemented each one, so the change here is that their reasoning is now stated as settled on the page each one governs: app-token issuance (<a href="../api-reference/auth/#getting-an-app-token">Auth → Getting an app token</a>), <a href="../api-reference/api-keys/#app-confined-permissions">app-confined API Key permissions</a>, concierge onboarding, derived <code class="language-plaintext highlighter-rouge">access.*</code> webhooks, <code class="language-plaintext highlighter-rouge">order_id</code> as a reference, typed settings via views and expression indexes, self-service Organization creation, seats/lapse/Stripe object model, the 7-day erasure grace period, the region list, Amazon SES, and test-mode isolation.</li>
+  <li><strong>Applied #29: renamed <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/applications/{appId}/effective-permissions</code> to <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/effective-permissions</code></strong> (<a href="../api-reference/roles-and-permissions/#get-v1usersidappsappideffective-permissions">Roles &amp; Permissions</a>), matching the per-user Profile and Settings paths. Free to rename now, since no endpoint is implemented yet. The <code class="language-plaintext highlighter-rouge">operationId</code> (<code class="language-plaintext highlighter-rouge">permissions.getEffective</code>) and MCP tool name are unchanged.</li>
+  <li><strong>Opened #31</strong> in <a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options"><code class="language-plaintext highlighter-rouge">DECISIONS.md</code></a>: confirming the <a href="../pricing/">Pricing</a> dollar amounts, plus annual plans, a Team trial, and whether Starter requires a card on file. None blocks the build.</li>
+</ul>
+<h2 id="2026-10-05--implementation-readiness-pass">
+  
+  
+    <a href="#2026-10-05--implementation-readiness-pass" class="anchor-heading" aria-labelledby="2026-10-05--implementation-readiness-pass"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2026-10-05 — implementation-readiness pass
+  
+  
+</h2>
+    
+
+<p>A full review aimed at “can development start and finish against this spec without guessing”. Every fix below is stated inline on the page it affects. The product calls this pass had to make are logged as <strong>Decisions #16–#30, all 🟡 Proposed</strong> (now in <a href="https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md"><code class="language-plaintext highlighter-rouge">DECISIONS.md</code></a>, each marked with an “Awaiting decision” callout on the page it affects). Each has a complete default written into the spec and a named alternative, so none blocks implementation, but each needs confirmation.</p>
+
+<p><strong>Contradictions fixed</strong></p>
+
+<ul>
+  <li><strong>Developers had no safe credential to reflect their billing.</strong> The billing-system-of-record rule requires developers to call Entitlements, but app-scoped keys could never hold <code class="language-plaintext highlighter-rouge">entitlements.manage</code>. Resolved with <a href="../api-reference/api-keys/#app-confined-permissions">app-confined permissions</a> (#17).</li>
+  <li><strong>Org self-grant hole:</strong> once Organizations are self-service (#22), an org admin creating their own org-wide grant would mean free access to any app. Org grants can now only be created by whoever controls the <em>Application</em>. Org admins scope and toggle, never create.</li>
+  <li><strong>Stripe lapse vs. database:</strong> “cancellation reverts <code class="language-plaintext highlighter-rouge">plan</code> to <code class="language-plaintext highlighter-rouge">starter</code>” violated <code class="language-plaintext highlighter-rouge">check (plan != 'starter' or owner_type = 'user')</code> for Organization-owned Tenants. That constraint also referenced a nonexistent <code class="language-plaintext highlighter-rouge">owner_type</code> column, now added. Replaced by <a href="../pricing/#subscription-lapse--downgrades">restricted mode</a> (#24).</li>
+  <li><strong>Order was modeled as an entity</strong> (<code class="language-plaintext highlighter-rouge">ord_</code> prefix, <code class="language-plaintext highlighter-rouge">billing.manage</code> = “Manage Orders”, a nonexistent <code class="language-plaintext highlighter-rouge">/v1/webhooks/incoming/billing</code> in Workflows), even though orders are the developer’s. <code class="language-plaintext highlighter-rouge">order_id</code> is now an opaque reference, and <code class="language-plaintext highlighter-rouge">billing.*</code> permissions cover platform billing (#20).</li>
+  <li><strong>Revocation gaps:</strong> the required webhooks missed org-member removal, <code class="language-plaintext highlighter-rouge">member_scope</code> exclusions, org-grant changes, and user suspension/deletion. The access algorithm didn’t check user status at all. Added derived <code class="language-plaintext highlighter-rouge">access.granted</code>/<code class="language-plaintext highlighter-rouge">access.revoked</code> webhooks and <code class="language-plaintext highlighter-rouge">user.status</code> to <code class="language-plaintext highlighter-rouge">allow()</code> (#19).</li>
+  <li><strong>Platform permissions leaked into app JWTs:</strong> <code class="language-plaintext highlighter-rouge">effective_permissions</code> unioned platform Roles. It’s now app keys only.</li>
+  <li><strong>Typed settings via generated columns</strong> would collide across apps, hit Postgres’s 1,600-column ceiling, and break inserts on schema change. Replaced by per-app views and partial expression indexes (#21).</li>
+  <li><code class="language-plaintext highlighter-rouge">openapi.yaml</code>’s <code class="language-plaintext highlighter-rouge">Page</code> schema put <code class="language-plaintext highlighter-rouge">next_cursor</code>/<code class="language-plaintext highlighter-rouge">has_more</code> at the top level, while every prose example nests them under <code class="language-plaintext highlighter-rouge">page</code>. Fixed (<code class="language-plaintext highlighter-rouge">PageEnvelope</code>).</li>
+  <li>Workflows emitted <code class="language-plaintext highlighter-rouge">entitlement.revoked</code> for a <em>disable</em>. Webhook retries said “up to 5 attempts” with 5 retry intervals, which is 6. Fixed.</li>
+  <li><code class="language-plaintext highlighter-rouge">tenants.manage</code> was missing from the permissions/roles examples. The Applications <code class="language-plaintext highlighter-rouge">settings_schema</code> example had no <code class="language-plaintext highlighter-rouge">default</code>, yet every resolved example used one. <code class="language-plaintext highlighter-rouge">review_notes_required</code> was <code class="language-plaintext highlighter-rouge">400</code> in violation of the 400/422 mapping (now <code class="language-plaintext highlighter-rouge">422</code>). The AppRoles plan limit is now defined consistently. The webhook plan limit is now per Tenant.</li>
+</ul>
+
+<p><strong>Completed (previously missing or unspecified)</strong></p>
+
+<ul>
+  <li><strong><a href="../api-reference/auth/">Auth</a></strong>, rewritten: signup, MFA login challenge, recovery codes, refresh-token rotation with reuse detection, sessions, password change/reset, email verification and change, invitations, account lockout, password policy, JWKS/key rotation, <strong>how an Application gets its per-app JWT</strong> (embedded <code class="language-plaintext highlighter-rouge">app-tokens</code> now; hosted authorization code + PKCE later, #16), and the app-token claim set.</li>
+  <li><strong>New <a href="../api-reference/billing/">Billing</a> API</strong> (subscription, usage, Checkout, Portal), <strong><a href="../pricing/">Pricing</a></strong> seat definition, caps, enforcement, lapse rules, and the full <strong>Stripe catalog</strong> (#23, #25). Root <code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Stripe Billing is rewritten (event handling, re-fetch-on-event, seat sync), with new sections for SES email (#28) and the webhook outbox.</li>
+  <li>Users: invitations, pending email change, search filters, the erasure-request endpoint (#26). Roles: get/update/delete, derived ids, escalation guard, <code class="language-plaintext highlighter-rouge">default_app_role</code>, <code class="language-plaintext highlighter-rouge">implicit</code> assignments. Organizations: self-service create, member add/role-change/leave, last-admin guard. Tenancy: tier-change request lifecycle (<code class="language-plaintext highlighter-rouge">scheduled</code> added), owner visibility, region list (#27). Webhooks: get/update, secret rotation with overlap, test, delivery log, redeliver, <code class="language-plaintext highlighter-rouge">api_version</code> pinning, auto-disable, SSRF rules. API Keys: get/update, owner self-service for app keys (#18), <code class="language-plaintext highlighter-rouge">secret_hint</code>, <code class="language-plaintext highlighter-rouge">expires_at</code>.</li>
+  <li>Applications: <code class="language-plaintext highlighter-rouge">permissions</code>, <code class="language-plaintext highlighter-rouge">redirect_uris</code>, <code class="language-plaintext highlighter-rouge">default_app_role</code>, <code class="language-plaintext highlighter-rouge">support_url</code>/<code class="language-plaintext highlighter-rouge">email_from_name</code>, visibility rules, review-transition table. Settings: exact <a href="../domain-model/settings/#resolution-rules">resolution rules</a>, <code class="language-plaintext highlighter-rouge">settings_schema</code> rules, <code class="language-plaintext highlighter-rouge">x-pii</code>, stale overrides. Entitlements: full transition matrix, uniqueness, PATCH-able fields, expiry sweep, a 24-hour limit on delete-in-error.</li>
+  <li><a href="../api-reference/conventions/">Conventions</a>: PATCH merge semantics, ETag/If-Match, size limits, ordering, cross-cutting error codes, response headers, credential prefixes. NFR: password hashing, brute-force limits, per-IP auth rate limits, security logging, SLOs, webhook payload versioning, and a revised hard-delete cascade.</li>
+  <li>Audit Events: an actor/target model (API keys and the system can be actors; many actions have no target user), <code class="language-plaintext highlighter-rouge">request_id</code>, and an action catalog expanded to every state change, mirrored exactly in <code class="language-plaintext highlighter-rouge">openapi.yaml</code>.</li>
+  <li><a href="../domain-model/database-schema/">Database Schema</a>: sessions, tokens, recovery codes, webhook outbox/deliveries, tier-change and erasure requests, Stripe events, <code class="language-plaintext highlighter-rouge">version</code> columns for ETags, test-mode isolation (#30), and corrected entitlement uniqueness.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">openapi.yaml</code> rewritten:</strong> 97 operations (from 56; every existing <code class="language-plaintext highlighter-rouge">operationId</code> unchanged), typed error responses on every operation, and <code class="language-plaintext highlighter-rouge">x-substratal-destructive</code> / <code class="language-plaintext highlighter-rouge">x-substratal-phase</code> extensions. The <a href="../mcp-server/#destructive-operations">MCP Server</a> page now holds the single canonical destructive-operation list.</li>
+</ul>
+
+<p><strong>Not changed, needs a decision:</strong> #29, the mixed <code class="language-plaintext highlighter-rouge">/apps/{appId}</code> vs. <code class="language-plaintext highlighter-rouge">/applications/{appId}</code> path spelling. (Since applied: see the entry above.)</p>
+<h2 id="2026-10-05">
+  
+  
+    <a href="#2026-10-05" class="anchor-heading" aria-labelledby="2026-10-05"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2026-10-05
+  
+  
+</h2>
+    
+
+<ul>
+  <li><strong>Docs are now versioned automatically.</strong> Every publish of this site gets a new version number, starting at v1.0.0. The current version shows in the top right of every page’s header and links to the new <a href="../versions/">Versions</a> page. Each version is also kept as a frozen, read-only copy under <code class="language-plaintext highlighter-rouge">/versions/&lt;version&gt;/</code>, so a link to an old version keeps showing exactly what that version said. This is the version of the documentation, separate from the API’s own <code class="language-plaintext highlighter-rouge">/v1</code> path version.</li>
+</ul>
+
+<p>A full consistency/UX review surfaced drift between the prose docs, <code class="language-plaintext highlighter-rouge">openapi.yaml</code>, and the root planning files — this entry is every fix that came out of it:</p>
+
+<ul>
+  <li><strong>Fixed a self-contradiction in <a href="../pricing/">Pricing</a>:</strong> Starter’s own “For” cell claimed “3+ Applications” while its own Applications row capped at 1. Reworded; “3+ Applications” is Team’s case, not Starter’s.</li>
+  <li><strong>Added <a href="../pricing/#enforcement">Pricing → Enforcement</a>:</strong> the Applications/custom-AppRole/webhook-subscription caps now have a real mechanism — checked server-side at creation time against the owning Tenant’s plan, independent of the caller’s own permission standing (the same “two independent gates” pattern <code class="language-plaintext highlighter-rouge">restrict_destructive</code> already uses), returning <code class="language-plaintext highlighter-rouge">409</code>/<code class="language-plaintext highlighter-rouge">code: "plan_limit_reached"</code>. New database constraint: <code class="language-plaintext highlighter-rouge">check (plan != 'starter' or owner_type = 'user')</code> on <code class="language-plaintext highlighter-rouge">tenants</code>.</li>
+  <li><strong>Resolved the audit-retention contradiction</strong> between <a href="../pricing/">Pricing</a>’s plan-tiered “retention” numbers and <a href="../non-functional-requirements/">Non-Functional Requirements</a>/<a href="../compliance/">Compliance</a>’s “retained indefinitely”: those numbers were never a deletion period, they’re a <strong>hot-storage window</strong> — added <a href="../non-functional-requirements/#audit-log-lifecycle">Non-Functional Requirements → Audit log lifecycle</a> specifying the archive-to-cold-storage mechanism (shape-only, <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> dropped at archive time, same redaction the hard-delete cascade already does) that makes “indefinite” literally true without every plan paying for the same hot-storage size. Root <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#audit-log-archival"><code class="language-plaintext highlighter-rouge">DEPLOYMENT.md</code> → Audit log archival</a> specifies the AWS mechanics (EventBridge Scheduler → Lambda → S3 Glacier Deep Archive).</li>
+  <li><strong>Fixed <a href="../domain-model/orders-and-audit/#action-catalog">Orders &amp; Audit → Action catalog</a>:</strong> added <code class="language-plaintext highlighter-rouge">tenant.tier_change_requested</code> and <code class="language-plaintext highlighter-rouge">tenant.tier_changed</code>, both already live in <code class="language-plaintext highlighter-rouge">openapi.yaml</code>’s <code class="language-plaintext highlighter-rouge">AuditAction</code> enum but missing from this page’s own “authoritative source” table.</li>
+  <li><strong>Added the MFA enrollment endpoint to <code class="language-plaintext highlighter-rouge">openapi.yaml</code></strong> (<code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp</code>) — fully specified in <a href="../api-reference/auth/">Auth</a> since its own addition, never added to the machine-readable spec.</li>
+  <li><strong>Added <code class="language-plaintext highlighter-rouge">mode</code> (live/test) to <code class="language-plaintext highlighter-rouge">ApiKeyWrite</code>/<code class="language-plaintext highlighter-rouge">ApiKey</code> in <code class="language-plaintext highlighter-rouge">openapi.yaml</code></strong> — present in the database schema and every prose example since <a href="../api-reference/api-keys/">API Keys</a> was written, absent from the YAML.</li>
+  <li><strong>Added <code class="language-plaintext highlighter-rouge">plan</code> to the <code class="language-plaintext highlighter-rouge">Tenant</code> schema in <code class="language-plaintext highlighter-rouge">openapi.yaml</code></strong> (new <code class="language-plaintext highlighter-rouge">TenantPlan</code> enum) — present in <a href="../domain-model/tenancy/">Tenancy</a>, <a href="../domain-model/database-schema/">Database Schema</a>, and this page’s own earlier Pricing/Stripe entries, absent from the YAML. Also added it to <a href="../api-reference/tenancy/">API Reference → Tenancy</a>’s own example, which had drifted from the matching Domain Model example.</li>
+  <li><strong>Added <code class="language-plaintext highlighter-rouge">Idempotency-Key</code> to <code class="language-plaintext highlighter-rouge">organizations.grantEntitlement</code></strong> in <code class="language-plaintext highlighter-rouge">openapi.yaml</code> — the near-identical <code class="language-plaintext highlighter-rouge">entitlements.grant</code> already required it; this org-wide variant had been missed.</li>
+  <li><strong>Added <code class="language-plaintext highlighter-rouge">entitlement.member_scope_changed</code> to the <code class="language-plaintext highlighter-rouge">WebhookEvent</code> enum</strong> in <code class="language-plaintext highlighter-rouge">openapi.yaml</code> and to <a href="../api-reference/webhooks/">Webhooks → Event types</a> — <a href="../workflows/">Workflows</a> already implied an app could subscribe to it; the event didn’t actually exist yet.</li>
+  <li><strong>Closed a real gap in <a href="../api-reference/entitlements/">Entitlements</a>:</strong> <code class="language-plaintext highlighter-rouge">DELETE</code> now rejects (<code class="language-plaintext highlighter-rouge">409</code>/<code class="language-plaintext highlighter-rouge">code: "entitlement_order_linked"</code>) whenever <code class="language-plaintext highlighter-rouge">order_id</code> is set, for every caller — not just a <code class="language-plaintext highlighter-rouge">restrict_destructive</code> agent key. Hard-deleting a real, order-linked Entitlement was previously stopped only by prose discipline, inconsistent with the platform’s own stance that this exact class of operation is destructive enough to hard-gate.</li>
+  <li><strong>Tightened the Application ownership constraint:</strong> <code class="language-plaintext highlighter-rouge">owner_user_id</code>/<code class="language-plaintext highlighter-rouge">owner_organization_id</code> is now <em>exactly</em> one, never neither — closing a real bug where a theoretical ownerless “system app” had no owner for <code class="language-plaintext highlighter-rouge">tenant_id</code> (<code class="language-plaintext highlighter-rouge">not null</code>) to resolve from. Every current example already set an owner; this just makes the constraint match what was already practiced. Added the matching <code class="language-plaintext highlighter-rouge">check</code> to <code class="language-plaintext highlighter-rouge">applications</code> in <a href="../domain-model/database-schema/">Database Schema</a>.</li>
+  <li><strong>Added a “most Users never touch Tenant at all” note to <a href="../domain-model/tenancy/">Tenancy</a></strong> — only an Application <em>owner</em> gets one; the common case (someone who signs up, often through an app itself, purely to use it) never does.</li>
+  <li><strong>Added <a href="../api-reference/conventions/#delete-semantics-hard-vs-soft">Conventions → Delete semantics: hard vs. soft</a>:</strong> a resource-by-resource catalog of what <code class="language-plaintext highlighter-rouge">DELETE</code> actually does — hard, soft, soft-but-irreversible, or no endpoint at all — and what a soft delete generically means (status flips, record retained, excluded from default lists, nothing scrubbed or moved). Building this surfaced that <a href="../api-reference/organizations/">Organizations</a> had no way to actually reach <code class="language-plaintext highlighter-rouge">status: suspended</code> — added <code class="language-plaintext highlighter-rouge">GET</code>/<code class="language-plaintext highlighter-rouge">PATCH /v1/organizations/{id}</code>.</li>
+  <li><strong>Elaborated <a href="../api-reference/conventions/#errors">Conventions → Errors</a>:</strong> fixed the illustrative example (<code class="language-plaintext highlighter-rouge">entitlement_not_active</code>, which no page actually defines) to a real code (<code class="language-plaintext highlighter-rouge">entitlement_required</code>); added an explicit HTTP-status-to-error-class mapping table and the <code class="language-plaintext highlighter-rouge">409</code>-vs-<code class="language-plaintext highlighter-rouge">422</code> distinction, for implementation; clarified there’s no single global error-code catalog — each resource’s own table is authoritative, the same pattern <a href="../domain-model/orders-and-audit/#action-catalog">Orders &amp; Audit</a> already uses for <code class="language-plaintext highlighter-rouge">action</code> values.</li>
+  <li><strong>Fixed <a href="../mcp-server/">MCP Server</a>’s hardcoded operation count</strong> (“all 55 operations”) — already stale (56+ since this was written), and guaranteed to drift again. Reworded to not state a number at all.</li>
+  <li><strong>Fixed <a href="../domain-model/">Domain Model</a>’s “Ten entities” framing</strong> — added a Supporting entities table listing <code class="language-plaintext highlighter-rouge">UserIdentity</code>, <code class="language-plaintext highlighter-rouge">SSOConnection</code>, <code class="language-plaintext highlighter-rouge">OrganizationMembership</code>, and <code class="language-plaintext highlighter-rouge">UserRoleAssignment</code>, which the original count silently omitted.</li>
+  <li><strong>Moved the original single-document draft</strong> from <code class="language-plaintext highlighter-rouge">docs/specs/Substratal-Hub-Access-API.md</code> to root <a href="https://github.com/Adron/substratalapps.com/blob/main/ORIGINAL-SPEC-DRAFT.md"><code class="language-plaintext highlighter-rouge">ORIGINAL-SPEC-DRAFT.md</code></a>, with a superseded banner — it contradicts several current decisions structurally (no Tenant concept, single-method auth) and sitting inside <code class="language-plaintext highlighter-rouge">docs/</code> risked it being mistaken for current spec despite being excluded from the build.</li>
+  <li><strong>Updated root <a href="https://github.com/Adron/substratalapps.com/blob/main/README.md"><code class="language-plaintext highlighter-rouge">README.md</code></a> and <a href="https://github.com/Adron/substratalapps.com/blob/main/PLAN.md"><code class="language-plaintext highlighter-rouge">PLAN.md</code></a></strong>, both of which had gone stale against decisions resolved in the prior round: README’s Status section still named Decision #1 as the one open item (all 15 are resolved); PLAN’s Phase 3 section still described the Application review process as unspecified (fully specified by Decision #9).</li>
+</ul>
+<h2 id="2026-10-04">
+  
+  
+    <a href="#2026-10-04" class="anchor-heading" aria-labelledby="2026-10-04"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2026-10-04
+  
+  
+</h2>
+    
+
+<ul>
+  <li>Added <a href="../api-reference/api-keys/">API Keys</a> as its own resource — service-to-service credentials were referenced throughout (Conventions, NFR, Trust Model) but never actually specified.</li>
+  <li>Added a global <code class="language-plaintext highlighter-rouge">GET /v1/entitlements</code> (admin/support, filterable) alongside the existing per-user list — there was no way to answer “who currently has app X enabled” without it.</li>
+  <li>Added a canonical <a href="../domain-model/roles-and-permissions/#platform-permission-catalog">Platform permission catalog</a> and <a href="../domain-model/roles-and-permissions/#platform-role-grants">Platform role grants</a> table, and added an explicit <code class="language-plaintext highlighter-rouge">Requires: &lt;permission&gt;</code> line to every endpoint that was missing one.</li>
+  <li>Added a canonical <a href="../domain-model/orders-and-audit/#action-catalog">Audit Event action catalog</a>.</li>
+  <li>Filled in previously-deferred numbers: rate limits, the idempotency-key TTL (24h), and the version-deprecation window (6 months) — see <a href="../non-functional-requirements/">Non-Functional Requirements</a>.</li>
+  <li>Added the <code class="language-plaintext highlighter-rouge">me</code> self-addressing convention and a credential-vs-resource-ID distinction to <a href="../api-reference/conventions/">Conventions</a>.</li>
+  <li>Added <a href="../quickstart/">Quickstart</a> (a runnable walkthrough) and this Changelog.</li>
+  <li>Fixed: the Audit endpoint’s documented filter name (<code class="language-plaintext highlighter-rouge">user_id</code> → <code class="language-plaintext highlighter-rouge">target_user_id</code>) didn’t match its own example.</li>
+  <li>Added <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a>: first-deployment and scale-out plans on AWS, replacing an earlier Vercel-based plan, designed around predictable, capped cost rather than deploy-and-see.</li>
+  <li><strong>Reframed the product.</strong> Substratal Apps is the user/organization/tenancy/settings/storage API layer an app developer builds on — not a storefront a customer browses. See <a href="../">Home</a> and <a href="../#what-substratal-apps-actually-is">What Substratal Apps actually is</a>. Every page that described the platform as “the hub a customer lands on to reach apps they purchased” was describing the eventual onboarding UI, not the API’s own purpose.</li>
+  <li>Added <code class="language-plaintext highlighter-rouge">owner_user_id</code>/<code class="language-plaintext highlighter-rouge">owner_organization_id</code> and <code class="language-plaintext highlighter-rouge">review_status</code> to <a href="../domain-model/applications/">Application</a> — a real gap once outside developers can register their own apps: there was no concept of who owns an Application’s catalog entry, only platform-admin control. <a href="../api-reference/applications/">API Reference → Applications</a> now distinguishes an owner’s self-service rights from platform moderation.</li>
+  <li>Added <a href="../trust-model/#trust-runs-the-other-direction-too">Trust Model → Trust runs the other direction too</a>: the existing API Key scoping and webhook signing already made third-party apps safe to onboard later — now stated explicitly instead of left implicit.</li>
+  <li>Resolved Decisions #2 (<a href="../domain-model/users-and-organizations/#organization">Organizations</a>) and #4 (<a href="../domain-model/orders-and-audit/#billing-system-of-record">Billing system of record</a>) based on product clarification: both individual and team end users are expected (Organizations pulled forward to <a href="../roadmap/#phase-2">Phase 2</a>), and each Application’s developer owns their own billing relationship — Substratal Apps was never going to be a payment processor. Added three new open decisions: #8 Storage primitive scope (now <a href="../domain-model/database-schema/#typed-fields-per-application-views-and-expression-indexes">Database Schema → Typed fields</a>), #9 App developer/publisher model (now <a href="../domain-model/applications/#the-review-lifecycle">Applications → The review lifecycle</a>), #10 Compliance scope (now <a href="../compliance/">Compliance</a>).</li>
+  <li>Added <a href="../compliance/">Compliance &amp; Data Protection</a>: a calibrated recommendation on SOC 2 (design the posture now, defer the formal audit), GDPR/CCPA (not optional, build for it now), and HIPAA (don’t build for it speculatively — it’s a function of which apps join the platform, not the core product).</li>
+  <li>Added <a href="../domain-model/database-schema/">Database Schema</a>: Postgres types, constraints, and indexes for every entity — the implementer-facing counterpart to the API-caller-facing field tables.</li>
+  <li>Added implementer-readiness gaps across <a href="../non-functional-requirements/">Non-Functional Requirements</a> (concurrency control via <code class="language-plaintext highlighter-rouge">ETag</code>/<code class="language-plaintext highlighter-rouge">If-Match</code>, transaction boundaries, the concrete Postgres Row-Level Security multi-tenancy mechanism, enum forward-compatibility policy, request tracing, testing strategy) and <a href="../api-reference/conventions/">Conventions</a> (test-vs-live API keys, multi-field validation error shape, default exclusion of soft-deleted/terminal records from lists, idempotency-key storage detail).</li>
+  <li>Added <a href="../api-reference/webhooks/#verifying-the-signature">Webhooks → Verifying the signature</a>: the concrete <code class="language-plaintext highlighter-rouge">Substratal-Signature: t=…,v1=…</code> header format and replay-window guidance — “HMAC-SHA256 over the raw body” wasn’t enough to actually implement against.</li>
+  <li>Added <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Local development</a> (the RDS Data API choice has no clean local emulator — addressed via a repository-pattern seam, not by changing the AWS choice) and <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">→ Growth trajectory</a> (the stated dozens → 10x → 100x plan mapped against Tier 0 and the Scale-out triggers).</li>
+  <li><strong>Added <a href="../domain-model/tenancy/">Tenant</a></strong>: the infrastructure-placement and data-isolation entity “tenancy” named in the product pitch but previously unspecified. Tied to the subscription — the owner of an Application’s catalog entry (<code class="language-plaintext highlighter-rouge">owner_user_id</code>/<code class="language-plaintext highlighter-rouge">owner_organization_id</code>), not to Organization, which stays a pure grouping/domain object with no infrastructure meaning. Three tiers (<code class="language-plaintext highlighter-rouge">shared</code> default, <code class="language-plaintext highlighter-rouge">isolated</code>, <code class="language-plaintext highlighter-rouge">dedicated_region</code>), support-gated tier changes via <code class="language-plaintext highlighter-rouge">tenants.manage</code> and <code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code>, a scheduled-downtime migration process, and deliberately no reach into a downstream Application’s own infrastructure. See <a href="../domain-model/tenancy/#tenant-vs-organization">Decisions #11</a> and <a href="../domain-model/tenancy/#how-a-tier-change-happens-today">#12</a>, <a href="../api-reference/tenancy/">API Reference → Tenancy</a>, <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Tenancy tiers</a>, and the new <code class="language-plaintext highlighter-rouge">tenants</code>/<code class="language-plaintext highlighter-rouge">organization_memberships</code> tables in <a href="../domain-model/database-schema/">Database Schema</a>. Directly resolves <a href="../compliance/#gdpr-and-ccpa--build-for-it-now">Compliance</a>’s previously-open data-residency gap.</li>
+  <li><strong>Replaced <code class="language-plaintext highlighter-rouge">User.organization_id</code> with <a href="../domain-model/users-and-organizations/#organizationmembership">OrganizationMembership</a></strong>, a many-to-many join — a User can belong to more than one Organization at once (even across different Tenants), which a single column couldn’t express. Carries <code class="language-plaintext highlighter-rouge">role: org_admin | member</code>, which also resolves <a href="../api-reference/organizations/#delegated-admin">Organizations → Delegated admin</a>’s previously-unresolved question: an org admin is this field, not a third Role scope.</li>
+  <li><strong>Added <code class="language-plaintext highlighter-rouge">member_scope</code>/<code class="language-plaintext highlighter-rouge">member_overrides</code> to org-wide Entitlements</strong> and resolved Decision #13: an Organization’s own grant is authoritative over its own members (an <code class="language-plaintext highlighter-rouge">allowlist</code>/<code class="language-plaintext highlighter-rouge">denylist</code> an org admin controls), but never reaches into a member’s separate, personally-sourced Entitlement to the same app. <a href="../access-control/#organization-vs-user-precedence">Access Control → Organization vs. User precedence</a> has the formal resolution rule and a worked multi-org example; <a href="../domain-model/entitlements/#attribution">Entitlements → Attribution</a> shows the <code class="language-plaintext highlighter-rouge">granted_via</code> shape that surfaces which Organization is responsible for a given member’s resolved access.</li>
+  <li><strong>Resolved Decision #8:</strong> storage stays Postgres <code class="language-plaintext highlighter-rouge">jsonb</code> as the source of truth, with a Postgres <a href="../domain-model/database-schema/#typed-fields-per-application-views-and-expression-indexes">generated column</a> backing every field an Application has declared in its <code class="language-plaintext highlighter-rouge">settings_schema</code> — typed and indexed, without giving up the blob’s flexibility for undeclared fields.</li>
+  <li>Added <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Database engine: AWS options compared</a>: RDS vs. Aurora Provisioned vs. Aurora Serverless v2, evaluated for lowest starting price. Aurora Serverless v2 stays the pick — not the cheapest floor in isolation (~$30/month more than bare RDS), but the only option that keeps one connection mechanism across every <a href="../domain-model/tenancy/">Tenancy</a> tier and avoids a VPC/NAT Gateway entirely; the comparison and the reasoning are now explicit rather than asserted.</li>
+  <li>
+    <p><strong>Added <a href="../mcp-server/">MCP Server</a></strong>: a Model Context Protocol server letting an AI agent call the Platform API as typed tools instead of hand-rolled HTTP calls. Introduces no new authorization model — every tool call forwards the caller’s own Bearer credential (user token or <a href="../api-reference/api-keys/">API Key</a>) into the same REST call and the same <a href="../access-control/">Access Control</a> check. The tool list is generated from <code class="language-plaintext highlighter-rouge">openapi.yaml</code>’s <code class="language-plaintext highlighter-rouge">operationId</code>s rather than hand-authored, so it tracks the REST API automatically — see <a href="../roadmap/#the-mcp-server-tracks-the-rest-api-automatically">Roadmap → The MCP server tracks the REST API automatically</a>. Added <code class="language-plaintext highlighter-rouge">operationId</code> to all 55 operations in <a href="../openapi.yaml">openapi.yaml</a> (none had one before) specifically so this generation scheme is buildable today, not aspirational. <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → MCP server</a> specifies the AWS build-out: a second, dedicated Lambda behind the existing API Gateway at <code class="language-plaintext highlighter-rouge">/mcp</code> (no new domain, no VPC, no database — fully stateless at Tier 0), with named scale-out triggers (Provisioned Concurrency, a Lambda Function URL with streaming responses for server-push/resumability, a small DynamoDB table if session state ever outgrows a signed token). Added <a href="../api-reference/api-keys/#agent-keys--restrict_destructive">Decision #14</a>, still open: whether agent callers should get a recommended (or eventually required) narrower API Key scoping convention, given an LLM’s tool-call decision is a different risk shape from deterministic service code.</p>
+  </li>
+  <li><strong>Added <a href="../pricing/">Pricing</a></strong>: three subscription tiers for what Substratal itself charges the Application-owner developer (Starter free, Team per-seat, Enterprise with a choice of <a href="../domain-model/tenancy/">Tenant</a> <code class="language-plaintext highlighter-rouge">tier</code> as a priced option — <code class="language-plaintext highlighter-rouge">shared</code> included, <code class="language-plaintext highlighter-rouge">isolated</code> +$750/month, <code class="language-plaintext highlighter-rouge">dedicated_region</code> +$1,500/month) — distinct from what that developer charges their own end users, per <a href="../domain-model/orders-and-audit/#billing-system-of-record">Decision #4</a>. Added <code class="language-plaintext highlighter-rouge">plan</code> (<code class="language-plaintext highlighter-rouge">starter</code>|<code class="language-plaintext highlighter-rouge">team</code>|<code class="language-plaintext highlighter-rouge">enterprise</code>) to <a href="../domain-model/tenancy/#fields">Tenant</a>, independent of <code class="language-plaintext highlighter-rouge">tier</code>, with a database constraint tying <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> to <code class="language-plaintext highlighter-rouge">enterprise</code> only. Added <a href="../pricing/#how-the-subscription-is-charged">Decision #15</a>: how Substratal bills this subscription is still open (leans Stripe Billing), with no corresponding API surface built yet. Cites the AWS Pricing, Billing and Cost Management, and Postgres MCP servers as the tooling to keep these numbers grounded in real infrastructure cost over time.</li>
+</ul>
+<h2 id="2026-10-03">
+  
+  
+    <a href="#2026-10-03" class="anchor-heading" aria-labelledby="2026-10-03"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2026-10-03
+  
+  
+</h2>
+    
+
+<ul>
+  <li>Initial publication: domain model, access control, full API reference, workflows, trust model, non-functional requirements, roadmap, open decisions, and glossary — elaborated from the original single-document draft at <code class="language-plaintext highlighter-rouge">docs/specs/Substratal-Hub-Access-API.md</code> into this site.</li>
+</ul>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 1.1.1
+  released: '2026-10-05'
+  commit: 2463e570ce66a1f618c181d6b257895dc0abc2eb
+  summary: Use obviously fake example webhook signing secrets
 - version: 1.1.0
   released: '2026-10-05'
   commit: 78a87244a3028d3ae7dfc920a88c875e983d21dd

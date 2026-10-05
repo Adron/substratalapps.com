@@ -1,0 +1,511 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.1/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.1.1/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(7)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(7) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(7) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(7) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.1.1/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.1.1/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Workflows | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Workflows" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.1.1/workflows/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.1.1/workflows/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Workflows" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Workflows","url":"https://adron.github.io/substratalapps.com/versions/1.1.1/workflows/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.1.1/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.1/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.1.1/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.1.1/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-05">v1.1.1 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="workflows">
+  
+  
+    <a href="#workflows" class="anchor-heading" aria-labelledby="workflows"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Workflows
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">End-to-end sequences across the resources in the <a href="../api-reference/">API Reference</a>. If you’re adding a feature, check here first. It’s probably a step inside one of these, not a new flow.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#end-user-signs-up-inside-an-app-embedded-login" id="markdown-toc-end-user-signs-up-inside-an-app-embedded-login">End user signs up inside an app (embedded login)</a></li>
+  <li><a href="#purchase--access" id="markdown-toc-purchase--access">Purchase → access</a></li>
+  <li><a href="#admin-turns-an-app-off-for-a-user" id="markdown-toc-admin-turns-an-app-off-for-a-user">Admin turns an app off for a user</a></li>
+  <li><a href="#user-is-suspended" id="markdown-toc-user-is-suspended">User is suspended</a></li>
+  <li><a href="#role-change" id="markdown-toc-role-change">Role change</a></li>
+  <li><a href="#new-user-first-app" id="markdown-toc-new-user-first-app">New user, first app</a></li>
+  <li><a href="#team-purchase-org-wide-grant" id="markdown-toc-team-purchase-org-wide-grant">Team purchase (org-wide grant)</a></li>
+  <li><a href="#an-org-admin-narrows-who-an-org-wide-grant-reaches" id="markdown-toc-an-org-admin-narrows-who-an-org-wide-grant-reaches">An org admin narrows who an org-wide grant reaches</a></li>
+  <li><a href="#developer-upgrades-their-own-plan-starter--team" id="markdown-toc-developer-upgrades-their-own-plan-starter--team">Developer upgrades their own plan (Starter → Team)</a></li>
+  <li><a href="#a-customer-needs-dedicated-or-regional-infrastructure" id="markdown-toc-a-customer-needs-dedicated-or-regional-infrastructure">A customer needs dedicated or regional infrastructure</a></li>
+  <li><a href="#user-asks-for-their-data-then-for-erasure" id="markdown-toc-user-asks-for-their-data-then-for-erasure">User asks for their data, then for erasure</a></li>
+  <li><a href="#settings-resolution-in-practice" id="markdown-toc-settings-resolution-in-practice">Settings resolution, in practice</a></li>
+</ol><hr />
+<h2 id="end-user-signs-up-inside-an-app-embedded-login">
+  
+  
+    <a href="#end-user-signs-up-inside-an-app-embedded-login" class="anchor-heading" aria-labelledby="end-user-signs-up-inside-an-app-embedded-login"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> End user signs up inside an app (embedded login)
+  
+  
+</h2>
+    
+
+<p>The common first-contact path: someone downloads a developer’s app and creates an account from inside it.</p>
+
+<pre><code class="language-mermaid">sequenceDiagram
+    participant User
+    participant App as Application (client)
+    participant Backend as Application backend
+    participant Hub as Substratal API
+
+    User-&gt;&gt;App: email + password
+    App-&gt;&gt;Hub: POST /v1/auth/signup {email, password, application_id}
+    Hub--&gt;&gt;App: 201 AuthSession (email_verified=false)
+    Hub--&gt;&gt;User: verification email
+    App-&gt;&gt;Backend: "new user usr_…" (developer's own call)
+    Backend-&gt;&gt;Hub: POST /v1/users/{id}/entitlements {source: trial, ends_at} (app key)
+    Hub--&gt;&gt;Backend: 201 Entitlement (active)
+    App-&gt;&gt;Hub: POST /v1/auth/app-tokens {application_id}
+    Hub--&gt;&gt;App: app_token (aud=app, effective_permissions)
+</code></pre>
+
+<ol>
+  <li>The app calls <a href="../api-reference/auth/#post-v1authsignup"><code class="language-plaintext highlighter-rouge">POST /v1/auth/signup</code></a>. The User, Profile, Settings, and <code class="language-plaintext highlighter-rouge">member</code> Role are created in one transaction, and the app gets a session immediately.</li>
+  <li>Signup grants nothing. <strong>The developer decides</strong> whether this user gets the app: free tier, trial, or nothing until they pay. Their backend grants an <a href="../api-reference/entitlements/#post-v1usersidentitlements">Entitlement</a> with its app-scoped <a href="../api-reference/api-keys/#app-confined-permissions">API Key</a>.</li>
+  <li>The app exchanges the platform session for an <a href="../api-reference/auth/#post-v1authapp-tokens">app token</a> and verifies it locally from then on. The user’s <a href="../api-reference/profiles/">AppProfile</a> and <a href="../api-reference/settings/">AppSettings</a> read as defaults until the app first writes them.</li>
+</ol>
+<h2 id="purchase--access">
+  
+  
+    <a href="#purchase--access" class="anchor-heading" aria-labelledby="purchase--access"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Purchase → access
+  
+  
+</h2>
+    
+
+<p>Someone pays the <em>developer</em> for their app. Substratal never sees the payment; the developer’s backend reflects the outcome.</p>
+
+<pre><code class="language-mermaid">sequenceDiagram
+    participant User
+    participant Billing as Developer's billing (e.g. their Stripe)
+    participant Backend as Application backend
+    participant Hub as Substratal API
+    participant App as Application (client)
+
+    User-&gt;&gt;Billing: pays
+    Billing-&gt;&gt;Backend: payment succeeded (developer's own webhook)
+    Backend-&gt;&gt;Hub: POST /v1/users/{id}/entitlements {source: purchase, order_id: sub_…}&lt;br/&gt;Idempotency-Key: &lt;billing event id&gt; (app key)
+    Hub-&gt;&gt;Hub: insert Entitlement(active) + Audit Event + outbox events, one transaction
+    Hub--&gt;&gt;Backend: 201 (or 409 entitlement_already_exists → PATCH the existing one)
+    Hub--&gt;&gt;Backend: webhook access.granted
+    App-&gt;&gt;Hub: POST /v1/auth/app-tokens (or oauth/token refresh)
+    Hub--&gt;&gt;App: app_token, entitlement_status=active
+</code></pre>
+
+<ol>
+  <li>The developer’s own billing system (see <a href="../domain-model/orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a>) tells the developer’s backend that a payment succeeded.</li>
+  <li>The backend calls <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/entitlements</code> with <code class="language-plaintext highlighter-rouge">source: purchase</code>, its own subscription id as <code class="language-plaintext highlighter-rouge">order_id</code>, and its billing event id as the <code class="language-plaintext highlighter-rouge">Idempotency-Key</code>. A retried billing event can never double-grant.
+    <ul>
+      <li>If the user already holds a <code class="language-plaintext highlighter-rouge">trial</code>, the backend <code class="language-plaintext highlighter-rouge">PATCH</code>es it instead: <code class="language-plaintext highlighter-rouge">{"source": "purchase", "order_id": "sub_…", "ends_at": null}</code>.</li>
+      <li>If the user holds a <code class="language-plaintext highlighter-rouge">disabled</code> row, the backend sets it back to <code class="language-plaintext highlighter-rouge">active</code>.</li>
+    </ul>
+  </li>
+  <li>The Entitlement, its Audit Event, and its webhook events commit together. <code class="language-plaintext highlighter-rouge">entitlement.granted</code> and <code class="language-plaintext highlighter-rouge">access.granted</code> go to the app’s subscriptions.</li>
+  <li>The next app token or introspection call reflects <code class="language-plaintext highlighter-rouge">active</code>.</li>
+</ol>
+
+<p><strong>Reverse direction:</strong> a refund or a lapsed subscription on the developer’s side becomes <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> <code class="language-plaintext highlighter-rouge">{"status": "revoked", "disabled_reason": "refunded"}</code>. A lapse at period end can also be modeled up front by setting <code class="language-plaintext highlighter-rouge">ends_at</code>, in which case the hub expires it automatically. Find the row with <code class="language-plaintext highlighter-rouge">GET /v1/entitlements?order_id=sub_…</code>.</p>
+<h2 id="admin-turns-an-app-off-for-a-user">
+  
+  
+    <a href="#admin-turns-an-app-off-for-a-user" class="anchor-heading" aria-labelledby="admin-turns-an-app-off-for-a-user"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Admin turns an app off for a user
+  
+  
+</h2>
+    
+
+<p>The “kill switch”: a support agent or admin disabling one user’s access to one app, without touching anything else about their account.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> with <code class="language-plaintext highlighter-rouge">{"status": "disabled", "disabled_reason": "..."}</code>, ideally with <code class="language-plaintext highlighter-rouge">If-Match</code>.</li>
+  <li>In one transaction, the hub writes an <a href="../domain-model/orders-and-audit/">Audit Event</a> (<code class="language-plaintext highlighter-rouge">entitlement.disabled</code>, with actor, before/after, and reason) and enqueues webhook events.</li>
+  <li>The hub emits <code class="language-plaintext highlighter-rouge">entitlement.disabled</code> and, if this was the user’s only active path to the app, <code class="language-plaintext highlighter-rouge">access.revoked</code> (reason <code class="language-plaintext highlighter-rouge">entitlement_disabled</code>).</li>
+  <li>The app, subscribed to <code class="language-plaintext highlighter-rouge">access.revoked</code> as it’s <a href="../trust-model/#how-fast-does-revocation-need-to-land">required to be</a>, force-expires the user’s local session immediately. The app token’s 5-minute TTL is only the backstop.</li>
+  <li>Nothing about the user’s Role assignments, Profile, or Settings for that app changes. Re-enabling (<code class="language-plaintext highlighter-rouge">{"status": "active"}</code>) restores exactly what was there before, and fires <code class="language-plaintext highlighter-rouge">access.granted</code>.</li>
+</ol>
+<h2 id="user-is-suspended">
+  
+  
+    <a href="#user-is-suspended" class="anchor-heading" aria-labelledby="user-is-suspended"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> User is suspended
+  
+  
+</h2>
+    
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/suspend</code> (<code class="language-plaintext highlighter-rouge">users.manage</code>).</li>
+  <li>Every hub session is revoked. Platform tokens stop working on their next request, and refresh fails.</li>
+  <li><code class="language-plaintext highlighter-rouge">access.revoked</code> (reason <code class="language-plaintext highlighter-rouge">user_suspended</code>) fires for <strong>every</strong> Application the user had active access to, and <code class="language-plaintext highlighter-rouge">user.suspended</code> fires to subscribers.</li>
+  <li>Entitlements are untouched. <code class="language-plaintext highlighter-rouge">PATCH {"status": "active"}</code> reactivates the user and fires <code class="language-plaintext highlighter-rouge">access.granted</code> for each app they still have.</li>
+</ol>
+<h2 id="role-change">
+  
+  
+    <a href="#role-change" class="anchor-heading" aria-labelledby="role-change"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Role change
+  
+  
+</h2>
+    
+
+<ol>
+  <li>An admin, the app’s owner, or the app’s own key calls <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/roles/{roleId}</code> (assign) or <code class="language-plaintext highlighter-rouge">DELETE</code> (remove).</li>
+  <li><code class="language-plaintext highlighter-rouge">effective_permissions</code> for that user and that app changes immediately on the hub side.</li>
+  <li>The hub emits <code class="language-plaintext highlighter-rouge">role.assigned</code> / <code class="language-plaintext highlighter-rouge">role.removed</code>.</li>
+  <li>Downstream, an assignment is picked up at the next app token (at most 5 minutes) or introspection call. A <strong>removal</strong> must take effect immediately: <code class="language-plaintext highlighter-rouge">role.removed</code> is part of the required subscription set, and the app should drop the permission from the live session as soon as it arrives.</li>
+</ol>
+<h2 id="new-user-first-app">
+  
+  
+    <a href="#new-user-first-app" class="anchor-heading" aria-labelledby="new-user-first-app"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> New user, first app
+  
+  
+</h2>
+    
+
+<ol>
+  <li>An admin provisions the user: <code class="language-plaintext highlighter-rouge">POST /v1/users</code> creates the account (<code class="language-plaintext highlighter-rouge">invited</code> by default). A default Profile and Settings are created, the <code class="language-plaintext highlighter-rouge">member</code> platform Role is assigned, and an invitation email is sent.</li>
+  <li>An admin or the developer’s backend grants an Entitlement (<code class="language-plaintext highlighter-rouge">admin_grant</code>, <code class="language-plaintext highlighter-rouge">trial</code>, or <code class="language-plaintext highlighter-rouge">purchase</code>). This is allowed while the user is still <code class="language-plaintext highlighter-rouge">invited</code>, and access starts once they activate.</li>
+  <li>The user accepts the invitation (<a href="../api-reference/auth/#post-v1authinvitationsaccept"><code class="language-plaintext highlighter-rouge">POST /v1/auth/invitations/accept</code></a>), setting a password, and is signed in.</li>
+  <li>The first time the app reads the user’s AppProfile or AppSettings, it gets defaults. The first write creates the row. There’s no “provision this user in this app” step to orchestrate.</li>
+</ol>
+<h2 id="team-purchase-org-wide-grant">
+  
+  
+    <a href="#team-purchase-org-wide-grant" class="anchor-heading" aria-labelledby="team-purchase-org-wide-grant"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Team purchase (org-wide grant)
+  
+  
+</h2>
+    
+
+<ol>
+  <li>A customer creates an <a href="../api-reference/organizations/#post-v1organizations">Organization</a> (self-service) and invites members.</li>
+  <li>The customer pays the developer for a team plan. The developer’s backend calls <code class="language-plaintext highlighter-rouge">POST /v1/organizations/{id}/entitlements</code> with its app key: <code class="language-plaintext highlighter-rouge">order_id</code>, and optionally <code class="language-plaintext highlighter-rouge">member_scope</code>.</li>
+  <li>Every included member gets access. <code class="language-plaintext highlighter-rouge">access.granted</code> fires once per member. New members added later are included automatically under <code class="language-plaintext highlighter-rouge">all_members</code>/<code class="language-plaintext highlighter-rouge">denylist</code>.</li>
+  <li>Seat changes on the customer’s side need no API call unless the developer limits seats with <code class="language-plaintext highlighter-rouge">member_scope: allowlist</code>. Billing per member is the developer’s business; each included member counts as one <em>Substratal</em> seat for the developer’s own plan (see <a href="../pricing/#what-seat-means-here">Pricing</a>).</li>
+</ol>
+<h2 id="an-org-admin-narrows-who-an-org-wide-grant-reaches">
+  
+  
+    <a href="#an-org-admin-narrows-who-an-org-wide-grant-reaches" class="anchor-heading" aria-labelledby="an-org-admin-narrows-who-an-org-wide-grant-reaches"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> An org admin narrows who an org-wide grant reaches
+  
+  
+</h2>
+    
+
+<ol>
+  <li>An org admin (<code class="language-plaintext highlighter-rouge">OrganizationMembership.role: org_admin</code>) calls <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> on their Organization’s <code class="language-plaintext highlighter-rouge">org_seat</code> Entitlement, setting <code class="language-plaintext highlighter-rouge">member_scope: allowlist</code> or <code class="language-plaintext highlighter-rouge">denylist</code> and <code class="language-plaintext highlighter-rouge">member_overrides</code>.</li>
+  <li>The hub writes an <a href="../domain-model/orders-and-audit/#audit-event">Audit Event</a> (<code class="language-plaintext highlighter-rouge">entitlement.member_scope_changed</code>). It’s not <code class="language-plaintext highlighter-rouge">entitlement.disabled</code>/<code class="language-plaintext highlighter-rouge">entitlement.granted</code>, since the grant’s own <code class="language-plaintext highlighter-rouge">status</code> didn’t change.</li>
+  <li>Every affected member’s resolved access is recomputed. Nothing is backfilled, because there’s no per-member row to update. <code class="language-plaintext highlighter-rouge">access.revoked</code> (reason <code class="language-plaintext highlighter-rouge">org_grant_changed</code>) fires for each member who lost their only path, and <code class="language-plaintext highlighter-rouge">access.granted</code> for each who gained one. A member excluded this way keeps any separate, personally-sourced Entitlement to the same app. See <a href="../access-control/#organization-vs-user-precedence">Access Control → Organization vs. User precedence</a>.</li>
+</ol>
+<h2 id="developer-upgrades-their-own-plan-starter--team">
+  
+  
+    <a href="#developer-upgrades-their-own-plan-starter--team" class="anchor-heading" aria-labelledby="developer-upgrades-their-own-plan-starter--team"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Developer upgrades their own plan (Starter → Team)
+  
+  
+</h2>
+    
+
+<ol>
+  <li>The Application owner calls <a href="../api-reference/billing/#post-v1tenantsidbillingcheckout-sessions"><code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/billing/checkout-sessions</code></a> with <code class="language-plaintext highlighter-rouge">plan: team</code> and is sent to Stripe Checkout.</li>
+  <li>They pay. Stripe sends <code class="language-plaintext highlighter-rouge">checkout.session.completed</code> and <code class="language-plaintext highlighter-rouge">customer.subscription.created</code> to the hub’s Stripe webhook.</li>
+  <li>The hub sets <code class="language-plaintext highlighter-rouge">plan: team</code> and <code class="language-plaintext highlighter-rouge">subscription_status: active</code> on the Tenant and writes <code class="language-plaintext highlighter-rouge">tenant.plan_changed</code>. Limits rise immediately.</li>
+  <li>The owner’s client polls <code class="language-plaintext highlighter-rouge">GET /v1/tenants/{id}/subscription</code> until <code class="language-plaintext highlighter-rouge">plan</code> is <code class="language-plaintext highlighter-rouge">team</code>.</li>
+</ol>
+<h2 id="a-customer-needs-dedicated-or-regional-infrastructure">
+  
+  
+    <a href="#a-customer-needs-dedicated-or-regional-infrastructure" class="anchor-heading" aria-labelledby="a-customer-needs-dedicated-or-regional-infrastructure"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> A customer needs dedicated or regional infrastructure
+  
+  
+</h2>
+    
+
+<p>Support-run today. See <a href="../domain-model/tenancy/#how-a-tier-change-happens-today">Tenancy → How a tier change happens today</a> for why this isn’t self-service yet.</p>
+
+<ol>
+  <li>A customer (an Application owner on the Enterprise plan) asks support for dedicated infrastructure, or a specific region for data residency.</li>
+  <li>Support calls <code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code>. See <a href="../api-reference/tenancy/">API Reference → Tenancy</a>.</li>
+  <li>Support agrees a window with the customer and <code class="language-plaintext highlighter-rouge">PATCH</code>es the request to <code class="language-plaintext highlighter-rouge">scheduled</code>. At the window, it <code class="language-plaintext highlighter-rouge">PATCH</code>es to <code class="language-plaintext highlighter-rouge">in_progress</code>, which flips the <a href="../domain-model/tenancy/">Tenant</a>’s <code class="language-plaintext highlighter-rouge">status</code> to <code class="language-plaintext highlighter-rouge">migrating</code> and makes writes return <code class="language-plaintext highlighter-rouge">503</code> with <code class="language-plaintext highlighter-rouge">Retry-After</code>. Then it runs the snapshot/restore cutover described in <a href="https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Tenancy tiers</a>. Every <a href="../domain-model/entitlements/">Entitlement</a>, <a href="../domain-model/profiles/#appprofile">AppProfile</a>, <a href="../domain-model/settings/#appsettings">AppSettings</a>, and Audit Event row carrying that <code class="language-plaintext highlighter-rouge">tenant_id</code> moves to the new infrastructure.</li>
+  <li><code class="language-plaintext highlighter-rouge">PATCH</code> to <code class="language-plaintext highlighter-rouge">completed</code> updates <code class="language-plaintext highlighter-rouge">tier</code>/<code class="language-plaintext highlighter-rouge">region</code> and returns <code class="language-plaintext highlighter-rouge">status</code> to <code class="language-plaintext highlighter-rouge">active</code>, and an <a href="../domain-model/orders-and-audit/#audit-event">Audit Event</a> (<code class="language-plaintext highlighter-rouge">tenant.tier_changed</code>) records it.</li>
+  <li>Nothing about the customer’s Applications, Entitlements, or any end user’s access changes shape. This workflow only ever moves <em>where</em> the same rows live, never <em>what</em> they say.</li>
+</ol>
+<h2 id="user-asks-for-their-data-then-for-erasure">
+  
+  
+    <a href="#user-asks-for-their-data-then-for-erasure" class="anchor-heading" aria-labelledby="user-asks-for-their-data-then-for-erasure"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> User asks for their data, then for erasure
+  
+  
+</h2>
+    
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/users/me/export</code> returns everything as one JSON bundle.</li>
+  <li><code class="language-plaintext highlighter-rouge">POST /v1/users/me/erasure-requests</code> soft-deletes immediately: sessions are revoked, <code class="language-plaintext highlighter-rouge">access.revoked</code> fires everywhere, and the email address is freed.</li>
+  <li>Seven days later, the <a href="../non-functional-requirements/#hard-delete-cascade">hard-delete cascade</a> runs and writes <code class="language-plaintext highlighter-rouge">user.erased</code>.</li>
+</ol>
+<h2 id="settings-resolution-in-practice">
+  
+  
+    <a href="#settings-resolution-in-practice" class="anchor-heading" aria-labelledby="settings-resolution-in-practice"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Settings resolution, in practice
+  
+  
+</h2>
+    
+
+<p>When an app needs a setting’s value for a user (for example, their notification-channel preference), the read order is always:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AppSettings override (this user, this app)
+  → Settings (this user, global) — reserved keys only: locale, timezone, theme, notifications
+    → Application's declared default (the property's JSON Schema `default`)
+</code></pre></div></div>
+
+<p>The hub resolves this server-side. <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/settings</code> returns the fully resolved object, plus where each value came from, so callers never re-implement the fallthrough. See <a href="../domain-model/settings/#resolution-rules">Domain Model → Settings → Resolution rules</a> for the exact algorithm.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
