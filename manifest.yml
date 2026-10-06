@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 1.2.1
+  released: '2026-10-06'
+  commit: e00a8bb5552dcfd1bda990ffdf70c8e41d108a6b
+  summary: 'Merge pull request #1 from Adron/dev'
 - version: 1.2.0
   released: '2026-10-06'
   commit: 8a9e6830ae72c6b8fdcbbf96991498307c4c4062

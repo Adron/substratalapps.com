@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.1/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.1/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    
+    .site-nav > ul.nav-list:first-child > li:not(:nth-child(3)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(3) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(3) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(3) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.1/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.1/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Quickstart | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Quickstart" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.2.1/quickstart/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.2.1/quickstart/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Quickstart" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Quickstart","url":"https://adron.github.io/substratalapps.com/versions/1.2.1/quickstart/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.1/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.1/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.1/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.1/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-06">v1.2.1 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="quickstart">
+  
+  
+    <a href="#quickstart" class="anchor-heading" aria-labelledby="quickstart"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Quickstart
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">A runnable walkthrough: create a user, grant them an app, check their access, then turn it off. Every call here is a real endpoint documented in the <a href="../api-reference/">API Reference</a> — this page just stitches them into one story. <a href="../getting-started/">Getting Started</a> is where to go for orientation; this page is where to go to see it work.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#1-create-a-user" id="markdown-toc-1-create-a-user">1. Create a user</a></li>
+  <li><a href="#2-confirm-they-own-nothing-yet" id="markdown-toc-2-confirm-they-own-nothing-yet">2. Confirm they own nothing yet</a></li>
+  <li><a href="#3-grant-access-to-an-app" id="markdown-toc-3-grant-access-to-an-app">3. Grant access to an app</a></li>
+  <li><a href="#4-check-what-they-can-actually-do" id="markdown-toc-4-check-what-they-can-actually-do">4. Check what they can actually do</a></li>
+  <li><a href="#5-assign-a-role-inside-the-app" id="markdown-toc-5-assign-a-role-inside-the-app">5. Assign a role inside the app</a></li>
+  <li><a href="#6-turn-it-off" id="markdown-toc-6-turn-it-off">6. Turn it off</a></li>
+  <li><a href="#what-this-skipped" id="markdown-toc-what-this-skipped">What this skipped</a></li>
+</ol><hr />
+
+<p>All requests below assume the <a href="../api-reference/conventions/">Conventions</a> base URL and an admin bearer token:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export SUBSTRATAL_API=https://api.substratalapps.com/v1
+export TOKEN=&lt;an access token for a superadmin or support user&gt;
+</code></pre></div></div>
+<h2 id="1-create-a-user">
+  
+  
+    <a href="#1-create-a-user" class="anchor-heading" aria-labelledby="1-create-a-user"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 1. Create a user
+  
+  
+</h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "email": "jordan@example.com", "status": "invited" }'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invited"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>See <a href="../api-reference/users/">Users</a>. A default <a href="../api-reference/profiles/">Profile</a>, <a href="../api-reference/settings/">Settings</a>, and the <code class="language-plaintext highlighter-rouge">member</code> platform role were created alongside this — nothing further to call for those.</p>
+<h2 id="2-confirm-they-own-nothing-yet">
+  
+  
+    <a href="#2-confirm-they-own-nothing-yet" class="anchor-heading" aria-labelledby="2-confirm-they-own-nothing-yet"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 2. Confirm they own nothing yet
+  
+  
+</h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/entitlements"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<h2 id="3-grant-access-to-an-app">
+  
+  
+    <a href="#3-grant-access-to-an-app" class="anchor-heading" aria-labelledby="3-grant-access-to-an-app"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 3. Grant access to an app
+  
+  
+</h2>
+    
+
+<p>In production, the Application developer’s own backend does this with its app-scoped API Key after its own billing confirms a payment (see <a href="../workflows/#purchase--access">Workflows → Purchase → access</a>). Here, we grant directly, the way an admin comp or early-access grant would:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/entitlements"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Idempotency-Key: </span><span class="si">$(</span>uuidgen<span class="si">)</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "application_id": "app_timetrack", "source": "admin_grant" }'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ent_01JAGA1B2C3D4E5F6G7H8J9K01"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin_grant"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>See <a href="../api-reference/entitlements/">Entitlements</a>. <code class="language-plaintext highlighter-rouge">status: active</code> is the whole point — this is the on/off switch, and it’s now on.</p>
+<h2 id="4-check-what-they-can-actually-do">
+  
+  
+    <a href="#4-check-what-they-can-actually-do" class="anchor-heading" aria-labelledby="4-check-what-they-can-actually-do"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 4. Check what they can actually do
+  
+  
+</h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/apps/app_timetrack/effective-permissions"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"allowed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invited"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"entitlement_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_paths"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin_grant"</span><span class="p">,</span><span class="w"> </span><span class="nl">"entitlement_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ent_01JAGA1B2C3D4E5F6G7H8J9K01"</span><span class="p">,</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"effective_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"computed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T12:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">allowed</code> is still <code class="language-plaintext highlighter-rouge">false</code>: the user is <code class="language-plaintext highlighter-rouge">invited</code>, and access requires an <em>active</em> user. Activate them so the rest of the walkthrough works (outside a quickstart, they’d accept the emailed invitation instead):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> PATCH <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "status": "active" }'</span>
+</code></pre></div></div>
+
+<p>Check again: <code class="language-plaintext highlighter-rouge">allowed: true</code>, <code class="language-plaintext highlighter-rouge">entitlement_status: "active"</code>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">effective_permissions</code> is still empty, because no <a href="../api-reference/roles-and-permissions/">Role</a> has been assigned yet (and <code class="language-plaintext highlighter-rouge">app_timetrack</code> here has no <code class="language-plaintext highlighter-rouge">default_app_role</code>) — owning an app and having a role inside it are different axes. See <a href="../access-control/">Access Control</a>.</p>
+<h2 id="5-assign-a-role-inside-the-app">
+  
+  
+    <a href="#5-assign-a-role-inside-the-app" class="anchor-heading" aria-labelledby="5-assign-a-role-inside-the-app"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 5. Assign a role inside the app
+  
+  
+</h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/roles/role_timetrack_admin"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<p>Repeat step 4 and <code class="language-plaintext highlighter-rouge">effective_permissions</code> now includes whatever <code class="language-plaintext highlighter-rouge">role_timetrack_admin</code> grants (e.g. <code class="language-plaintext highlighter-rouge">app.timetrack.export</code>).</p>
+<h2 id="6-turn-it-off">
+  
+  
+    <a href="#6-turn-it-off" class="anchor-heading" aria-labelledby="6-turn-it-off"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> 6. Turn it off
+  
+  
+</h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> PATCH <span class="s2">"</span><span class="nv">$SUBSTRATAL_API</span><span class="s2">/entitlements/ent_01JAGA1B2C3D4E5F6G7H8J9K01"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{ "status": "disabled", "disabled_reason": "quickstart_demo" }'</span>
+</code></pre></div></div>
+
+<p>Repeat step 4 again: <code class="language-plaintext highlighter-rouge">allowed</code> is <code class="language-plaintext highlighter-rouge">false</code>, <code class="language-plaintext highlighter-rouge">entitlement_status</code> is now <code class="language-plaintext highlighter-rouge">disabled</code>, and <code class="language-plaintext highlighter-rouge">effective_permissions</code> is back to <code class="language-plaintext highlighter-rouge">[]</code> — the Role assignment from step 5 is still there underneath, untouched, ready the moment the entitlement is re-enabled. See <a href="../workflows/#admin-turns-an-app-off-for-a-user">Workflows → Admin turns an app off for a user</a>.</p>
+<h2 id="what-this-skipped">
+  
+  
+    <a href="#what-this-skipped" class="anchor-heading" aria-labelledby="what-this-skipped"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What this skipped
+  
+  
+</h2>
+    
+
+<p>Login/token issuance (<a href="../api-reference/auth/">Auth</a>), the app-launch JWT and introspection that a <em>downstream app</em> calls rather than an admin (<a href="../trust-model/">Trust Model</a>), and webhook delivery (<a href="../api-reference/webhooks/">Webhooks</a>) — all real, all documented, just not needed to see the core access model work end to end.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

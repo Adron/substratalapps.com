@@ -1,0 +1,3152 @@
+openapi: 3.1.0
+info:
+  title: Substratal Apps — Platform API
+  version: "1.0.0-draft.2"
+  summary: >-
+    User accounts, auth, roles, per-app entitlements (the on/off access
+    switch), profiles, settings, organizations, tenancy, and platform billing
+    for applications built on Substratal Apps. Target contract for an API
+    that is not yet implemented; the prose specification is authoritative.
+  description: >-
+    Full documentation: https://adron.github.io/substratalapps.com/ — read
+    /api-reference/conventions/ first (IDs, pagination, PATCH semantics,
+    ETag/If-Match, idempotency, error shape).
+
+    Vendor extensions used here:
+    `x-substratal-destructive` (`always` | `conditional`) marks operations
+    annotated destructiveHint for MCP and rejected for API Keys with
+    restrict_destructive=true. For `conditional`, only requests matching
+    `x-substratal-destructive-when` are rejected; the rest of the
+    operation stays callable.
+    Application and Role ids are derived (app_<slug>, role_<slug>_<name>),
+    not random; every other id is a prefix plus a ULID. `x-substratal-phase` gives the roadmap phase an operation
+    ships in.
+  license:
+    name: Unlicensed draft — internal specification, not yet released
+externalDocs:
+  description: Substratal Apps Platform API documentation
+  url: https://adron.github.io/substratalapps.com/
+servers:
+  - url: https://api.substratalapps.com/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Profiles
+  - name: Settings
+  - name: Applications
+  - name: Entitlements
+  - name: Roles & Permissions
+  - name: Organizations
+  - name: Tenancy
+  - name: Billing
+  - name: Audit
+  - name: Webhooks
+  - name: API Keys
+  - name: Meta
+
+paths:
+  /health:
+    get:
+      operationId: health.check
+      tags: [Meta]
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: Service is responding
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+
+  # ───────────────────────────── Auth ─────────────────────────────
+
+  /auth/signup:
+    post:
+      operationId: auth.signup
+      tags: [Auth]
+      summary: Create an account with email and password
+      description: "An email held by an invited User is rejected with 409 email_taken (details.reason invitation_pending) and the invitation is re-sent; invitations complete only through invitations/accept."
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password, minLength: 12, maxLength: 128 }
+                display_name: { type: string, minLength: 1, maxLength: 100 }
+                application_id: { type: string, description: "Informational: records which app the signup came from. Grants nothing." }
+                test_mode: { type: boolean, default: false, description: "Create a test-mode User." }
+      responses:
+        "201":
+          description: Account created and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /auth/login:
+    post:
+      operationId: auth.login
+      tags: [Auth]
+      summary: Exchange email and password for a session (or an MFA challenge)
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                test_mode: { type: boolean, default: false, description: "Sign in the test-mode account with this email." }
+      responses:
+        "200":
+          description: A session, or an MFA challenge when mfa_required is true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AuthSession"
+                  - $ref: "#/components/schemas/MfaChallenge"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /auth/mfa/verify:
+    post:
+      operationId: auth.verifyMfa
+      tags: [Auth]
+      summary: Complete a login that returned an MFA challenge
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfa_token]
+              properties:
+                mfa_token: { type: string }
+                code: { type: string, pattern: "^[0-9]{6}$" }
+                recovery_code: { type: string }
+      responses:
+        "200":
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /auth/token/refresh:
+    post:
+      operationId: auth.refreshToken
+      tags: [Auth]
+      summary: Rotate a platform refresh token for a new access token
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        "200":
+          description: New session tokens (the old refresh token is now invalid)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/logout:
+    post:
+      operationId: auth.logout
+      tags: [Auth]
+      summary: Revoke the current session, or every session
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "all_sessions is true"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all_sessions: { type: boolean, default: false }
+      responses:
+        "204": { description: Logged out }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/app-tokens:
+    post:
+      operationId: auth.createAppToken
+      tags: [Auth]
+      summary: Mint a per-app JWT from a platform session (embedded login)
+      description: "Requires a User token. Fails with 403 entitlement_required unless the user's resolved access to the Application is active, 409 application_not_available unless it's approved, and 403 tenant_suspended if its Tenant is suspended."
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id]
+              properties:
+                application_id: { type: string }
+                organization_id: { type: string, description: "Attribute org_id to this Organization's grant." }
+      responses:
+        "200":
+          description: App token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppToken" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /auth/oauth/authorization-codes:
+    post:
+      operationId: auth.createAuthorizationCode
+      tags: [Auth]
+      summary: Mint a one-time authorization code for a hosted launch (PKCE)
+      description: "Called by Substratal's hosted sign-in page on the signed-in user's behalf."
+      x-substratal-phase: phase3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id, redirect_uri, code_challenge, code_challenge_method]
+              properties:
+                application_id: { type: string }
+                redirect_uri: { type: string }
+                code_challenge: { type: string, minLength: 43, maxLength: 128 }
+                code_challenge_method: { type: string, enum: [S256] }
+                state: { type: string, maxLength: 512 }
+      responses:
+        "201":
+          description: Authorization code
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, expires_in, redirect_to]
+                properties:
+                  code: { type: string }
+                  expires_in: { type: integer, example: 60 }
+                  redirect_to: { type: string }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /auth/oauth/token:
+    post:
+      operationId: auth.exchangeOAuthToken
+      tags: [Auth]
+      summary: Exchange an authorization code or app refresh token for an app token
+      description: "Public-client OAuth 2.0 token endpoint. Errors use the OAuth error shape ({error, error_description}), not the usual envelope."
+      security: []
+      x-substratal-phase: phase3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OAuthTokenRequest" }
+          application/x-www-form-urlencoded:
+            schema: { $ref: "#/components/schemas/OAuthTokenRequest" }
+      responses:
+        "200":
+          description: App token and rotated app refresh token
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/AppToken"
+                  - type: object
+                    properties:
+                      refresh_token: { type: string }
+                      refresh_token_expires_in: { type: integer }
+        "400":
+          description: OAuth error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthError" }
+
+  /auth/email/verify:
+    post:
+      operationId: auth.verifyEmail
+      tags: [Auth]
+      summary: Confirm an email address from an emailed token
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        "204": { description: Verified }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /auth/email/verify/resend:
+    post:
+      operationId: auth.resendEmailVerification
+      tags: [Auth]
+      summary: Re-send a verification email (always 202)
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                test_mode: { type: boolean, default: false }
+      responses:
+        "202": { description: Accepted }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /auth/password/forgot:
+    post:
+      operationId: auth.forgotPassword
+      tags: [Auth]
+      summary: Send a password-reset email (always 202)
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                test_mode: { type: boolean, default: false }
+      responses:
+        "202": { description: Accepted }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /auth/password/reset:
+    post:
+      operationId: auth.resetPassword
+      tags: [Auth]
+      summary: Set a new password from a reset token (revokes every session)
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token: { type: string }
+                new_password: { type: string, format: password, minLength: 12, maxLength: 128 }
+      responses:
+        "204": { description: Password reset }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /auth/invitations/accept:
+    post:
+      operationId: auth.acceptInvitation
+      tags: [Auth]
+      summary: Set a password on an invited account, activate it, and sign in
+      security: []
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, format: password, minLength: 12, maxLength: 128 }
+                display_name: { type: string, maxLength: 100 }
+      responses:
+        "200":
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /auth/sso/{provider}/callback:
+    post:
+      operationId: auth.ssoCallback
+      tags: [Auth]
+      summary: Complete an SSO login (reserved — 501 until the broker integration ships)
+      security: []
+      x-substratal-phase: phase3
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "501":
+          description: not_implemented
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /users/{id}/password:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.changePassword
+      tags: [Auth]
+      summary: Change password given the current one (self only)
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string, format: password }
+                new_password: { type: string, format: password, minLength: 12, maxLength: 128 }
+      responses:
+        "204": { description: Changed; other sessions revoked }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /users/{id}/mfa/totp:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.enrollMfaTotp
+      tags: [Auth]
+      summary: Begin TOTP enrollment (self only)
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: Pending TOTP secret
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret: { type: string }
+                  otpauth_uri: { type: string }
+                  expires_in: { type: integer }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      operationId: auth.resetMfaTotp
+      tags: [Auth]
+      summary: Support reset of a user's TOTP (requires users.manage)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: MFA removed; sessions revoked }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /users/{id}/mfa/totp/confirm:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.confirmMfaTotp
+      tags: [Auth]
+      summary: Confirm TOTP enrollment with a first code; returns recovery codes once
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, pattern: "^[0-9]{6}$" }
+      responses:
+        "200":
+          description: Enabled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mfa_enabled: { type: boolean }
+                  recovery_codes: { type: array, items: { type: string }, minItems: 10, maxItems: 10 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}/mfa/totp/disable:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: auth.disableMfaTotp
+      tags: [Auth]
+      summary: Turn TOTP off given a current code or recovery code (self only)
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: "Exactly one of code or recovery_code."
+              properties:
+                code: { type: string, pattern: "^[0-9]{6}$", description: "A current TOTP code" }
+                recovery_code: { type: string }
+      responses:
+        "204": { description: Disabled }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /users/{id}/sessions:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: auth.listSessions
+      tags: [Auth]
+      summary: List active sessions (self or users.manage)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of sessions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageEnvelope"
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: "#/components/schemas/Session" } }
+
+  /users/{id}/sessions/{sessionId}:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - name: sessionId
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      operationId: auth.revokeSession
+      tags: [Auth]
+      summary: Revoke one session
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Revoked }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ───────────────────────────── Users ─────────────────────────────
+
+  /users:
+    get:
+      operationId: users.list
+      tags: [Users]
+      summary: List or search users
+      description: "Requires users.list. An app-scoped key with users.list is forced to application_id=<its app>."
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: status, in: query, description: "deleted is allowed for users.manage only", schema: { type: string, enum: [active, invited, suspended, deleted] } }
+        - { name: email, in: query, schema: { type: string, format: email } }
+        - { name: q, in: query, schema: { type: string, minLength: 3 } }
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: organization_id, in: query, schema: { type: string } }
+        - { name: created_after, in: query, schema: { type: string, format: date-time } }
+        - { name: created_before, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: A page of users
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserPage" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: users.create
+      tags: [Users]
+      summary: Create (invite) a user
+      description: "Requires users.manage. Also creates a default Profile and Settings and assigns the member platform role, in one transaction."
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyOptional"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                display_name: { type: string, maxLength: 100 }
+                status: { type: string, enum: [invited, active], default: invited }
+                send_invitation: { type: boolean, default: true }
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /users/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: users.get
+      tags: [Users]
+      summary: Fetch one user
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The user
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: users.update
+      tags: [Users]
+      summary: Update email (self, pending verification) or status (users.manage)
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "status becomes suspended"
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                status: { type: string, enum: [active, suspended], description: "users.manage only. active on a deleted User restores it." }
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+    delete:
+      operationId: users.delete
+      tags: [Users]
+      summary: Soft-delete a user (self or users.manage)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /users/{id}/suspend:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: users.suspend
+      tags: [Users]
+      summary: Suspend a user (users.manage)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: User suspended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}/invitation:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: users.resendInvitation
+      tags: [Users]
+      summary: Re-send the invitation email to an invited user (users.manage)
+      x-substratal-phase: mvp
+      responses:
+        "202": { description: Sent }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}/export:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: users.export
+      tags: [Users]
+      summary: Export everything this API holds about this user
+      description: "Self, or users.manage. GDPR Article 20 / CCPA right-to-know. Covers every table the hard-delete cascade clears, plus global Settings, which the cascade leaves in place."
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: Full data export bundle
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserExport" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /users/{id}/erasure-requests:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    post:
+      operationId: users.requestErasure
+      tags: [Users]
+      summary: Request right-to-erasure (soft-delete now, hard-delete cascade in 7 days)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "202":
+          description: Scheduled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErasureRequest" }
+
+  /users/{id}/erasure-requests/current:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    delete:
+      operationId: users.cancelErasure
+      tags: [Users]
+      summary: Cancel a scheduled erasure inside its 7-day window (users.manage)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Cancelled }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ─────────────────────────── Profiles & Settings ───────────────────────────
+
+  /users/{id}/profile:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: profiles.get
+      tags: [Profiles]
+      summary: Fetch global Profile
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The global Profile
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: profiles.update
+      tags: [Profiles]
+      summary: Update global Profile (self or users.manage)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileWrite" }
+      responses:
+        "200":
+          description: Updated Profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /users/{id}/settings:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: settings.get
+      tags: [Settings]
+      summary: Fetch global Settings (self, or platform users.list)
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The global Settings
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+    patch:
+      operationId: settings.update
+      tags: [Settings]
+      summary: Update global Settings (self or users.manage)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SettingsWrite" }
+      responses:
+        "200":
+          description: Updated Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /users/{id}/apps/{appId}/profile:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: appProfiles.get
+      tags: [Profiles]
+      summary: Fetch per-app AppProfile (self, the app's own key, or platform users.list; defaults if none written yet)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The AppProfile
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppProfile" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: appProfiles.update
+      tags: [Profiles]
+      summary: Update per-app AppProfile (custom is merged one level; null removes a key)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_handle: { type: [string, "null"], minLength: 1, maxLength: 64 }
+                custom: { type: object }
+      responses:
+        "200":
+          description: Updated AppProfile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppProfile" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /users/{id}/apps/{appId}/settings:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: appSettings.get
+      tags: [Settings]
+      summary: Fetch fully resolved per-app settings (self, the app's own key, or platform users.list)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: Resolved AppSettings
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSettingsResolved" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: appSettings.update
+      tags: [Settings]
+      summary: Write per-app overrides (validated against settings_schema; null clears)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [overrides]
+              properties:
+                overrides: { type: object }
+      responses:
+        "200":
+          description: Resolved AppSettings after the write
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSettingsResolved" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  # ───────────────────────────── Applications ─────────────────────────────
+
+  /applications:
+    get:
+      operationId: applications.list
+      tags: [Applications]
+      summary: List the catalog (filtered by visibility rules)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: visibility, in: query, schema: { $ref: "#/components/schemas/ApplicationVisibility" } }
+        - { name: review_status, in: query, schema: { $ref: "#/components/schemas/ApplicationReviewStatus" } }
+        - { name: owned, in: query, schema: { type: boolean } }
+        - { name: tenant_id, in: query, schema: { type: string } }
+        - { name: owner_user_id, in: query, schema: { type: string } }
+        - { name: owner_organization_id, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Applications (trimmed view)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationSummaryPage" }
+    post:
+      operationId: applications.create
+      tags: [Applications]
+      summary: Register an Application (applications.manage)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyOptional"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ApplicationWrite"
+                - type: object
+                  required: [slug, name, launch_url]
+      responses:
+        "201":
+          description: Application created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "402": { $ref: "#/components/responses/PaymentRequired" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /applications/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: applications.get
+      tags: [Applications]
+      summary: Fetch one Application
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The Application
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: applications.update
+      tags: [Applications]
+      summary: Update a catalog entry (owner — configuration; applications.manage — anything)
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "review_status becomes rejected or suspended, or available_app_roles/permissions shrink"
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationWrite" }
+      responses:
+        "200":
+          description: Updated Application
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  # ───────────────────────────── Entitlements ─────────────────────────────
+
+  /users/{id}/entitlements:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: entitlements.listForUser
+      tags: [Entitlements]
+      summary: A user's entitlements, personal and org-sourced
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/EntitlementStatus" } }
+        - { name: source, in: query, schema: { $ref: "#/components/schemas/EntitlementSource" } }
+        - { name: include_inactive, in: query, schema: { type: boolean, default: false } }
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+    post:
+      operationId: entitlements.grant
+      tags: [Entitlements]
+      summary: Grant a personal Entitlement
+      description: "Requires entitlements.manage (platform, or app-confined to the key's own Application), or the Application's owner."
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id, source]
+              properties:
+                application_id: { type: string }
+                source: { type: string, enum: [purchase, trial, admin_grant] }
+                order_id: { type: [string, "null"], maxLength: 255 }
+                starts_at: { type: string, format: date-time }
+                ends_at: { type: [string, "null"], format: date-time }
+      responses:
+        "201":
+          description: Entitlement created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "402": { $ref: "#/components/responses/PaymentRequired" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /entitlements:
+    get:
+      operationId: entitlements.list
+      tags: [Entitlements]
+      summary: List entitlements across users (entitlements.manage or the Application's owner; app keys and owners confined)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/EntitlementStatus" } }
+        - { name: user_id, in: query, schema: { type: string } }
+        - { name: organization_id, in: query, schema: { type: string } }
+        - { name: source, in: query, schema: { $ref: "#/components/schemas/EntitlementSource" } }
+        - { name: order_id, in: query, schema: { type: string } }
+        - { name: ends_before, in: query, schema: { type: string, format: date-time } }
+        - { name: include_inactive, in: query, schema: { type: boolean, default: false } }
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /entitlements/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: entitlements.get
+      tags: [Entitlements]
+      summary: Fetch one entitlement
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The Entitlement
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: entitlements.update
+      tags: [Entitlements]
+      summary: "The toggle: change status, term, source (trial→purchase), order_id, or an org grant's member scope"
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "status becomes disabled or revoked"
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { $ref: "#/components/schemas/EntitlementStatus" }
+                disabled_reason: { type: [string, "null"], maxLength: 255 }
+                ends_at: { type: [string, "null"], format: date-time }
+                source: { type: string, enum: [purchase] }
+                order_id: { type: string, maxLength: 255 }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides: { type: array, maxItems: 1000, items: { type: string } }
+      responses:
+        "200":
+          description: Updated Entitlement
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+    delete:
+      operationId: entitlements.delete
+      tags: [Entitlements]
+      summary: Hard-remove a grant made in error (no order_id, under 24 hours old)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Removed }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  # ─────────────────────────── Roles & Permissions ───────────────────────────
+
+  /permissions:
+    get:
+      operationId: permissions.list
+      tags: [Roles & Permissions]
+      summary: List every Permission key the caller can see
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: scope, in: query, description: "'platform' or an application_id", schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Permissions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PermissionPage" }
+
+  /roles:
+    get:
+      operationId: roles.list
+      tags: [Roles & Permissions]
+      summary: List Roles
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: scope, in: query, description: "'platform' or an application_id", schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Roles
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RolePage" }
+    post:
+      operationId: roles.create
+      tags: [Roles & Permissions]
+      summary: Define a Role
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleCreate" }
+      responses:
+        "201":
+          description: Role created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /roles/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: roles.get
+      tags: [Roles & Permissions]
+      summary: Fetch one Role
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The Role
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: roles.update
+      tags: [Roles & Permissions]
+      summary: Change a Role's permissions or description
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "permissions shrink"
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description: { type: [string, "null"], maxLength: 2000 }
+                permissions: { type: array, items: { type: string } }
+      responses:
+        "200":
+          description: Updated Role
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+    delete:
+      operationId: roles.delete
+      tags: [Roles & Permissions]
+      summary: Delete an unassigned, non-seed Role
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}/roles:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+    get:
+      operationId: roles.listForUser
+      tags: [Roles & Permissions]
+      summary: List a user's Role assignments (including implicit default_app_role)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of UserRoleAssignments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRoleAssignmentPage" }
+
+  /users/{id}/roles/{roleId}:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - { name: roleId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: roles.assign
+      tags: [Roles & Permissions]
+      summary: Assign a Role (idempotent — 200 if already held)
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: Already assigned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRoleAssignment" }
+        "201":
+          description: Role assigned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRoleAssignment" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: roles.remove
+      tags: [Roles & Permissions]
+      summary: Remove a Role assignment (idempotent)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Removed }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /users/{id}/apps/{appId}/effective-permissions:
+    parameters:
+      - $ref: "#/components/parameters/UserIdOrMe"
+      - $ref: "#/components/parameters/AppId"
+    get:
+      operationId: permissions.getEffective
+      tags: [Roles & Permissions]
+      summary: The live access check (always 200)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: Effective permissions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EffectivePermissions" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ───────────────────────────── Organizations ─────────────────────────────
+
+  /organizations:
+    get:
+      operationId: organizations.list
+      tags: [Organizations]
+      summary: List your Organizations (all, with organizations.manage)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: status, in: query, schema: { type: string, enum: [active, suspended] } }
+        - { name: q, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Organizations
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationPage" }
+    post:
+      operationId: organizations.create
+      tags: [Organizations]
+      summary: Create an Organization (any active User; caller becomes org_admin)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKeyOptional"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        "201":
+          description: Organization created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /organizations/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: organizations.get
+      tags: [Organizations]
+      summary: Fetch one Organization
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The Organization
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: organizations.update
+      tags: [Organizations]
+      summary: Rename (org admin), or suspend/reactivate (organizations.manage)
+      x-substratal-phase: phase2
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "status becomes suspended"
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 1, maxLength: 100 }
+                status: { type: string, enum: [active, suspended] }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: Updated Organization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Organization" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /organizations/{id}/members:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: organizations.listMembers
+      tags: [Organizations]
+      summary: List members
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: role, in: query, schema: { $ref: "#/components/schemas/OrganizationMemberRole" } }
+        - { name: membership_status, in: query, schema: { $ref: "#/components/schemas/OrganizationMembershipStatus" } }
+        - { name: q, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of members
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMemberPage" }
+    post:
+      operationId: organizations.addMember
+      tags: [Organizations]
+      summary: Invite a member by email (org admin), or add one directly by user_id (organizations.manage)
+      description: "By email, creates a pending membership (and an invited User if none exists) and emails an invitation; the response is identical whether or not the email already had an account. By user_id (organizations.manage only), the membership is active immediately. Never fails on a plan limit."
+      x-substratal-phase: phase2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id: { type: string }
+                email: { type: string, format: email }
+                role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+              oneOf:
+                - required: [user_id]
+                - required: [email]
+      responses:
+        "201":
+          description: Member invited (pending) or added (active)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMember" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /organizations/{id}/members/me/accept:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: organizations.acceptMembership
+      tags: [Organizations]
+      summary: Accept a pending membership (the invited User's own token)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The member, now active
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMember" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /organizations/{id}/members/{userId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+      - { name: userId, in: path, required: true, description: "A usr_ id, or 'me' to leave", schema: { type: string } }
+    patch:
+      operationId: organizations.updateMember
+      tags: [Organizations]
+      summary: Change a member's role
+      x-substratal-phase: phase2
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "demotes an org_admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+      responses:
+        "200":
+          description: Updated member
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMember" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      operationId: organizations.removeMember
+      tags: [Organizations]
+      summary: Remove a member or withdraw an invitation; or leave or decline (userId = me)
+      x-substratal-phase: phase2
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Removed }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /organizations/{id}/entitlements:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: organizations.listEntitlements
+      tags: [Organizations]
+      summary: List org-wide (seat) grants
+      description: Same filters as GET /entitlements, scoped to this Organization.
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/EntitlementStatus" } }
+        - { name: order_id, in: query, schema: { type: string } }
+        - { name: ends_before, in: query, schema: { type: string, format: date-time } }
+        - { name: include_inactive, in: query, schema: { type: boolean } }
+      responses:
+        "200":
+          description: A page of Entitlements
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitlementPage" }
+    post:
+      operationId: organizations.grantEntitlement
+      tags: [Organizations]
+      summary: Grant an app to the whole Organization
+      description: "Requires entitlements.manage (platform, or the Application's own confined key) or the Application's owner. Never the org's own admin."
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id]
+              properties:
+                application_id: { type: string }
+                order_id: { type: [string, "null"], maxLength: 255 }
+                starts_at: { type: string, format: date-time }
+                ends_at: { type: [string, "null"], format: date-time }
+                member_scope: { $ref: "#/components/schemas/EntitlementMemberScope" }
+                member_overrides: { type: array, maxItems: 1000, items: { type: string } }
+      responses:
+        "201":
+          description: Org-wide Entitlement created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Entitlement" }
+        "402": { $ref: "#/components/responses/PaymentRequired" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  # ───────────────────────────── Tenancy ─────────────────────────────
+
+  /tenants:
+    get:
+      operationId: tenants.list
+      tags: [Tenancy]
+      summary: List Tenants (your own; all with tenants.manage)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: plan, in: query, schema: { $ref: "#/components/schemas/TenantPlan" } }
+        - { name: tier, in: query, schema: { $ref: "#/components/schemas/TenantTier" } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/TenantStatus" } }
+        - { name: restricted, in: query, schema: { type: boolean } }
+        - { name: owner_user_id, in: query, schema: { type: string } }
+        - { name: owner_organization_id, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Tenants
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantPage" }
+
+  /tenants/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: tenants.get
+      tags: [Tenancy]
+      summary: Fetch one Tenant
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: A Tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /tenants/{id}/tier-change-requests:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: tenants.listTierChangeRequests
+      tags: [Tenancy]
+      summary: List tier-change requests for a Tenant
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of tier-change requests
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequestPage" }
+    post:
+      operationId: tenants.requestTierChange
+      tags: [Tenancy]
+      summary: Open a tier-change request on a customer's behalf (tenants.manage)
+      x-substratal-phase: phase2
+      x-substratal-destructive: always
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requested_tier, reason]
+              properties:
+                requested_tier: { type: string, enum: [isolated, dedicated_region] }
+                requested_region: { $ref: "#/components/schemas/Region" }
+                reason: { type: string, maxLength: 2000 }
+      responses:
+        "201":
+          description: Tier-change request created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /tenants/{id}/tier-change-requests/{requestId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+      - { name: requestId, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: tenants.getTierChangeRequest
+      tags: [Tenancy]
+      summary: Fetch one tier-change request
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: tenants.updateTierChangeRequest
+      tags: [Tenancy]
+      summary: Schedule, start, complete, or cancel a tier-change request (tenants.manage)
+      x-substratal-phase: phase2
+      x-substratal-destructive: always
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [scheduled, in_progress, completed, cancelled] }
+                scheduled_for: { type: string, format: date-time }
+                notes: { type: string, maxLength: 2000 }
+      responses:
+        "200":
+          description: Updated request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantTierChangeRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  # ───────────────────────────── Billing ─────────────────────────────
+
+  /tenants/{id}/subscription:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: billing.getSubscription
+      tags: [Billing]
+      summary: Current plan, subscription status, period, and seats
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: Subscription
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /tenants/{id}/usage:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: billing.getUsage
+      tags: [Billing]
+      summary: Usage against every plan limit
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: Usage
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantUsage" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /tenants/{id}/billing/checkout-sessions:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: billing.createCheckoutSession
+      tags: [Billing]
+      summary: Start a Stripe Checkout to subscribe to Team (owner)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan, success_url, cancel_url]
+              properties:
+                plan: { type: string, enum: [team] }
+                success_url: { type: string, format: uri }
+                cancel_url: { type: string, format: uri }
+      responses:
+        "201":
+          description: Checkout URL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RedirectSession" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+
+  /tenants/{id}/billing/portal-sessions:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: billing.createPortalSession
+      tags: [Billing]
+      summary: Open the Stripe Customer Portal (owner or billing.manage)
+      x-substratal-phase: phase2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [return_url]
+              properties:
+                return_url: { type: string, format: uri }
+      responses:
+        "201":
+          description: Portal URL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RedirectSession" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+
+  # ───────────────────────────── Audit ─────────────────────────────
+
+  /audit-events:
+    get:
+      operationId: audit.list
+      tags: [Audit]
+      summary: Query the audit log (hot window only)
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: target_user_id, in: query, schema: { type: string } }
+        - { name: target_type, in: query, schema: { $ref: "#/components/schemas/AuditTargetType" } }
+        - { name: target_id, in: query, schema: { type: string } }
+        - { name: actor_id, in: query, schema: { type: string } }
+        - { name: actor_type, in: query, schema: { type: string, enum: [user, api_key, system] } }
+        - name: action
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: "#/components/schemas/AuditAction" } }
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: organization_id, in: query, schema: { type: string } }
+        - { name: tenant_id, in: query, schema: { type: string } }
+        - { name: since, in: query, schema: { type: string, format: date-time } }
+        - { name: until, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: A page of Audit Events
+          headers:
+            Audit-Hot-Window-Start:
+              description: Earliest timestamp available to this caller's scope
+              schema: { type: string, format: date-time }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditEventPage" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /audit-events/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: audit.get
+      tags: [Audit]
+      summary: Fetch one Audit Event
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The event
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditEvent" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ───────────────────────────── Webhooks ─────────────────────────────
+
+  /webhooks:
+    get:
+      operationId: webhooks.list
+      tags: [Webhooks]
+      summary: List subscriptions visible to the caller
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of Webhook subscriptions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WebhookPage" }
+    post:
+      operationId: webhooks.create
+      tags: [Webhooks]
+      summary: Subscribe a URL to event types
+      x-substratal-phase: phase2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url: { type: string, format: uri }
+                events:
+                  type: array
+                  minItems: 1
+                  items:
+                    oneOf:
+                      - $ref: "#/components/schemas/WebhookEvent"
+                      - { type: string, const: "*" }
+                description: { type: string, maxLength: 255 }
+                scope: { type: string, description: "An application_id, or 'platform' (webhooks.manage only). Required for an owner's User token or a webhooks.manage caller; optional for an app key, where it defaults to (and must equal) the key's own Application." }
+      responses:
+        "201":
+          description: Webhook created — includes the secret once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WebhookWithSecret" }
+        "402": { $ref: "#/components/responses/PaymentRequired" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /webhooks/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: webhooks.get
+      tags: [Webhooks]
+      summary: Fetch one subscription
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The subscription
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Webhook" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: webhooks.update
+      tags: [Webhooks]
+      summary: Change url, events, description, api_version, or re-enable
+      x-substratal-phase: phase2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url: { type: string, format: uri }
+                events: { type: array, items: { type: string } }
+                description: { type: string, maxLength: 255 }
+                api_version: { type: string }
+                status: { type: string, enum: [healthy] }
+      responses:
+        "200":
+          description: Updated subscription
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Webhook" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+    delete:
+      operationId: webhooks.delete
+      tags: [Webhooks]
+      summary: Unsubscribe
+      x-substratal-phase: phase2
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Unsubscribed }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /webhooks/{id}/rotate-secret:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: webhooks.rotateSecret
+      tags: [Webhooks]
+      summary: Issue a new signing secret (24-hour overlap)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: New secret
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  signing_secret: { type: string }
+                  previous_secret_expires_at: { type: string, format: date-time }
+
+  /webhooks/{id}/test:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: webhooks.sendTest
+      tags: [Webhooks]
+      summary: Send a webhook.test event now
+      x-substratal-phase: phase2
+      responses:
+        "202":
+          description: Enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  delivery_id: { type: string }
+
+  /webhooks/{id}/deliveries:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: webhooks.listDeliveries
+      tags: [Webhooks]
+      summary: Recent delivery attempts (30-day log)
+      x-substratal-phase: phase2
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: event_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string, enum: [pending, succeeded, failed] } }
+        - { name: since, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: A page of deliveries
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageEnvelope"
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: "#/components/schemas/WebhookDelivery" } }
+
+  /webhooks/{id}/deliveries/{deliveryId}/redeliver:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+      - { name: deliveryId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: webhooks.redeliver
+      tags: [Webhooks]
+      summary: Re-send one past event (same event id)
+      x-substratal-phase: phase2
+      responses:
+        "202": { description: Enqueued }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ───────────────────────────── API Keys ─────────────────────────────
+
+  /api-keys:
+    get:
+      operationId: apiKeys.list
+      tags: [API Keys]
+      summary: List keys the caller may manage
+      x-substratal-phase: mvp
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - { name: scope, in: query, schema: { type: string } }
+        - { name: mode, in: query, schema: { type: string, enum: [live, test] } }
+        - { name: intended_use, in: query, schema: { type: string, enum: [service, agent] } }
+        - { name: include_inactive, in: query, description: "Include revoked and expired keys", schema: { type: boolean, default: false } }
+      responses:
+        "200":
+          description: A page of API Keys
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyPage" }
+    post:
+      operationId: apiKeys.create
+      tags: [API Keys]
+      summary: Create a key (api_keys.manage, or the Application's owner for an app-scoped key)
+      x-substratal-phase: mvp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApiKeyWrite" }
+      responses:
+        "201":
+          description: Key created — includes the secret once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyWithSecret" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+
+  /api-keys/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: apiKeys.get
+      tags: [API Keys]
+      summary: Fetch one key (never the secret)
+      x-substratal-phase: mvp
+      responses:
+        "200":
+          description: The key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKey" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: apiKeys.update
+      tags: [API Keys]
+      summary: Change name, permissions, or restrict_destructive
+      x-substratal-phase: mvp
+      x-substratal-destructive: conditional
+      x-substratal-destructive-when: "restrict_destructive set to false"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 100 }
+                permissions: { type: array, items: { type: string } }
+                restrict_destructive: { type: boolean }
+      responses:
+        "200":
+          description: Updated key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKey" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+    delete:
+      operationId: apiKeys.delete
+      tags: [API Keys]
+      summary: Revoke permanently
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "204": { description: Revoked }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api-keys/{id}/rotate:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: apiKeys.rotate
+      tags: [API Keys]
+      summary: Issue a new secret, invalidating the old one immediately (no overlap)
+      x-substratal-phase: mvp
+      x-substratal-destructive: always
+      responses:
+        "200":
+          description: New secret issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiKeyWithSecret" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >-
+        A platform access token (JWT, from /auth/login, /auth/signup,
+        /auth/mfa/verify, /auth/token/refresh) or an API Key secret
+        (satk_live_... / satk_test_...). See Conventions → Authentication.
+
+  headers:
+    ETag:
+      description: Weak validator over the row's version, e.g. W/"7". Send it back as If-Match.
+      schema: { type: string }
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, default: 25, maximum: 100 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Client-generated, 1–255 characters; a UUID v4 is recommended. Remembered 24 hours per caller.
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    IdempotencyKeyOptional:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    IfMatch:
+      name: If-Match
+      in: header
+      required: false
+      description: The ETag from a prior read. A mismatch returns 409 version_conflict.
+      schema: { type: string }
+    UserIdOrMe:
+      name: id
+      in: path
+      required: true
+      description: "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys)."
+      schema: { type: string }
+    AppId:
+      name: appId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    BadRequest:
+      description: "Malformed request (invalid_request, invalid_cursor, user_token_required, idempotency_key_required, token_invalid)"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: "Missing or invalid credentials (unauthenticated, session_revoked, invalid_credentials, invalid_mfa_code, …)"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    PaymentRequired:
+      description: "subscription_required — the owning Tenant is restricted after a lapsed subscription"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: "Authenticated but not permitted (forbidden, destructive_operation_restricted, entitlement_required, role_escalation_forbidden, …)"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource does not exist or is not visible to the caller
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: "State conflict (version_conflict, idempotency_key_reused, plan_limit_reached, entitlement_already_exists, invalid_status_transition, …)"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unprocessable:
+      description: "Semantically invalid (validation_failed with details.fields, settings_schema_violation, weak_password, …)"
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    TooManyRequests:
+      description: "rate_limited / too_many_attempts — see Retry-After"
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ServiceUnavailable:
+      description: "service_unavailable / billing_unavailable — see Retry-After"
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, example: entitlement_required }
+            message: { type: string }
+            details:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    required: [field, code]
+                    properties:
+                      field: { type: string }
+                      code: { type: string }
+              additionalProperties: true
+
+    OAuthError:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string, enum: [invalid_request, invalid_grant, invalid_client, unsupported_grant_type, access_denied] }
+        error_description: { type: string }
+
+    PageInfo:
+      type: object
+      required: [next_cursor, has_more]
+      properties:
+        next_cursor: { type: [string, "null"] }
+        has_more: { type: boolean }
+
+    PageEnvelope:
+      type: object
+      required: [data, page]
+      properties:
+        page: { $ref: "#/components/schemas/PageInfo" }
+
+    Actor:
+      type: object
+      required: [type, id]
+      properties:
+        type: { type: string, enum: [user, api_key, system] }
+        id: { type: string }
+
+    Region:
+      type: string
+      enum: [us-east-1, us-west-2, ca-central-1, eu-west-1, eu-central-1, ap-southeast-2]
+
+    # ── Auth ──
+    AuthSession:
+      type: object
+      required: [token_type, access_token, expires_in, refresh_token, session_id, user_id]
+      properties:
+        token_type: { type: string, enum: [Bearer] }
+        access_token: { type: string }
+        expires_in: { type: integer, example: 900 }
+        refresh_token: { type: string }
+        refresh_token_expires_in: { type: integer, example: 2592000 }
+        session_id: { type: string }
+        user_id: { type: string }
+        email_verified: { type: boolean }
+
+    MfaChallenge:
+      type: object
+      required: [mfa_required, mfa_token, methods, expires_in]
+      properties:
+        mfa_required: { type: boolean, const: true }
+        mfa_token: { type: string }
+        methods: { type: array, items: { type: string, enum: [totp, recovery_code] } }
+        expires_in: { type: integer, example: 300 }
+
+    AppToken:
+      type: object
+      required: [token_type, app_token, expires_in, application_id]
+      properties:
+        token_type: { type: string, enum: [Bearer] }
+        app_token: { type: string, description: "RS256 JWT; aud = application_id; 5-minute TTL. Claims: see AppTokenClaims." }
+        expires_in: { type: integer, example: 300 }
+        application_id: { type: string }
+
+    AppTokenClaims:
+      type: object
+      description: Decoded payload of an app token, for Application implementers.
+      properties:
+        iss: { type: string, const: "https://api.substratalapps.com" }
+        aud: { type: string }
+        sub: { type: string }
+        sid: { type: string }
+        org_id: { type: [string, "null"] }
+        email: { type: string }
+        email_verified: { type: boolean }
+        entitlement_status: { $ref: "#/components/schemas/ResolvedEntitlementStatus" }
+        effective_permissions: { type: array, items: { type: string } }
+        test_mode: { type: boolean }
+        iat: { type: integer }
+        exp: { type: integer }
+        jti: { type: string }
+
+    OAuthTokenRequest:
+      type: object
+      required: [grant_type, client_id]
+      properties:
+        grant_type: { type: string, enum: [authorization_code, refresh_token] }
+        client_id: { type: string, description: The application_id }
+        code: { type: string }
+        code_verifier: { type: string }
+        redirect_uri: { type: string }
+        refresh_token: { type: string }
+
+    Session:
+      type: object
+      properties:
+        id: { type: string }
+        created_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time, description: "The earlier of the idle expiry (30 days after the last refresh) and the absolute expiry (90 days after creation)." }
+        ip_address: { type: string }
+        user_agent: { type: string }
+        amr: { type: array, items: { type: string } }
+        current: { type: boolean }
+
+    # ── Users ──
+    UserStatus:
+      type: string
+      enum: [active, invited, suspended, deleted]
+
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        email_verified: { type: boolean }
+        pending_email: { type: [string, "null"], format: email }
+        status: { $ref: "#/components/schemas/UserStatus" }
+        mfa_enabled: { type: boolean }
+        signup_application_id: { type: [string, "null"] }
+        test_mode: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        last_login_at: { type: [string, "null"], format: date-time }
+
+    UserPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/User" } }
+
+    ErasureRequest:
+      type: object
+      properties:
+        user_id: { type: string }
+        status: { type: string, enum: [scheduled, cancelled, completed] }
+        requested_at: { type: string, format: date-time }
+        scheduled_for: { type: string, format: date-time }
+
+    UserExport:
+      type: object
+      description: "Reads from the same tables the hard-delete cascade writes to — deliberately symmetric with it."
+      properties:
+        exported_at: { type: string, format: date-time }
+        user: { $ref: "#/components/schemas/User" }
+        profile: { $ref: "#/components/schemas/Profile" }
+        settings: { $ref: "#/components/schemas/Settings" }
+        identities:
+          type: array
+          description: "Never includes password_hash or mfa_secret."
+          items:
+            type: object
+            properties:
+              method: { type: string, enum: [password, sso] }
+              mfa_enabled: { type: boolean }
+              last_used_at: { type: [string, "null"], format: date-time }
+        sessions: { type: array, items: { $ref: "#/components/schemas/Session" } }
+        organizations:
+          type: array
+          items:
+            type: object
+            properties:
+              organization_id: { type: string }
+              role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+              joined_at: { type: string, format: date-time }
+        roles: { type: array, items: { $ref: "#/components/schemas/UserRoleAssignment" } }
+        applications:
+          type: array
+          items:
+            type: object
+            properties:
+              application_id: { type: string }
+              entitlement: { $ref: "#/components/schemas/Entitlement" }
+              app_profile: { $ref: "#/components/schemas/AppProfile" }
+              app_settings:
+                type: object
+                properties:
+                  overrides: { type: object }
+        audit_events:
+          type: array
+          description: "This user's own trail as target_user_id (hot window)."
+          items: { $ref: "#/components/schemas/AuditEvent" }
+
+    # ── Profiles & Settings ──
+    ProfileWrite:
+      type: object
+      properties:
+        display_name: { type: string, minLength: 1, maxLength: 100 }
+        avatar_url: { type: [string, "null"], format: uri, maxLength: 2048 }
+        contact_email: { type: [string, "null"], format: email }
+        contact_phone: { type: [string, "null"], pattern: "^\\+[1-9][0-9]{7,14}$" }
+
+    Profile:
+      allOf:
+        - $ref: "#/components/schemas/ProfileWrite"
+        - type: object
+          properties:
+            user_id: { type: string }
+            locale: { type: string, readOnly: true, example: en-US, description: "Mirror of the global Settings locale; write it there." }
+            updated_at: { type: string, format: date-time }
+
+    AppProfile:
+      type: object
+      properties:
+        user_id: { type: string }
+        application_id: { type: string }
+        display_handle: { type: [string, "null"] }
+        effective_display_name: { type: string, readOnly: true }
+        custom: { type: object }
+        updated_at: { type: [string, "null"], format: date-time }
+
+    SettingsWrite:
+      type: object
+      properties:
+        locale: { type: string }
+        timezone: { type: string, example: America/Denver }
+        theme: { type: string, enum: [light, dark, system] }
+        notifications:
+          type: object
+          additionalProperties: { type: [boolean, "null"] }
+
+    Settings:
+      allOf:
+        - $ref: "#/components/schemas/SettingsWrite"
+        - type: object
+          properties:
+            user_id: { type: string }
+            updated_at: { type: string, format: date-time }
+
+    AppSettingsResolved:
+      type: object
+      properties:
+        user_id: { type: string }
+        application_id: { type: string }
+        resolved: { type: object }
+        sources:
+          type: object
+          additionalProperties: { type: string, enum: [app_override, global, app_default] }
+        overrides: { type: object }
+        stale_overrides: { type: array, items: { type: string } }
+        updated_at: { type: [string, "null"], format: date-time }
+
+    # ── Applications ──
+    ApplicationVisibility:
+      type: string
+      enum: [public, invite_only, internal]
+
+    ApplicationReviewStatus:
+      type: string
+      enum: [approved, pending_review, rejected, suspended]
+
+    ApplicationPermission:
+      type: object
+      required: [key]
+      properties:
+        key: { type: string, pattern: "^app\\.[a-z0-9_-]+\\.[a-z0-9_.]{1,64}$" }
+        description: { type: string, maxLength: 255 }
+
+    ApplicationSummary:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        description: { type: [string, "null"] }
+        icon_url: { type: [string, "null"] }
+        visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
+        review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
+
+    ApplicationSummaryPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/ApplicationSummary" } }
+
+    ApplicationWrite:
+      type: object
+      properties:
+        slug: { type: string, pattern: "^[a-z][a-z0-9-]{1,63}$", description: "Create only; immutable. 'platform' is reserved (rejected with validation_failed, code unknown_value). The Application's id is app_<slug>." }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: [string, "null"], maxLength: 2000 }
+        icon_url: { type: [string, "null"], format: uri }
+        launch_url: { type: string, format: uri }
+        redirect_uris: { type: array, maxItems: 10, items: { type: string } }
+        support_url: { type: [string, "null"], format: uri }
+        email_from_name: { type: [string, "null"], maxLength: 50 }
+        settings_schema: { type: object, description: "JSON Schema 2020-12 subset — see Domain Model → Settings → settings_schema rules" }
+        permissions: { type: array, maxItems: 100, items: { $ref: "#/components/schemas/ApplicationPermission" } }
+        available_app_roles: { type: array, maxItems: 20, items: { type: string, pattern: "^[a-z][a-z0-9_]{1,40}$" } }
+        default_app_role: { type: [string, "null"] }
+        visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
+        review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
+        review_notes: { type: [string, "null"], maxLength: 2000 }
+
+    Application:
+      allOf:
+        - $ref: "#/components/schemas/ApplicationWrite"
+        - type: object
+          properties:
+            id: { type: string }
+            tenant_id: { type: string, readOnly: true }
+            settings_schema_stats:
+              type: object
+              readOnly: true
+              properties:
+                stale_override_counts: { type: object, additionalProperties: { type: integer } }
+            test_mode: { type: boolean }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+
+    # ── Entitlements ──
+    EntitlementStatus:
+      type: string
+      enum: [active, disabled, expired, revoked]
+
+    ResolvedEntitlementStatus:
+      type: string
+      enum: [active, scheduled, disabled, expired, revoked, none]
+      description: "scheduled: the only live path is a grant whose starts_at is in the future." 
+
+    EntitlementSource:
+      type: string
+      enum: [purchase, trial, admin_grant, org_seat]
+
+    EntitlementMemberScope:
+      type: string
+      enum: [all_members, allowlist, denylist]
+
+    EntitlementGrantedVia:
+      type: object
+      description: "Computed per member at read time; present only when reading a specific member's view of an org-wide grant."
+      properties:
+        organization_id: { type: string }
+        member_decision: { type: string, enum: [included, excluded, seat_limit] }
+
+    Entitlement:
+      type: object
+      properties:
+        id: { type: string }
+        user_id: { type: [string, "null"] }
+        organization_id: { type: [string, "null"] }
+        application_id: { type: string }
+        status: { $ref: "#/components/schemas/EntitlementStatus" }
+        source: { $ref: "#/components/schemas/EntitlementSource" }
+        order_id: { type: [string, "null"], maxLength: 255, description: "Opaque developer-supplied billing reference" }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        disabled_reason: { type: [string, "null"] }
+        member_scope: { oneOf: [ { $ref: "#/components/schemas/EntitlementMemberScope" }, { type: "null" } ] }
+        member_overrides: { type: [array, "null"], items: { type: string } }
+        included_member_count: { type: integer, readOnly: true }
+        granted_via: { $ref: "#/components/schemas/EntitlementGrantedVia" }
+        test_mode: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    EntitlementPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Entitlement" } }
+
+    # ── Roles & Permissions ──
+    Permission:
+      type: object
+      properties:
+        key: { type: string }
+        scope: { type: string }
+        description: { type: string }
+
+    PermissionPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Permission" } }
+
+    RoleCreate:
+      type: object
+      required: [name, scope, permissions]
+      properties:
+        name: { type: string, pattern: "^[a-z][a-z0-9_]{1,40}$" }
+        scope: { type: string, description: "'platform' or an application_id" }
+        description: { type: [string, "null"], maxLength: 2000 }
+        permissions: { type: array, items: { type: string } }
+
+    Role:
+      allOf:
+        - $ref: "#/components/schemas/RoleCreate"
+        - type: object
+          properties:
+            id: { type: string, description: "role_platform_<name> or role_<slug>_<name>" }
+            seed: { type: boolean }
+            assignment_count: { type: integer }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+
+    RolePage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Role" } }
+
+    UserRoleAssignment:
+      type: object
+      properties:
+        user_id: { type: string }
+        role_id: { type: string }
+        application_id: { type: [string, "null"] }
+        assigned_at: { type: [string, "null"], format: date-time }
+        assigned_by: { oneOf: [ { $ref: "#/components/schemas/Actor" }, { type: "null" } ] }
+        implicit: { type: boolean }
+
+    UserRoleAssignmentPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/UserRoleAssignment" } }
+
+    EffectivePermissions:
+      type: object
+      required: [user_id, application_id, allowed, user_status, entitlement_status, effective_permissions]
+      properties:
+        user_id: { type: string }
+        application_id: { type: string }
+        allowed: { type: boolean }
+        user_status: { $ref: "#/components/schemas/UserStatus" }
+        entitlement_status: { $ref: "#/components/schemas/ResolvedEntitlementStatus" }
+        access_paths:
+          type: array
+          items:
+            type: object
+            properties:
+              source: { $ref: "#/components/schemas/EntitlementSource" }
+              entitlement_id: { type: string }
+              status: { $ref: "#/components/schemas/EntitlementStatus" }
+              organization_id: { type: [string, "null"] }
+              member_decision: { type: [string, "null"], enum: [included, excluded, seat_limit, null] }
+        roles: { type: array, items: { type: string } }
+        effective_permissions: { type: array, items: { type: string } }
+        computed_at: { type: string, format: date-time }
+
+    # ── Organizations ──
+    Organization:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string, enum: [active, suspended] }
+        member_count: { type: integer, description: "Active members only" }
+        my_role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+        my_membership_status: { $ref: "#/components/schemas/OrganizationMembershipStatus" }
+        created_by: { type: string }
+        test_mode: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    OrganizationPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Organization" } }
+
+    OrganizationMemberRole:
+      type: string
+      enum: [org_admin, member]
+
+    OrganizationMember:
+      type: object
+      properties:
+        user_id: { type: string }
+        email: { type: string, format: email }
+        display_name: { type: [string, "null"], description: "null while the membership is pending" }
+        membership_status: { $ref: "#/components/schemas/OrganizationMembershipStatus" }
+        role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+        invited_at: { type: string, format: date-time }
+        joined_at: { type: [string, "null"], format: date-time }
+
+    OrganizationMembershipStatus:
+      type: string
+      enum: [pending, active]
+
+    OrganizationMemberPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/OrganizationMember" } }
+
+    # ── Tenancy & Billing ──
+    TenantOwnerType:
+      type: string
+      enum: [user, organization]
+
+    TenantTier:
+      type: string
+      enum: [shared, isolated, dedicated_region]
+
+    TenantPlan:
+      type: string
+      enum: [starter, team, enterprise]
+      description: "Commercial plan, independent of tier. isolated/dedicated_region require enterprise; starter requires a user owner."
+
+    TenantStatus:
+      type: string
+      enum: [active, migrating, suspended]
+
+    SubscriptionStatus:
+      type: string
+      enum: [none, active, trialing, past_due, canceled, unpaid, incomplete, incomplete_expired, paused]
+
+    Tenant:
+      type: object
+      properties:
+        id: { type: string }
+        owner_type: { $ref: "#/components/schemas/TenantOwnerType" }
+        owner_user_id: { type: [string, "null"] }
+        owner_organization_id: { type: [string, "null"] }
+        tier: { $ref: "#/components/schemas/TenantTier" }
+        plan: { $ref: "#/components/schemas/TenantPlan" }
+        region: { $ref: "#/components/schemas/Region" }
+        status: { $ref: "#/components/schemas/TenantStatus" }
+        subscription_status: { $ref: "#/components/schemas/SubscriptionStatus" }
+        restricted: { type: boolean }
+        application_count: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    TenantPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Tenant" } }
+
+    TenantTierChangeRequestStatus:
+      type: string
+      enum: [pending, scheduled, in_progress, completed, cancelled]
+
+    TenantTierChangeRequest:
+      type: object
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        from_tier: { $ref: "#/components/schemas/TenantTier" }
+        from_region: { $ref: "#/components/schemas/Region" }
+        requested_tier: { $ref: "#/components/schemas/TenantTier" }
+        requested_region: { oneOf: [ { $ref: "#/components/schemas/Region" }, { type: "null" } ] }
+        status: { $ref: "#/components/schemas/TenantTierChangeRequestStatus" }
+        reason: { type: string }
+        notes: { type: [string, "null"] }
+        scheduled_for: { type: [string, "null"], format: date-time }
+        requested_by: { type: string }
+        created_at: { type: string, format: date-time }
+        started_at: { type: [string, "null"], format: date-time }
+        completed_at: { type: [string, "null"], format: date-time }
+
+    TenantTierChangeRequestPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/TenantTierChangeRequest" } }
+
+    Subscription:
+      type: object
+      properties:
+        tenant_id: { type: string }
+        plan: { $ref: "#/components/schemas/TenantPlan" }
+        subscription_status: { $ref: "#/components/schemas/SubscriptionStatus" }
+        restricted: { type: boolean }
+        current_period_start: { type: [string, "null"], format: date-time }
+        current_period_end: { type: [string, "null"], format: date-time }
+        cancel_at_period_end: { type: boolean }
+        seats:
+          type: object
+          properties:
+            current: { type: integer }
+            included: { type: integer }
+            billable: { type: integer }
+            last_synced_at: { type: [string, "null"], format: date-time }
+        add_ons:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string, enum: [isolated_tenancy, dedicated_region_tenancy] }
+              amount: { type: integer, description: Cents per month }
+        currency: { type: string, const: usd }
+
+    TenantUsage:
+      type: object
+      properties:
+        tenant_id: { type: string }
+        plan: { $ref: "#/components/schemas/TenantPlan" }
+        limits:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              limit: { type: [integer, "null"] }
+              current: { type: integer }
+              included: { type: integer }
+          description: "Keys: applications, seats, app_roles (current = highest count on any one Application), webhooks, audit_hot_window_days. The same names as plan_limit_reached's details.resource." 
+        fits_plans: { type: array, items: { $ref: "#/components/schemas/TenantPlan" } }
+
+    RedirectSession:
+      type: object
+      required: [url, expires_at]
+      properties:
+        url: { type: string, format: uri }
+        expires_at: { type: string, format: date-time }
+
+    # ── Audit ──
+    AuditAction:
+      type: string
+      enum:
+        - user.created
+        - user.updated
+        - user.email_changed
+        - user.suspended
+        - user.reactivated
+        - user.deleted
+        - user.erasure_requested
+        - user.erasure_cancelled
+        - user.erased
+        - user.password_changed
+        - user.password_reset
+        - user.mfa_enabled
+        - user.mfa_disabled
+        - user.mfa_reset
+        - entitlement.granted
+        - entitlement.disabled
+        - entitlement.revoked
+        - entitlement.expired
+        - entitlement.updated
+        - entitlement.member_scope_changed
+        - entitlement.deleted
+        - role.created
+        - role.updated
+        - role.deleted
+        - role.assigned
+        - role.removed
+        - profile.updated
+        - settings.updated
+        - application.created
+        - application.updated
+        - application.review_status_changed
+        - organization.created
+        - organization.updated
+        - organization.member_invited
+        - organization.member_added
+        - organization.member_removed
+        - organization.member_role_changed
+        - tenant.plan_changed
+        - tenant.subscription_status_changed
+        - tenant.tier_change_requested
+        - tenant.tier_change_request_updated
+        - tenant.tier_changed
+        - api_key.created
+        - api_key.updated
+        - api_key.rotated
+        - api_key.revoked
+        - api_key.restrict_destructive_disabled
+        - webhook.created
+        - webhook.updated
+        - webhook.deleted
+        - webhook.secret_rotated
+
+    AuditTargetType:
+      type: string
+      enum: [user, entitlement, role, role_assignment, application, organization, tenant, tier_change_request, api_key, webhook]
+
+    AuditEvent:
+      type: object
+      properties:
+        id: { type: string }
+        action: { $ref: "#/components/schemas/AuditAction" }
+        actor: { $ref: "#/components/schemas/Actor" }
+        target:
+          type: object
+          properties:
+            type: { $ref: "#/components/schemas/AuditTargetType" }
+            id: { type: string }
+        target_user_id: { type: [string, "null"] }
+        application_id: { type: [string, "null"] }
+        organization_id: { type: [string, "null"] }
+        tenant_id: { type: [string, "null"] }
+        before: { type: [object, "null"] }
+        after: { type: [object, "null"] }
+        request_id: { type: [string, "null"] }
+        timestamp: { type: string, format: date-time }
+
+    AuditEventPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } }
+
+    # ── Webhooks ──
+    WebhookEvent:
+      type: string
+      enum:
+        - access.granted
+        - access.revoked
+        - entitlement.granted
+        - entitlement.disabled
+        - entitlement.revoked
+        - entitlement.expired
+        - entitlement.updated
+        - entitlement.member_scope_changed
+        - entitlement.deleted
+        - role.assigned
+        - role.removed
+        - user.suspended
+        - user.reactivated
+        - user.deleted
+        - organization.member_added
+        - organization.member_removed
+        - application.review_status_changed
+        - webhook.test
+
+    AccessEventReason:
+      type: string
+      enum:
+        - entitlement_granted
+        - entitlement_started
+        - entitlement_enabled
+        - entitlement_disabled
+        - entitlement_revoked
+        - entitlement_expired
+        - entitlement_deleted
+        - org_grant_changed
+        - org_member_added
+        - org_member_removed
+        - user_suspended
+        - user_reactivated
+        - user_deleted
+
+    WebhookEventEnvelope:
+      type: object
+      description: "Body POSTed to a subscriber. Signed with Substratal-Signature: t=<unix>,v1=<hex HMAC-SHA256 of '{t}.{raw body}'>."
+      required: [id, type, api_version, created_at, test_mode, data]
+      properties:
+        id: { type: string, description: "wev_… — stable across retries; dedupe on it" }
+        type: { $ref: "#/components/schemas/WebhookEvent" }
+        api_version: { type: string, example: "2026-10-05" }
+        created_at: { type: string, format: date-time }
+        application_id: { type: [string, "null"] }
+        test_mode: { type: boolean }
+        data: { type: object }
+
+    Webhook:
+      type: object
+      properties:
+        id: { type: string }
+        scope: { type: string, description: "'platform' or an application_id" }
+        url: { type: string, format: uri }
+        events: { type: array, items: { type: string } }
+        description: { type: [string, "null"] }
+        status: { type: string, enum: [healthy, unhealthy, disabled] }
+        api_version: { type: string }
+        test_mode: { type: boolean }
+        consecutive_failures: { type: integer }
+        last_delivery_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    WebhookWithSecret:
+      allOf:
+        - $ref: "#/components/schemas/Webhook"
+        - type: object
+          properties:
+            signing_secret: { type: string }
+
+    WebhookPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/Webhook" } }
+
+    WebhookDelivery:
+      type: object
+      properties:
+        id: { type: string }
+        event_id: { type: string }
+        event_type: { $ref: "#/components/schemas/WebhookEvent" }
+        attempt: { type: integer, minimum: 1, maximum: 6 }
+        status: { type: string, enum: [pending, succeeded, failed] }
+        response_status: { type: [integer, "null"] }
+        duration_ms: { type: [integer, "null"] }
+        error: { type: [string, "null"] }
+        next_retry_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+
+    # ── API Keys ──
+    ApiKeyWrite:
+      type: object
+      required: [name, scope, permissions, mode]
+      properties:
+        name: { type: string, maxLength: 100 }
+        scope: { type: string, description: "'platform' or an application_id" }
+        permissions: { type: array, items: { type: string } }
+        mode:
+          type: string
+          enum: [live, test]
+          description: Fixed at creation.
+        intended_use:
+          type: string
+          enum: [service, agent]
+          default: service
+          description: Sets the default for restrict_destructive (true for agent, false for service).
+        restrict_destructive:
+          type: boolean
+          description: "When true, every operation marked x-substratal-destructive is rejected with 403 destructive_operation_restricted."
+        expires_at: { type: [string, "null"], format: date-time }
+
+    ApiKey:
+      allOf:
+        - $ref: "#/components/schemas/ApiKeyWrite"
+        - type: object
+          properties:
+            id: { type: string }
+            secret_hint: { type: string, example: "…6c8e" }
+            created_by:
+              type: object
+              description: "Always a User: API Keys can't create API Keys."
+              properties:
+                type: { type: string, enum: [user] }
+                id: { type: string }
+            last_used_at: { type: [string, "null"], format: date-time }
+            created_at: { type: string, format: date-time }
+            revoked_at: { type: [string, "null"], format: date-time }
+
+    ApiKeyWithSecret:
+      allOf:
+        - $ref: "#/components/schemas/ApiKey"
+        - type: object
+          properties:
+            secret: { type: string }
+
+    ApiKeyPage:
+      allOf:
+        - $ref: "#/components/schemas/PageEnvelope"
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: "#/components/schemas/ApiKey" } }
