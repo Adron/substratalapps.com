@@ -43,6 +43,8 @@ type Call struct {
 	op  opts
 	q   db.Querier
 	p   *Principal
+	// now is truncated to microseconds, Postgres's timestamp precision: a
+	// row stamped with it must compare equal, not a rounding step later.
 	now time.Time
 
 	raw []byte // request body, read once
@@ -66,7 +68,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request, o opts, fn func(c
 	ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
 	defer cancel()
 	c := &Call{
-		s: s, ctx: ctx, r: r, op: o, now: s.Now().UTC(),
+		s: s, ctx: ctx, r: r, op: o, now: s.Now().UTC().Truncate(time.Microsecond),
 		headers: http.Header{}, ip: clientIP(r), requestID: RequestID(r.Context()),
 	}
 	raw, err := httpx.ReadBody(r)

@@ -16,7 +16,7 @@ import (
 // per mode, so every event and audit row carries the right mode.
 func (s *Server) system(ctx context.Context, testMode bool, settings db.Settings, fn func(c *Call) error) error {
 	settings.TestMode = testMode
-	c := &Call{s: s, ctx: ctx, now: s.Now().UTC(), headers: map[string][]string{}, sysTestMode: testMode}
+	c := &Call{s: s, ctx: ctx, now: s.Now().UTC().Truncate(time.Microsecond), headers: map[string][]string{}, sysTestMode: testMode}
 	err := s.DB.Tx(ctx, settings, func(q db.Querier) error {
 		c.q = q
 		return fn(c)
