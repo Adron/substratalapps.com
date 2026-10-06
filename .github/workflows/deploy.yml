@@ -1,0 +1,140 @@
+# Every merge into main deploys production, and only that way (README →
+# What a merge into main does). The deploy role's OIDC trust policy accepts
+# only this repository, the main branch, and the production environment,
+# so nothing else can obtain these credentials, whatever its YAML says.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["docs/**", "**.md", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      TEST_DATABASE_URL: postgres://substratal:substratal@localhost:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docker/postgres-init.sql
+      # The merge result itself, not just the two sides of it.
+      - run: make fmt-check && go vet ./... && make gen-check && go test -count=1 ./...
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE: ${{ github.sha }}
+    steps:
+      - name: Phase 0 setup exists
+        id: ready
+        run: |
+          if [ -z "${{ vars.AWS_DEPLOY_ROLE_ARN }}" ]; then
+            echo "::notice::AWS isn't bootstrapped yet (see README → One-time setup); skipping the production deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.ready.outputs.ready == 'true'
+        uses: actions/checkout@v7
+
+      - if: steps.ready.outputs.ready == 'true'
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - if: steps.ready.outputs.ready == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - if: steps.ready.outputs.ready == 'true'
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - name: Build and upload artifacts
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          make build
+          for f in api mcp stripe-webhook webhook-worker jobs; do
+            aws s3 cp "dist/$f.zip" "s3://${{ vars.ARTIFACT_BUCKET }}/$RELEASE/$f.zip" --only-show-errors
+          done
+
+      - name: terraform init
+        if: steps.ready.outputs.ready == 'true'
+        working-directory: infra/terraform/prod
+        run: terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      # Migrations run before new code ships. Safe because every migration
+      # is expand-only against the running release (README → Migrations).
+      - name: Migrate (existing cluster)
+        id: migrate
+        if: steps.ready.outputs.ready == 'true'
+        working-directory: infra/terraform/prod
+        run: |
+          ARN=$(terraform output -raw db_cluster_arn 2>/dev/null || true)
+          SECRET=$(terraform output -raw db_secret_arn 2>/dev/null || true)
+          if [ -n "$ARN" ] && [ -n "$SECRET" ]; then
+            cd ../../.. && DATABASE_BACKEND=dataapi DB_CLUSTER_ARN="$ARN" DB_SECRET_ARN="$SECRET" go run ./cmd/migrate
+            echo "done=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"   # first deploy: the cluster doesn't exist yet
+          fi
+
+      - name: terraform apply
+        if: steps.ready.outputs.ready == 'true'
+        working-directory: infra/terraform/prod
+        run: |
+          terraform apply -input=false -auto-approve \
+            -var "artifact_bucket=${{ vars.ARTIFACT_BUCKET }}" -var "release=$RELEASE" \
+            -var "domain_name=${{ vars.API_DOMAIN }}"
+
+      - name: Migrate (first deploy)
+        if: steps.ready.outputs.ready == 'true' && steps.migrate.outputs.done == 'false'
+        working-directory: infra/terraform/prod
+        run: |
+          ARN=$(terraform output -raw db_cluster_arn) SECRET=$(terraform output -raw db_secret_arn)
+          cd ../../.. && DATABASE_BACKEND=dataapi DB_CLUSTER_ARN="$ARN" DB_SECRET_ARN="$SECRET" go run ./cmd/migrate
+
+      - name: Smoke test
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          BASE="https://${{ vars.API_DOMAIN }}"
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/v1/health") && [ "$code" = 200 ] && break; sleep 5
+          done
+          [ "$code" = 200 ] || { echo "::error::health check failed ($code)"; exit 1; }
+          curl -sf "$BASE/.well-known/jwks.json" | grep -q '"keys"'
+          if [ -n "${{ secrets.SMOKE_API_KEY }}" ]; then
+            # A dedicated smoke-test User and Application seeded in production.
+            curl -sf "$BASE/v1/users/${{ vars.SMOKE_USER_ID }}/apps/${{ vars.SMOKE_APP_ID }}/effective-permissions" \
+              -H "Authorization: Bearer ${{ secrets.SMOKE_API_KEY }}" | grep -q '"allowed":true'
+          fi

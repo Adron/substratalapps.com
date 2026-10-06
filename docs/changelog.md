@@ -12,6 +12,18 @@ What's changed in this specification over time. Questions still awaiting a decis
 
 ---
 
+## 2026-10-06 — Implementation-driven `openapi.yaml` fixes
+
+The first implementation's contract tests validate every response against `openapi.yaml`, and found places where the YAML disagreed with the prose (which is authoritative). Each is now fixed in the YAML; no behavior described on any page changed:
+
+- ApplicationWrite.slug: pattern used a negative lookahead `(?!platform$)` that RE2-based JSON Schema validators (Go, Rust) can't compile; now `^[a-z][a-z0-9-]{1,63}$`, with `platform` documented as reserved in the description (the server still rejects it).
+- RoleCreate/Role.description: now nullable, matching Domain Model → Role ("string, nullable"); a Role created without one has none.
+- ApplicationWrite/ApplicationSummary description and icon_url: now nullable, matching the Applications page's own POST response example (`"icon_url": null`); both are optional on create.
+- GET /organizations/{id}/entitlements: declared the filters its prose already promised ("same filters as GET /v1/entitlements": application_id, status, order_id, ends_before, include_inactive).
+- GET /tenants: declared owner_user_id and owner_organization_id, which Tenancy → GET /v1/tenants already listed for tenants.manage.
+
+Questions the build surfaced where the spec was silent or self-contradictory are recorded as [DECISIONS.md #32–#37](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#awaiting-a-decision).
+
 ## 2026-10-06 — Domain Model and API Reference review
 
 A review of every Domain Model and API Reference page against each other, the database schema, and `openapi.yaml`. Every fix is stated on the page it affects.

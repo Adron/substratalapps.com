@@ -9,3 +9,12 @@ docs/Gemfile.lock
 
 .DS_Store
 docs/_data/versions.yml
+
+# API
+.env
+.dev/
+dist/
+*.zip
+infra/terraform/**/.terraform/
+infra/terraform/**/*.tfstate*
+infra/terraform/**/.terraform.lock.hcl.bak

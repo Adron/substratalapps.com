@@ -1558,10 +1558,16 @@ paths:
       operationId: organizations.listEntitlements
       tags: [Organizations]
       summary: List org-wide (seat) grants
+      description: Same filters as GET /entitlements, scoped to this Organization.
       x-substratal-phase: phase2
       parameters:
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Cursor"
+        - { name: application_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/EntitlementStatus" } }
+        - { name: order_id, in: query, schema: { type: string } }
+        - { name: ends_before, in: query, schema: { type: string, format: date-time } }
+        - { name: include_inactive, in: query, schema: { type: boolean } }
       responses:
         "200":
           description: A page of Entitlements
@@ -1616,6 +1622,8 @@ paths:
         - { name: tier, in: query, schema: { $ref: "#/components/schemas/TenantTier" } }
         - { name: status, in: query, schema: { $ref: "#/components/schemas/TenantStatus" } }
         - { name: restricted, in: query, schema: { type: boolean } }
+        - { name: owner_user_id, in: query, schema: { type: string } }
+        - { name: owner_organization_id, in: query, schema: { type: string } }
       responses:
         "200":
           description: A page of Tenants
@@ -2550,8 +2558,8 @@ components:
         id: { type: string }
         slug: { type: string }
         name: { type: string }
-        description: { type: string }
-        icon_url: { type: string }
+        description: { type: [string, "null"] }
+        icon_url: { type: [string, "null"] }
         visibility: { $ref: "#/components/schemas/ApplicationVisibility" }
         review_status: { $ref: "#/components/schemas/ApplicationReviewStatus" }
 
@@ -2565,10 +2573,10 @@ components:
     ApplicationWrite:
       type: object
       properties:
-        slug: { type: string, pattern: "^(?!platform$)[a-z][a-z0-9-]{1,63}$", description: "Create only; immutable. 'platform' is reserved. The Application's id is app_<slug>." }
+        slug: { type: string, pattern: "^[a-z][a-z0-9-]{1,63}$", description: "Create only; immutable. 'platform' is reserved (rejected with validation_failed, code unknown_value). The Application's id is app_<slug>." }
         name: { type: string, minLength: 1, maxLength: 100 }
-        description: { type: string, maxLength: 2000 }
-        icon_url: { type: string, format: uri }
+        description: { type: [string, "null"], maxLength: 2000 }
+        icon_url: { type: [string, "null"], format: uri }
         launch_url: { type: string, format: uri }
         redirect_uris: { type: array, maxItems: 10, items: { type: string } }
         support_url: { type: [string, "null"], format: uri }
@@ -2673,7 +2681,7 @@ components:
       properties:
         name: { type: string, pattern: "^[a-z][a-z0-9_]{1,40}$" }
         scope: { type: string, description: "'platform' or an application_id" }
-        description: { type: string, maxLength: 2000 }
+        description: { type: [string, "null"], maxLength: 2000 }
         permissions: { type: array, items: { type: string } }
 
     Role:

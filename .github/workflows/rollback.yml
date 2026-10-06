@@ -1,0 +1,43 @@
+# Emergency rollback (README → Rollback): move each function's live alias
+# back to its previous published version, in seconds, without Terraform.
+# Afterwards, land a revert of the bad merge on main so Terraform's view
+# and reality match again.
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      functions:
+        description: Functions to roll back
+        default: "api mcp stripe-webhook webhook-worker jobs"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Point live at the previous version
+        run: |
+          for f in ${{ inputs.functions }}; do
+            name="substratal-prod-$f"
+            current=$(aws lambda get-alias --function-name "$name" --name live --query FunctionVersion --output text)
+            previous=$(aws lambda list-versions-by-function --function-name "$name" \
+              --query "Versions[?Version!='\$LATEST' && to_number(Version) < \`$current\`].Version | [-1]" --output text)
+            if [ -z "$previous" ] || [ "$previous" = "None" ]; then
+              echo "::warning::$name has no version before $current"; continue
+            fi
+            aws lambda update-alias --function-name "$name" --name live --function-version "$previous" >/dev/null
+            echo "$name: live $current → $previous"
+          done

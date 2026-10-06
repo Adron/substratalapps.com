@@ -30,7 +30,7 @@ Deliberately **staying** on the docs site despite being borderline: `compliance.
 
 ## Status
 
-**Specification-complete for an MVP build; implementation has not started.** The stack is decided (Go on Lambda, Terraform; see [Technology stack](#technology-stack)), and day-to-day work happens on the `dev` branch (see [Branches, CI, and deployment](#branches-ci-and-deployment)). The API described at [adron.github.io/substratalapps.com](https://adron.github.io/substratalapps.com/) is a target contract, not a running service — there is no code in this repository yet beyond the documentation site itself and this planning layer. See [PLAN.md](PLAN.md) for the build order and [DECISIONS.md](DECISIONS.md) for questions still awaiting a decision. Decisions #1–#30 are resolved and written into the spec pages they govern; the only open question (#31, final prices and billing options) doesn't block the build. Check `DECISIONS.md` before starting a phase, since real implementation can surface a new question nobody asked yet.
+**Implemented; not yet deployed.** Every operation in [`docs/openapi.yaml`](docs/openapi.yaml) is implemented in Go (see [Technology stack](#technology-stack)), along with the webhook worker, Stripe billing sync, scheduled jobs, the MCP server, CI/CD, and Terraform for AWS. The integration suite runs against real Postgres and validates every response against `openapi.yaml`. Production doesn't exist yet: the [one-time setup](#one-time-setup-phase-0) hasn't been run, so `deploy.yml` skips with a notice until it is. Day-to-day work happens on the `dev` branch (see [Branches, CI, and deployment](#branches-ci-and-deployment)). See [DECISIONS.md](DECISIONS.md) for questions the build surfaced; none of them blocks the build.
 
 ## Technology stack
 
@@ -40,14 +40,14 @@ Decided 2026-10-06. The API is written in **Go**, deployed to **AWS Lambda**, an
 |---|---|---|
 | Language | **Go** (latest stable release, pinned in `go.mod`) | Cold starts in the tens of milliseconds and small memory use on Lambda. That directly serves the p95 < 150 ms target for `effective-permissions`, `app-tokens`, and `oauth/token` in [Non-Functional Requirements](https://adron.github.io/substratalapps.com/non-functional-requirements/), and the cost-first rules in [DEPLOYMENT.md](DEPLOYMENT.md#cost-principles). Strongly typed, stable for years, and plain enough that a one-person team and an AI assistant can both read and change it safely. |
 | Lambda runtime | `provided.al2023` on **arm64** (Graviton) | Go compiles to one static `bootstrap` binary. arm64 is cheaper per GB-second than x86 for the same work. |
-| HTTP layer | Standard library `net/http`, with server interfaces and types **generated from [`docs/openapi.yaml`](docs/openapi.yaml)** by `oapi-codegen` (strict server mode) | The spec is the contract. Generating from it means an endpoint whose shape doesn't match `openapi.yaml` fails to compile, and contract tests catch the runtime side. |
+| HTTP layer | Standard library `net/http`. The route table, path/query/header binding, and the `ServerInterface` every operation must implement are **generated from [`docs/openapi.yaml`](docs/openapi.yaml)** by `oapi-codegen`. Request and response bodies are hand-written in `internal/core`. | The spec is the contract: an operation without a handler doesn't compile. The generated *body* models can't express explicit JSON `null`s or PATCH field presence, both of which Conventions requires, so bodies are hand-written and the contract tests validate every response against `openapi.yaml` instead. |
 | Lambda adapter | `aws-lambda-go`, plus a thin adapter that turns API Gateway HTTP API events into `http.Request`s | The **same** `http.Handler` serves requests on a laptop and in Lambda. Nothing in handler code knows which one it's running in. |
-| Database | **PostgreSQL 16**. In AWS: Aurora Serverless v2 through the **RDS Data API**. Locally and in CI: plain Postgres through **`pgx`**. | Both sit behind one repository interface, as [DEPLOYMENT.md → Local development](DEPLOYMENT.md#local-development) requires. See [The two database backends](#the-two-database-backends). |
+| Database | **PostgreSQL 16**. In AWS: Aurora Serverless v2 through the **RDS Data API**. Locally and in CI: plain Postgres through **`pgx`**. | Both implement one small driver interface (`internal/db`), as [DEPLOYMENT.md → Local development](DEPLOYMENT.md#local-development) requires. See [The two database backends](#the-two-database-backends). |
 | Migrations | Plain, numbered SQL files in `migrations/`, applied by an in-repo `cmd/migrate` tool | Same tool, same files, same tracking table (`schema_migrations`) in every environment. An in-repo runner is used instead of a third-party tool because the common Go migration tools need a `database/sql` driver, and the Data API has no first-party one. |
 | Crypto | `golang.org/x/crypto/argon2` (Argon2id), standard-library HMAC/RSA, AWS KMS for JWT signing and secret encryption | Matches [Non-Functional Requirements → Security](https://adron.github.io/substratalapps.com/non-functional-requirements/) exactly, with no native add-ons. |
 | AWS access | AWS SDK for Go v2 (Data API, KMS, SQS, Secrets Manager, S3, SES) | |
 | Billing | `stripe-go`, Stripe's official Go library | |
-| MCP server | Go, using the official MCP Go SDK | Per [DEPLOYMENT.md → MCP server](DEPLOYMENT.md#mcp-server), it only proxies HTTPS calls to `/v1`, so it needs no special language features. |
+| MCP server | Go, implementing the buffered-JSON subset of MCP Streamable HTTP directly (`internal/mcp`). Tools are generated from `openapi.yaml` by `cmd/mcpgen`. | The spec requires a stateless, signed `Mcp-Session-Id` and one invocation per call; the official SDK keeps sessions in memory, which doesn't fit a stateless Lambda. It only proxies HTTPS calls to `/v1`. |
 | Infrastructure | **Terraform**, remote state in S3 (native S3 state locking, no DynamoDB table) | Language-neutral and widely known, and `terraform plan` output can be reviewed on the pull request before it reaches production. Works with OpenTofu too. |
 | CI/CD | **GitHub Actions**, deploying to AWS through **OIDC federation** | No long-lived AWS keys anywhere, per [DEPLOYMENT.md → Build checklist](DEPLOYMENT.md#build-checklist) step 9. |
 | Local services | **Docker Compose**: Postgres 16, LocalStack (SQS, KMS, Secrets Manager, S3), Mailpit (captures outgoing email) | The whole API runs on a laptop with no AWS account and no internet beyond Stripe test mode. |
@@ -56,41 +56,34 @@ Considered and not chosen: **TypeScript on Node.js** (fastest early development 
 
 ### Repository layout
 
-The API code lives in this same repository, next to the docs. That matters: a change to the API contract (`docs/openapi.yaml`), the code that implements it, and the docs that describe it all land in **one pull request** and ship in **one merge**. Planned layout:
+The API code lives in this same repository, next to the docs. That matters: a change to the API contract (`docs/openapi.yaml`), the code that implements it, and the docs that describe it all land in **one pull request** and ship in **one merge**.
 
 ```text
 .
-├── cmd/                      # One main package per Lambda function, each with its own IAM role
-│   ├── api/                  #   REST handlers for /v1/*
-│   ├── mcp/                  #   MCP server at /mcp
-│   ├── stripe-webhook/       #   /internal/stripe/webhook
-│   ├── webhook-worker/       #   SQS consumer that delivers outbound webhooks
-│   ├── jobs/                 #   EventBridge-scheduled jobs (expiry sweep, cleanup, archival…)
-│   ├── migrate/              #   Schema migration runner (pgx or Data API backend)
-│   └── devserver/            #   Local only: every route above on one port, plus in-process workers
+├── cmd/
+│   ├── api/  mcp/  stripe-webhook/  webhook-worker/  jobs/   # One Lambda each, each with its own IAM role
+│   ├── devserver/            # Local only: every route on one port, workers in-process
+│   ├── migrate/              # Schema migration runner (pgx or Data API backend)
+│   ├── admin/                # One-time superadmin bootstrap (not an API)
+│   ├── mcpgen/               # openapi.yaml → internal/mcp/tools.json
+│   └── stripe-catalog/       # Creates the Stripe Products/Prices by lookup key
 ├── internal/
 │   ├── api/gen/              # Generated from docs/openapi.yaml. Never edited by hand.
-│   ├── handlers/             # Implements the generated strict-server interface
-│   ├── access/               # allow(user, application, permission): the Access Control algorithm
-│   ├── store/                # Repository interfaces, one per aggregate
-│   │   ├── pg/               #   pgx implementation (local, CI)
-│   │   └── dataapi/          #   RDS Data API implementation (AWS)
-│   ├── auth/  crypto/  billing/  webhooks/  email/  audit/
-│   └── platform/             # Config, logging, Lambda adapter, AWS clients
-├── migrations/               # 0001_init.sql, 0002_….sql: plain SQL, forward-only
-├── seeds/                    # Local and test data, built from the API Reference examples
-├── infra/terraform/
-│   ├── bootstrap/            # Applied once, by hand: state bucket, OIDC provider, deploy roles
-│   ├── modules/              # lambda_function, http_api, aurora, queues, budgets, …
-│   └── prod/                 # The production environment
-├── docker-compose.yml
-├── Makefile
-├── .env.example
-├── docs/                     # The API spec site (unchanged)
-└── .github/workflows/
-    ├── ci.yml                # Every push to dev and every PR into main
-    ├── deploy.yml            # Every merge into main → production
-    └── docs.yml              # Docs versioning and Pages (already in place)
+│   ├── core/                 # Every operation, the request pipeline, jobs' domain logic
+│   ├── access/               # allow(user, application, permission), as a pure function
+│   ├── db/                   # Driver interface; pg/ (pgx), dataapi/ (RDS Data API), migrate/
+│   ├── auth/                 # Argon2id, password policy, TOTP, JWT (KMS or local), encryption
+│   ├── schema/               # The settings_schema JSON Schema subset
+│   ├── httpx/                # Error envelope, cursors, ETag, PATCH presence
+│   ├── webhooks/  billing/  jobs/  mcp/  email/  ids/
+│   ├── platform/             # config, wire (dependency wiring), lambdahttp (adapter)
+│   └── testenv/              # Real-Postgres test harness + contract validation
+├── migrations/               # 0001_init.sql, …: plain SQL, forward-only
+├── scripts/quickstart.sh     # docs/quickstart.md as a script
+├── infra/terraform/          # bootstrap/ (once, by hand), modules/, prod/
+├── docker-compose.yml  docker/postgres-init.sql  Makefile  .env.example
+├── docs/                     # The API spec site
+└── .github/workflows/        # ci.yml, deploy.yml, rollback.yml, docs.yml
 ```
 
 ## Branches, CI, and deployment
@@ -193,10 +186,13 @@ For an urgent fix while `dev` holds unreleased work:
 
 The steps above assume these exist. They're part of [PLAN.md → Phase 0](PLAN.md#phase-0--infrastructure-skeleton), done once, by hand:
 
-1. The AWS account, region, and **cost guardrails first**, per [DEPLOYMENT.md → Cost guardrails](DEPLOYMENT.md#cost-guardrails).
-2. Apply `infra/terraform/bootstrap/` from your own machine with admin credentials. It creates the S3 state bucket, the GitHub OIDC identity provider, the read-only `plan` role, and the `deploy` role, each trusting only this repository and the right branch or environment. This is the only Terraform ever applied from a laptop.
-3. In GitHub: create the `production` environment, add the `main` ruleset, and set repository variables for the role ARNs, region, and state bucket. These are not secrets, because OIDC needs no stored credentials.
-4. Seed the first `superadmin` with the one-time admin command, as [Non-Functional Requirements → Security](https://adron.github.io/substratalapps.com/non-functional-requirements/) requires, since the public API can't create it.
+1. A dedicated AWS account in `us-east-1` ([DEPLOYMENT.md → AWS account & region](DEPLOYMENT.md#aws-account--region)), with its default VPC in place (Aurora's subnets come from it; Lambda never joins a VPC), and a Route 53 hosted zone for `substratalapps.com`.
+2. From your own machine, with admin credentials: `cd infra/terraform/bootstrap && terraform init && terraform apply -var billing_email=you@example.com`. This creates the **cost guardrails first** (warn and hard budgets with a circuit-breaker action, Cost Anomaly Detection, a billing alarm), then the state and artifact buckets, the GitHub OIDC provider, and the read-only `plan` and `deploy` roles. It's the only Terraform ever applied from a laptop.
+3. In GitHub: create the `production` environment (deployments from `main` only), add the `main` ruleset, and set repository **variables** from the bootstrap outputs: `AWS_PLAN_ROLE_ARN`, `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION`, `TF_STATE_BUCKET`, `ARTIFACT_BUCKET`, plus `API_DOMAIN` (`api.substratalapps.com`). None are secrets; OIDC needs no stored credentials.
+4. Merge into `main`. The first deploy creates the stack and then migrates the new cluster.
+5. Put the Stripe keys into the `substratal-prod/app` secret (`stripe_secret_key`, `stripe_webhook_secret`; Terraform never overwrites them), run `make stripe-catalog` against test mode first, and register `https://api.substratalapps.com/internal/stripe/webhook` in Stripe. Request SES production access (about a day).
+6. Seed the first `superadmin`, which the public API can't create by design: `DATABASE_BACKEND=dataapi DB_CLUSTER_ARN=… DB_SECRET_ARN=… go run ./cmd/admin bootstrap -email you@example.com` (ARNs from `terraform output`).
+7. Optional: seed a smoke-test User and Application, and set `SMOKE_USER_ID`, `SMOKE_APP_ID` (variables) and `SMOKE_API_KEY` (secret) so every deploy also checks `effective-permissions` through the Data API.
 
 `main` stays the repository's default branch. It's what's in production, and links throughout the docs point at `blob/main/...`. Local checkouts and day-to-day work use `dev`.
 
@@ -206,7 +202,8 @@ Everything below runs on a laptop with no AWS account. The goal is that `make up
 
 ### Prerequisites
 
-- **Go**, the version pinned in `go.mod`. Code generators and linters are pinned as `tool` dependencies in `go.mod`, so `go tool oapi-codegen` and the rest need no separate installs.
+- **Go**, the version pinned in `go.mod`. `oapi-codegen` is pinned as a `tool` dependency, so `make gen` needs no separate install. `golangci-lint` is optional locally (CI runs it).
+- **jq**, for `make quickstart`.
 - **Docker** with Docker Compose v2.
 - **Terraform**, only if you're changing `infra/`.
 - **Stripe CLI**, only if you're working on billing (`stripe login` once, test mode).
@@ -221,37 +218,37 @@ git checkout dev                 # all work happens on dev
 cp .env.example .env             # local defaults, safe to use as-is
 make up                          # Postgres, LocalStack, Mailpit
 make migrate                     # apply migrations/ to local Postgres
-make seed                        # local superadmin, sample Application, Quickstart data
+make seed                        # a local superadmin (ADMIN_EMAIL / ADMIN_PASSWORD from .env)
 make run                         # devserver on http://localhost:8080
 ```
 
-Then the [Quickstart](https://adron.github.io/substratalapps.com/quickstart/) works locally as written, with `SUBSTRATAL_API=http://localhost:8080/v1`.
+Then `make quickstart` runs the [Quickstart](https://adron.github.io/substratalapps.com/quickstart/) against it (it creates its own TimeTrack Application), and `curl` works as written with `SUBSTRATAL_API=http://localhost:8080/v1`. Integration tests need only `make up`: each test package creates, migrates, and drops its own database.
 
 ### What runs where
 
 | Service | Local | In AWS |
 |---|---|---|
 | REST API, `/mcp`, `/internal/stripe/webhook` | `cmd/devserver`: every route on `:8080`, the same handlers the Lambdas use | One Lambda per function behind API Gateway |
-| Database | Postgres 16 container on `:5432` through pgx | Aurora Serverless v2 through the Data API |
-| Queues (webhook delivery, email, Stripe events) | LocalStack SQS. The devserver runs the workers in-process, polling the same queues. | SQS → worker Lambdas |
-| Scheduled jobs | Run on demand: `make job name=entitlement-expiry` | EventBridge Scheduler → `jobs` Lambda |
-| JWT signing, secret encryption | LocalStack KMS: an RSA-2048 signing key and a symmetric key, created by `make up` | AWS KMS |
-| Secrets | `.env`, or LocalStack Secrets Manager | Secrets Manager |
-| Email | Mailpit. Every email the API sends is viewable at `http://localhost:8025`. | SES |
+| Database | Postgres 16 container on host port `55432` through pgx, connecting as the non-superuser `substratal` role so Row-Level Security applies | Aurora Serverless v2 through the Data API |
+| Webhook delivery | In-process: the devserver nudges its own worker after each commit and sweeps every 2 seconds. Set `WEBHOOKS_ALLOW_PRIVATE=true` (the default in `.env.example`) to deliver to `http://localhost` receivers. | SQS nudge → worker Lambda, plus a 1-minute sweep |
+| Scheduled jobs | The entitlement sweep runs in the devserver every 5 minutes; run any job on demand with `make job name=…` (`make jobs` lists them) | EventBridge Scheduler → `jobs` Lambda |
+| JWT signing, secret encryption | A local RSA-2048 key, generated into `.dev/signing-key.pem` on first run, and a fixed development AES key (set `KMS_*_KEY_ID` to use KMS instead, including LocalStack's) | AWS KMS |
+| Secrets | `.env` | Secrets Manager (`APP_SECRET_ARN`) |
+| Email | Mailpit. Every email the API sends is viewable at `http://localhost:58025`. | SES |
 | Stripe | Stripe test mode. `make stripe-listen` runs `stripe listen --forward-to localhost:8080/internal/stripe/webhook`. | Stripe live mode |
-| Static assets | LocalStack S3 | S3 + CloudFront |
+| Audit archive | `.dev/audit-archive/` | S3, Glacier Deep Archive storage class |
 
-Configuration is entirely environment variables, documented in `.env.example`. `APP_ENV=local` selects the pgx backend and the local email sender. `AWS_ENDPOINT_URL=http://localhost:4566` points every AWS SDK client at LocalStack without any code changes. Nothing in handler or business-logic code branches on the environment. Only the wiring in `internal/platform` does.
+Configuration is entirely environment variables, documented in `.env.example`. `DATABASE_BACKEND`, `EMAIL_BACKEND`, and the `KMS_*` ids select each implementation; `AWS_ENDPOINT_URL=http://localhost:4566` points any AWS SDK client at LocalStack without code changes. Nothing in handler or business-logic code branches on the environment. Only the wiring in `internal/platform/wire` does.
 
 ### The two database backends
 
 [DEPLOYMENT.md → Local development](DEPLOYMENT.md#local-development) explains why the Data API can't run locally. Here's how the code handles it:
 
-- Every database call goes through repository interfaces in `internal/store`. Handlers and business logic never import `pgx` or the Data API client.
-- SQL is written once, as named-parameter queries (`:user_id`) kept next to each repository. The pgx backend rewrites them to `$1` positional form, and the Data API backend passes them as `SqlParameter`s. Same SQL text in both places.
-- Transactions use one interface: `pgx.Tx` locally, and the Data API's `BeginTransaction`/`CommitTransaction` with a `transactionId` in AWS. Audit Events written in the same transaction as the change they record ([Transaction boundaries](https://adron.github.io/substratalapps.com/non-functional-requirements/#transaction-boundaries)) work identically on both.
-- Row-Level Security relies on a per-transaction `set_config('app.tenant_id', …, true)`. Both backends issue it as the first statement of every transaction, through shared code.
-- Known Data API differences are handled in the `dataapi` backend and covered by its own unit tests: type mapping (timestamps, JSON, arrays, numerics come back as typed fields), the 1 MB response limit (which is why list endpoints are always paginated anyway), and statement timeouts. Integration tests cover the pgx path in CI. The production smoke test is the check that the Data API path works end to end.
+- Every database call goes through one small interface in `internal/db` (`Tx`, `Query`, `Exec`). Handlers never import `pgx` or the Data API client.
+- SQL is written once, with named parameters (`:user_id`). The pgx driver rewrites them to `$1` positional form; the Data API driver passes them as `SqlParameter`s. Parameters are only ever scalars; arrays and JSON travel as text with explicit casts (`::text[]`, `::jsonb`), because the Data API has no array parameters.
+- Every query that returns rows selects **one JSON column built by Postgres** (`to_jsonb(t)`, `jsonb_build_object(…)`), so both drivers return plain JSON text and the Data API's per-type field mapping never comes into it.
+- Every request is one transaction. Its first statement sets `app.current_test_mode`, which the test/live Row-Level Security policy reads, so isolation is enforced by the database on both backends. Audit Events and webhook outbox rows written with a change commit with it ([Transaction boundaries](https://adron.github.io/substratalapps.com/non-functional-requirements/#transaction-boundaries)).
+- The Data API driver's parameter mapping and error translation have their own unit tests. Integration tests cover the pgx path; the production smoke test checks the Data API path end to end.
 
 ### Day-to-day commands
 
@@ -259,18 +256,19 @@ Configuration is entirely environment variables, documented in `.env.example`. `
 |---|---|
 | `make up` / `make down` | Start / stop the local services. `make down` keeps data. `make reset` wipes it and starts fresh. |
 | `make migrate` | Apply pending migrations locally. `make migration name=add_x` creates the next numbered SQL file. |
-| `make seed` | Load local data: a `superadmin`, a sample Application, and the Quickstart's users and grants. Built from the API Reference examples, per [Testing strategy](https://adron.github.io/substratalapps.com/non-functional-requirements/#testing-strategy). |
-| `make run` | The devserver, rebuilt and restarted on file changes. |
-| `make gen` | Regenerate `internal/api/gen/` from `docs/openapi.yaml`. Run it after any spec change, and commit the result with it. |
+| `make seed` | Bootstrap a local `superadmin` (the same `cmd/admin` command production uses). |
+| `make run` | The devserver. |
+| `make gen` | Regenerate `internal/api/gen/` and `internal/mcp/tools.json` from `docs/openapi.yaml`. Run it after any spec change and commit the result; CI fails on stale generated code. |
 | `make test` | Unit tests. Fast, no containers. |
-| `make test-integration` | Integration tests against the compose Postgres and LocalStack. |
-| `make test-contract` | Contract tests: every devserver response validated against `docs/openapi.yaml`. |
+| `make test-integration` | Every test, including integration tests against the compose Postgres. |
+| `make test-contract` | The same run: contract checks are built into the integration harness, which validates every response against `docs/openapi.yaml`. A cross-cutting error status an operation doesn't list (`401`, `429`, …) is accepted when its body is the standard error envelope, since Conventions defines those once for every endpoint. |
 | `make quickstart` | The Quickstart walkthrough as a script against the running devserver. |
 | `make check` | Everything `ci.yml` runs, in the same order. Run it before pushing to `dev`. |
 | `make build` | Lambda artifacts for every function (`linux/arm64`) into `dist/`. |
 | `make tf-plan` | `terraform plan` for production with your own read-only credentials. Optional, since the PR does it anyway. |
 | `make job name=…` | Run one scheduled job once, locally. |
 | `make stripe-listen` | Forward Stripe test-mode webhooks to the devserver. |
+| `make stripe-catalog` | Create the Stripe Products and Prices by lookup key (idempotent; refuses live mode without `CONFIRM_LIVE=yes`). |
 
 ### A normal change, start to finish
 
