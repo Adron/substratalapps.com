@@ -35,7 +35,7 @@ How an Application obtains its per-app JWT is covered under [Getting an app toke
 | **Platform access token** | JWT (RS256) | 15 minutes | `login`, `mfa/verify`, `token/refresh`, `signup`, `invitations/accept` | Calling this API as a User (`Authorization: Bearer …`). |
 | **Refresh token** | Opaque, `rtk_…` | 30 days idle, 90 days absolute | Same as above | Getting a new platform access token. Single-use, rotating. |
 | **App token** | JWT (RS256), `aud` = one `application_id` | 5 minutes | `app-tokens`, `oauth/token` | Presented by a User to one Application, verified locally by that Application. See [Trust Model](../../trust-model/#1-short-lived-jwt-at-launch). |
-| **App refresh token** | Opaque, `rtk_…`, bound to one Application | 30 days idle, 90 days absolute | `oauth/token` | Getting a new app token without a platform session (hosted flow only). Re-checks access every time. |
+| **App refresh token** | Opaque, `rtk_…`, bound to one Application | 30 days idle, 90 days absolute | `oauth/token` | Getting a new app token without the Application ever holding a platform token (hosted flow only). It belongs to the session the User signed in with on the hosted page, so ending that session ends it too. Re-checks access every time. |
 | **API Key secret** | Opaque, `satk_live_…` / `satk_test_…` | Until revoked | [API Keys](../api-keys/) | Service-to-service calls. Not a User session. |
 
 Every platform access token and app token is signed with a key published at `https://api.substratalapps.com/.well-known/jwks.json` (see [Signing keys](#signing-keys-jwks)). Every login creates a **session** (`ses_…`); refresh tokens and app refresh tokens belong to exactly one session, and revoking the session revokes all of them at once.
@@ -81,7 +81,7 @@ Every endpoint that establishes or refreshes a platform session returns this sha
   "expires_in": 900,
   "refresh_token": "rtk_01JAG8K4Q9R0S1T2U3V4W5X6Y7",
   "refresh_token_expires_in": 2592000,
-  "session_id": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+  "session_id": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
   "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "email_verified": true
 }
@@ -94,7 +94,7 @@ The platform access token's claims:
   "iss": "https://api.substratalapps.com",
   "aud": "substratal-platform",
   "sub": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
-  "sid": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+  "sid": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
   "amr": ["pwd", "otp"],
   "email_verified": true,
   "test_mode": false,
@@ -126,7 +126,7 @@ The platform access token's claims:
   "expires_in": 900,
   "refresh_token": "rtk_01JAG8K4Q9R0S1T2U3V4W5X6Y7",
   "refresh_token_expires_in": 2592000,
-  "session_id": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+  "session_id": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
   "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "email_verified": false
 }
@@ -135,12 +135,13 @@ The platform access token's claims:
 - Creates the User (`status: active`, `email_verified: false`), a `password` [UserIdentity](../../domain-model/users-and-organizations/#useridentity), a default Profile (with `display_name` if given) and Settings, and the `member` platform Role — one transaction, same as `POST /v1/users`.
 - Sends a verification email (token TTL 24 hours). An unverified User **can** log in; `email_verified` is carried in every token so an Application can decide for itself whether to gate anything on it.
 - `application_id` is optional and **grants nothing** — it records which Application the signup came from (`signup_application_id` on the User, used to brand the verification email with that app's `email_from_name`) and is otherwise informational. Access to an Application still requires an [Entitlement](../entitlements/), which the developer's own backend grants (see [Workflows → Purchase → access](../../workflows/#purchase--access)).
-- If the email belongs to an `invited` User, signup completes the invitation instead: the password is set, `status` becomes `active`, and the invitation token is consumed.
+- If the email belongs to an `invited` User, signup is **rejected** with `409 email_taken` (`details.reason: "invitation_pending"`), and a fresh invitation email is sent to that address (this counts against the same 3-per-email-per-hour limit as `email/verify/resend`). An invitation can only be completed with its `inv_` token, through [`invitations/accept`](#post-v1authinvitationsaccept), because whatever was already attached to the invited account (Entitlements, Roles, Organization memberships) must only go to someone who controls the mailbox. Completing it by signup would hand all of that to anyone who knew the address.
+- `test_mode` (optional, default `false`): `true` creates a test-mode User instead. See [Test-mode Users](#test-mode-users).
 - **Password policy:** 12–128 characters; rejected if it appears in the bundled breached-password list (top 100,000) or equals the email address. No composition rules. Stored as Argon2id (`m=19456 KiB, t=2, p=1`).
 
 | Error | Status | When |
 |---|---|---|
-| `email_taken` | 409 | An `active` or `suspended` User already has this email. |
+| `email_taken` | 409 | An `active`, `suspended`, or `invited` User already has this email in the same mode. For an `invited` User, `details.reason` is `invitation_pending` and the invitation is re-sent. |
 | `weak_password` | 422 | Fails the password policy; `details.reason` is `too_short`, `too_long`, `breached`, or `matches_email`. |
 | `validation_failed` | 422 | Malformed email, unknown `application_id`, etc. |
 
@@ -165,15 +166,27 @@ The platform access token's claims:
 }
 ```
 
-Clients must branch on `mfa_required` before reading `access_token`.
+Clients must branch on `mfa_required` before reading `access_token`. Add `"test_mode": true` to sign in a test-mode User; see [Test-mode Users](#test-mode-users).
 
 | Error | Status | When |
 |---|---|---|
-| `invalid_credentials` | 401 | Unknown email, wrong password, or an `invited` User with no password yet. Deliberately one code for all three — no account enumeration. |
+| `invalid_credentials` | 401 | Unknown email, wrong password, an `invited` User with no password yet, or an SSO-only User (no `password` identity). Deliberately one code for all four — no account enumeration. |
 | `account_suspended` | 403 | Correct credentials, but `status: suspended`. |
-| `too_many_attempts` | 429 | 5 failed attempts for this account in 15 minutes locks it for 15 minutes; `Retry-After` is set. Successful login resets the counter. |
+| `too_many_attempts` | 429 | 5 failed attempts against this account's `password` identity in 15 minutes locks that identity for 15 minutes; `Retry-After` is set. Successful login resets the counter. (The counter lives on the [UserIdentity](../../domain-model/users-and-organizations/#useridentity), so a lockout never blocks the same User's SSO login.) |
 
-Updates `last_login_at` on the User and `last_used_at` on the matching UserIdentity.
+Updates `last_login_at` on the User and `last_used_at` on the matching UserIdentity, when the session is actually issued (for an MFA login, at `mfa/verify`).
+
+## Test-mode Users
+
+A User created by a test-mode API Key (or by signup with `"test_mode": true`) is a separate account from any live User with the same email, since uniqueness is per mode. The auth endpoints that look an account up by **email** therefore take an optional `test_mode` boolean, default `false`, and only ever match accounts in that mode:
+
+| Endpoint | Field |
+|---|---|
+| `POST /v1/auth/signup` | `test_mode` creates the User in that mode. |
+| `POST /v1/auth/login` | `test_mode` picks which account the email refers to. |
+| `POST /v1/auth/password/forgot`, `POST /v1/auth/email/verify/resend` | `test_mode` picks which account to email. |
+
+Endpoints that take a token (`mfa/verify`, `token/refresh`, `password/reset`, `email/verify`, `invitations/accept`, `oauth/token`) don't need it, because the token already belongs to exactly one account. Every token issued to a test-mode User carries `"test_mode": true`, and the API confines that token to test-mode rows exactly as it does a `satk_test_` key. Applications themselves are shared catalog rows, visible in both modes, so a test-mode User gets app tokens for the same Applications a live one does, as long as they hold a (test-mode) Entitlement to it.
 
 ## `POST /v1/auth/mfa/verify`
 
@@ -233,14 +246,15 @@ An **app token** is the per-Application JWT that [Trust Model](../../trust-model
 | Path | When | Calls |
 |---|---|---|
 | **Embedded** | The Application draws its own sign-in screen (any first-party app, native or web — the only option until the hosted page exists). | `login` → `app-tokens`. Refresh the platform session with `token/refresh`, then call `app-tokens` again. |
-| **Hosted + PKCE** | The Application sends the user to Substratal's hosted sign-in page (ships with the dashboard), and never sees the password. Required for third-party Applications. | Hosted page calls `oauth/authorization-codes` → app calls `oauth/token`. Refresh with `oauth/token` (`grant_type: refresh_token`). |
+| **Hosted + PKCE** | The Application sends the user to Substratal's hosted sign-in page (ships with the dashboard), and never sees the password. Required for third-party Applications. | App opens the [authorization endpoint](#the-authorization-endpoint) → hosted page calls `oauth/authorization-codes` → app calls `oauth/token`. Refresh with `oauth/token` (`grant_type: refresh_token`). |
 
 Both paths produce the identical app token. Either way, issuance **fails** if the User doesn't have active access to the Application right now:
 
 | Error | Status | When |
 |---|---|---|
-| `entitlement_required` | 403 | Resolved entitlement status isn't `active` (see [Access Control](../../access-control/)). `details.entitlement_status` says what it is. |
-| `application_not_available` | 403 | The Application's `review_status` is `suspended`/`rejected`/`pending_review` — see [Applications → review lifecycle](../../domain-model/applications/#the-review-lifecycle). |
+| `entitlement_required` | 403 | Resolved entitlement status isn't `active` (see [Access Control](../../access-control/)). `details.entitlement_status` says what it is, including `scheduled` for a grant whose `starts_at` hasn't arrived. |
+| `application_not_available` | 409 | The Application's `review_status` is `suspended`/`rejected`/`pending_review` — see [Applications → review lifecycle](../../domain-model/applications/#the-review-lifecycle). A state conflict, not a permission failure, so it's the same `409` wherever this code appears. |
+| `tenant_suspended` | 403 | The Application's Tenant is `suspended` by the platform. See [Tenancy](../../domain-model/tenancy/#fields). |
 | `account_suspended` | 403 | The User is suspended. |
 
 ### The app token
@@ -250,7 +264,7 @@ Both paths produce the identical app token. Either way, issuance **fails** if th
   "iss": "https://api.substratalapps.com",
   "aud": "app_timetrack",
   "sub": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
-  "sid": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+  "sid": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
   "org_id": null,
   "email": "jordan@example.com",
   "email_verified": true,
@@ -285,6 +299,22 @@ Both paths produce the identical app token. Either way, issuance **fails** if th
 
 Bearer must be a **platform access token** (a User), not an API Key — `400 user_token_required` otherwise. Optional `organization_id` selects which Organization's grant to attribute `org_id` to; `403 entitlement_required` if that Organization doesn't actually include this User.
 
+### The authorization endpoint
+
+The hosted flow starts by sending the User's browser (or, for a native app, the system browser) to the hosted sign-in page, a standard OAuth 2.0 authorization endpoint:
+
+```
+GET https://auth.substratalapps.com/authorize
+  ?response_type=code
+  &client_id=app_timetrack
+  &redirect_uri=com.substratal.timetrack%3A%2Foauth%2Fcallback
+  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+  &code_challenge_method=S256
+  &state=af0ifjsldkj
+```
+
+It's a web page, not part of the `/v1` API, and it's listed as `authorization_endpoint` in [`openid-configuration`](#signing-keys-jwks), so libraries like AppAuth discover it. The page signs the User in (creating a platform session if there isn't one), then calls `oauth/authorization-codes` below with the same parameters and redirects to `redirect_to`. If `client_id` or `redirect_uri` isn't valid it shows an error instead of redirecting, per OAuth 2.0; any later failure (no access, User cancelled) redirects back with `error=access_denied` and the original `state`. The page ships with the dashboard; until then only embedded login is available.
+
 ### `POST /v1/auth/oauth/authorization-codes`
 
 Called by Substratal's hosted sign-in page (or the future dashboard's "Launch" button) on the signed-in User's behalf — not by the Application.
@@ -308,7 +338,7 @@ Called by Substratal's hosted sign-in page (or the future dashboard's "Launch" b
 }
 ```
 
-`redirect_uri` must exactly match one of the Application's registered `redirect_uris` (`422 redirect_uri_not_registered`); `code_challenge_method` must be `S256` (`plain` is rejected). The code is single-use and expires in 60 seconds. Access is checked here too, with the same errors as above, so a User without access is never redirected into the app holding a code.
+`redirect_uri` must exactly match one of the Application's registered `redirect_uris` (`422 redirect_uri_not_registered`); `code_challenge_method` must be `S256` (`plain` is rejected, `422 validation_failed`). An unknown or invisible `application_id` returns `404 application_not_found`. The code is single-use, expires in 60 seconds, and belongs to the caller's session: the app refresh token it's later exchanged for is revoked whenever that session is. Access is checked here too, with the same errors as above, so a User without access is never redirected into the app holding a code.
 
 ### `POST /v1/auth/oauth/token`
 
@@ -426,7 +456,7 @@ Self only (an admin cannot set a User's password — they can only trigger `pass
 // Response — 200, an AuthSession
 ```
 
-Creates the `password` identity, sets `status: active` and `email_verified: true`, and signs the User in. Errors: `400 token_invalid` (expired invitations are re-sent with `POST /v1/users/{id}/invitation` — see [Users](../users/)), `422 weak_password`.
+Creates the `password` identity, sets `status: active` and `email_verified: true`, and signs the User in. If the invitation came from an Organization, accepting it also accepts that `pending` membership (and any other pending memberships for this User), the same as [`…/members/me/accept`](../organizations/#post-v1organizationsidmembersmeaccept). Errors: `400 token_invalid` (expired invitations are re-sent with `POST /v1/users/{id}/invitation` — see [Users](../users/)), `422 weak_password`.
 
 ## MFA (TOTP)
 
@@ -468,14 +498,18 @@ Ten recovery codes, shown **once** — stored hashed. Writes `user.mfa_enabled` 
 ### `POST /v1/users/{id}/mfa/totp/disable`
 
 ```json
-// Request — current TOTP or a recovery code
+// Request — a current TOTP code
 { "code": "492039" }
+```
+```json
+// Request — or a recovery code instead (exactly one of the two)
+{ "recovery_code": "7hq2-kx9m-a4vd" }
 ```
 ```json
 // Response — 204
 ```
 
-Writes `user.mfa_disabled`, emails a notice.
+Same fields as [`mfa/verify`](#post-v1authmfaverify). Deletes the secret and every recovery code, writes `user.mfa_disabled`, and emails a notice. Existing sessions are kept. Errors: `401 invalid_mfa_code` (wrong or reused code), `409 mfa_not_enabled` (no confirmed TOTP to disable), and `429 too_many_attempts` after 5 wrong codes in 15 minutes.
 
 ### `DELETE /v1/users/{id}/mfa/totp` — support reset
 
@@ -490,10 +524,10 @@ Requires `users.manage`. For a User who has lost their device *and* their recove
 {
   "data": [
     {
-      "id": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+      "id": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
       "created_at": "2026-10-02T09:41:03Z",
       "last_seen_at": "2026-10-05T08:12:44Z",
-      "expires_at": "2026-12-31T09:41:03Z",
+      "expires_at": "2026-11-04T08:12:44Z",
       "ip_address": "203.0.113.24",
       "user_agent": "TimeTrack/2.4 (iOS 19.0)",
       "amr": ["pwd", "otp"],
@@ -504,9 +538,11 @@ Requires `users.manage`. For a User who has lost their device *and* their recove
 }
 ```
 
+`expires_at` is when the session ends if nothing else happens: the earlier of `idle_expires_at` (30 days after the last refresh, here 2026-10-05) and `absolute_expires_at` (90 days after creation, 2026-12-31). Each refresh pushes the idle expiry forward, never past the absolute one.
+
 ### `DELETE /v1/users/{id}/sessions/{sessionId}`
 
-`204`. Same effect as logout for that one session.
+`204`. Same effect as logout for that one session. `revoked_reason` is `logout` when the User revokes their own session, and `admin` when a `users.manage` caller does.
 
 ## `POST /v1/auth/sso/{provider}/callback`
 
@@ -530,7 +566,7 @@ GET https://api.substratalapps.com/.well-known/jwks.json
 - Rotated every 90 days. A new key is published 7 days before it starts signing, and a retired key stays published for 7 days after its last use (longer than any token's TTL), so a verifying Application never sees an unknown `kid` in normal operation.
 - Verification checklist for an Application: signature against JWKS, `iss` equals `https://api.substratalapps.com`, `aud` equals its own `application_id`, `exp` in the future (allow ≤60 s clock skew), `entitlement_status` is `active`.
 
-`GET /.well-known/openid-configuration` returns `issuer`, `jwks_uri`, `token_endpoint` (`/v1/auth/oauth/token`), `grant_types_supported` (`authorization_code`, `refresh_token`), and `code_challenge_methods_supported` (`S256`). It is metadata for standard libraries, not a claim of full OpenID Connect conformance (there is no `id_token` or userinfo endpoint).
+`GET /.well-known/openid-configuration` returns `issuer`, `jwks_uri`, `authorization_endpoint` (`https://auth.substratalapps.com/authorize`, see [The authorization endpoint](#the-authorization-endpoint)), `token_endpoint` (`/v1/auth/oauth/token`), `response_types_supported` (`code`), `grant_types_supported` (`authorization_code`, `refresh_token`), and `code_challenge_methods_supported` (`S256`). It is metadata for standard libraries, not a claim of full OpenID Connect conformance (there is no `id_token` or userinfo endpoint).
 
 ## Errors specific to this resource
 
@@ -544,11 +580,13 @@ GET https://api.substratalapps.com/.well-known/jwks.json
 | `token_invalid` | 400 | Verification, reset, or invitation token is expired, used, or unknown. |
 | `invalid_mfa_code` | 401 | Wrong or reused TOTP/recovery code. |
 | `mfa_token_invalid` | 401 | MFA challenge expired or exhausted. |
-| `mfa_already_enabled` / `mfa_not_applicable` / `mfa_enrollment_expired` | 409 | See [MFA](#mfa-totp). |
+| `mfa_already_enabled` / `mfa_not_enabled` / `mfa_not_applicable` / `mfa_enrollment_expired` | 409 | See [MFA](#mfa-totp). |
 | `refresh_token_reused` | 401 | A rotated refresh token was presented again — session revoked. |
 | `session_revoked` | 401 | The session was logged out, reset, or the User suspended/deleted. |
 | `user_token_required` | 400 | An endpoint that acts *as a User* was called with an API Key. |
 | `entitlement_required` | 403 | App-token issuance for a User without active access. |
-| `application_not_available` | 403 | App-token issuance for an Application not `approved`. |
+| `application_not_available` | 409 | App-token issuance for an Application not `approved`. |
+| `tenant_suspended` | 403 | App-token issuance for an Application whose Tenant is suspended. |
+| `application_not_found` | 404 | Unknown or invisible `application_id` on `app-tokens` or `oauth/authorization-codes`. |
 | `redirect_uri_not_registered` | 422 | Authorization code requested for an unregistered `redirect_uri`. |
 | `not_implemented` | 501 | SSO callback before the broker integration exists. |

@@ -8,7 +8,7 @@ nav_order: 5
 # Settings
 {: .no_toc }
 
-See [Domain Model → Settings](../../domain-model/settings/) for the three-layer resolution model (`AppSettings → Settings → Application default`) this resource implements.
+See [Domain Model → Settings](../../domain-model/settings/) for the resolution model this resource implements: reserved keys fall through `AppSettings → global Settings`, declared keys fall through `AppSettings → the Application's default`.
 {: .fs-6 .fw-300 }
 
 1. TOC
@@ -20,12 +20,12 @@ See [Domain Model → Settings](../../domain-model/settings/) for the three-laye
 
 | Method | Path | Requires | Purpose |
 |---|---|---|---|
-| `GET` | `/v1/users/{id}/settings` | self or `users.manage` | Fetch global Settings. |
+| `GET` | `/v1/users/{id}/settings` | self, or platform `users.list` | Fetch global Settings. |
 | `PATCH` | `/v1/users/{id}/settings` | self or `users.manage` | Update global Settings. |
-| `GET` | `/v1/users/{id}/apps/{appId}/settings` | self, the app's own key, or `users.manage` | Fetch the fully resolved per-app settings. |
+| `GET` | `/v1/users/{id}/apps/{appId}/settings` | self, the app's own key, or platform `users.list` | Fetch the fully resolved per-app settings. |
 | `PATCH` | `/v1/users/{id}/apps/{appId}/settings` | self, the app's own key, or `users.manage` | Write per-app overrides. |
 
-As on [Profiles](../profiles/), "the app's own key" means any app-scoped [API Key](../api-keys/) scoped to `{appId}`, with no extra permission needed. Self and app-key access to an Application's settings requires the user to have *active* access to that Application. Otherwise the call returns `403 entitlement_required`. `users.manage` bypasses that check for support investigations.
+As on [Profiles](../profiles/), "the app's own key" means any app-scoped [API Key](../api-keys/) scoped to `{appId}`, with no extra permission needed. Self and app-key access to an Application's settings requires the user to have *active* access to that Application. Otherwise the call returns `403 entitlement_required`. Support bypasses that check for investigations: platform `users.list` (held by the `support` Role) can read regardless, and `users.manage` can read and write regardless.
 
 ## `GET /v1/users/{id}/settings`
 
@@ -48,7 +48,15 @@ As on [Profiles](../profiles/), "the app's own key" means any app-scoped [API Ke
 { "timezone": "Europe/Dublin", "notifications": { "sms": true } }
 ```
 ```json
-// Response — 200, full updated object — notifications merged: { "email": true, "sms": true, "push": true }
+// Response — 200, the full updated Settings — notifications merged one level deep
+{
+  "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
+  "locale": "en-US",
+  "timezone": "Europe/Dublin",
+  "theme": "dark",
+  "notifications": { "email": true, "sms": true, "push": true },
+  "updated_at": "2026-10-05T10:05:00Z"
+}
 ```
 
 | Field | Validation |
@@ -58,7 +66,26 @@ As on [Profiles](../profiles/), "the app's own key" means any app-scoped [API Ke
 | `theme` | `light`, `dark`, or `system`. |
 | `notifications` | An object of channel name to boolean. Channel names match `^[a-z][a-z0-9_]{0,31}$`, with at most 20 channels. The keys are merged one level deep, and a channel sent as `null` is removed. |
 
-Defaults on user creation: `locale: "en-US"`, `timezone: "UTC"`, `theme: "system"`, `notifications: {"email": true}`.
+Defaults on user creation: `locale: "en-US"`, `timezone: "UTC"`, `theme: "system"`, `notifications: {"email": true}`. This is the only place `locale` is written; the Profile's `locale` mirrors it.
+
+A failed validation lists every field at once:
+
+```json
+// PATCH { "timezone": "Mountain Time", "theme": "blue", "notifications": { "Push-Alerts": true } }
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "3 fields failed validation.",
+    "details": {
+      "fields": [
+        { "field": "timezone", "code": "unknown_value" },
+        { "field": "theme", "code": "enum_mismatch", "allowed": ["light", "dark", "system"] },
+        { "field": "notifications.Push-Alerts", "code": "invalid_format", "pattern": "^[a-z][a-z0-9_]{0,31}$" }
+      ]
+    }
+  }
+}
+```
 
 ## `GET /v1/users/{id}/apps/{appId}/settings`
 
@@ -119,7 +146,7 @@ Each key in `overrides` is validated on its own before anything is written:
 - `null` always means "clear this override" and is never validated.
 - The serialized `overrides` object is limited to 16 KB after the merge.
 
-A key the schema doesn't declare, or a value of the wrong type, returns `422 settings_schema_violation`. The error lists every failure, not just the first:
+A key the schema doesn't declare, a value of the wrong type, or a reserved key that fails its platform rule returns `422 settings_schema_violation`. The error lists every failure, not just the first:
 
 ```json
 {
@@ -145,3 +172,4 @@ A self-service write or an app-key write produces no Audit Event. An admin writi
 | `settings_schema_violation` | 422 | An override fails the Application's `settings_schema`. Per-field detail is in `details.fields`. |
 | `entitlement_required` | 403 | Self or app-key access for a user without active access to the Application. |
 | `application_not_found` | 404 | `{appId}` doesn't resolve, or isn't the calling app key's own Application. |
+| `validation_failed` | 422 | A global Settings `PATCH` breaks a field rule; see the example above. (Per-app overrides report through `settings_schema_violation` instead, even for reserved keys.) |

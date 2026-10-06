@@ -24,10 +24,13 @@ A person with an account on Substratal. One identity, used everywhere in the hub
 | `email_verified` | boolean | Set by verifying an emailed link, accepting an invitation, or completing a password reset. |
 | `pending_email` | string, nullable | A self-service email change awaiting verification of the new address. |
 | `status` | enum | `active` \| `invited` \| `suspended` \| `deleted`. |
+| `mfa_enabled` | boolean | Read-only, derived: `true` if any of the User's `password` [identities](#useridentity) has confirmed TOTP. |
 | `signup_application_id` | string, nullable | The Application the user signed up through, if any. Informational only; used for email branding. |
 | `test_mode` | boolean | Created by a test-mode key. |
 | `created_at`, `updated_at` | timestamp | |
 | `last_login_at` | timestamp, nullable | |
+
+The database row also carries `version` (the source of the `ETag`) and `deleted_at`; see [Database Schema → users](../database-schema/#users).
 
 ### Lifecycle
 
@@ -38,7 +41,7 @@ A person with an account on Substratal. One identity, used everywhere in the hub
                                                          ├──── suspend ──────► suspended
                                                          │                         │
                                                          ▼                         ▼
-                                        deleted (soft: DELETE, or erasure request)
+                                        deleted (soft: DELETE, or erasure request) ── restore (users.manage) ──► active
                                                          │
                                                          ▼ 7 days after an erasure request
                                               hard-deleted (cascade, `user.erased`)
@@ -46,7 +49,7 @@ A person with an account on Substratal. One identity, used everywhere in the hub
 
 Signup (`POST /v1/auth/signup`) creates a User directly in `active`. An admin invite (`POST /v1/users`) or an org-membership invite by email creates an `invited` one. Suspension and deletion revoke every session and fire `access.revoked` for every Application the user had active access to.
 
-An `invited` user has an account shell (so an Entitlement or Role can be assigned before they've logged in once) but can't authenticate until they complete signup. `suspended` blocks login but preserves every record — Entitlements, Roles, Profile, Settings — unlike `deleted`, which is the start of actual data removal. See [Non-Functional Requirements → Data retention](../../non-functional-requirements/#data-retention).
+An `invited` user has an account shell (so an Entitlement or Role can be assigned before they've logged in once) but can't authenticate until they complete signup. `suspended` blocks login but preserves every record — Entitlements, Roles, Profile, Settings — unlike `deleted`, which is the start of actual data removal. A soft-deleted User can still be **restored** by `users.manage` (`PATCH status: active`) as long as no erasure request is scheduled and their email hasn't been taken by a new signup; once the erasure cascade completes, there's nothing to restore. See [Users → `PATCH`](../../api-reference/users/#patch-v1usersid). See [Non-Functional Requirements → Data retention](../../non-functional-requirements/#data-retention).
 
 ### Example
 
@@ -55,8 +58,13 @@ An `invited` user has an account shell (so an Entitlement or Role can be assigne
   "id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "email": "jordan@example.com",
   "email_verified": true,
+  "pending_email": null,
   "status": "active",
+  "mfa_enabled": false,
+  "signup_application_id": "app_timetrack",
+  "test_mode": false,
   "created_at": "2026-01-14T18:02:11Z",
+  "updated_at": "2026-09-20T14:12:00Z",
   "last_login_at": "2026-10-02T09:41:03Z"
 }
 ```
@@ -75,7 +83,7 @@ How a User actually authenticates isn't a field on `User` either, for the same r
 | `password_hash` | string, nullable | Set only when `method: password`. Native credential, owned directly by this API. |
 | `sso_connection_id` | string, nullable | Set only when `method: sso` — `references sso_connections(id)`, see below. |
 | `external_subject_id` | string, nullable | The identity provider's own user id for this person, set only when `method: sso`. |
-| `mfa_enabled` | boolean | TOTP/passkey, opt-in, meaningful only alongside `method: password` — an SSO connection's own MFA policy is that provider's concern, not re-implemented here. |
+| `mfa_enabled` | boolean | TOTP, opt-in, meaningful only alongside `method: password` — an SSO connection's own MFA policy is that provider's concern, not re-implemented here. |
 | `last_used_at` | timestamp, nullable | Which method a User actually logs in with, in practice — not just which they've set up. |
 
 **One User, multiple UserIdentity rows** is the normal case, not an edge case — the same person might hold a `password` identity *and* an `sso` identity through their employer's Organization, choosing either at login. [`POST /v1/auth/login`](../../api-reference/auth/) accepts whichever credential matches an existing row; there's no "primary" method to designate.
@@ -103,11 +111,11 @@ The other half of [native auth and per-Organization SSO](../../api-reference/aut
 | `id` | string | `ssc_` prefix. |
 | `organization_id` | string | `references organizations(id)` — the Organization this connection belongs to. |
 | `provider` | string | The underlying federation service, e.g. `"workos"`. A federation broker, rather than integrating each enterprise IdP directly, because "bring your own enterprise IdP" is exactly the problem a broker solves; see [Auth](../../api-reference/auth/#native-auth-and-per-organization-sso). |
-| `domain` | string, nullable | An email domain (e.g. `acme.com`) this connection auto-applies to, so a new member with a matching email can be routed to the right connection without manual setup. |
+| `domain` | string, nullable | An email domain (e.g. `acme.com`) this connection auto-applies to, so a new member with a matching email can be routed to the right connection without manual setup. A domain can be claimed by at most one `active` connection across the whole platform, not just per Organization, so routing a login by email domain is never ambiguous. Claiming one will require proving control of it (a DNS TXT record), specified with the broker integration. |
 | `status` | enum | `active` \| `inactive`. |
 
 {: .note }
-This table is deliberately thin — scoped to *that* a User can authenticate via their Organization's SSO, not *how* the broker integration works, which is explicitly deferred (see [Auth → Native auth and per-Organization SSO](../../api-reference/auth/#native-auth-and-per-organization-sso)). Expect fields here once that integration is actually built, not guessed at now.
+This table is deliberately thin — scoped to *that* a User can authenticate via their Organization's SSO, not *how* the broker integration works, which is explicitly deferred (see [Auth → Native auth and per-Organization SSO](../../api-reference/auth/#native-auth-and-per-organization-sso)). **There is no API for SSOConnection yet**: no endpoint creates, lists, or changes one. Its management endpoints (under `/v1/organizations/{id}/sso-connections`, org-admin owned) ship with the broker integration, alongside the fields and domain-verification flow they need. Until then, the table exists so the schema doesn't need a breaking migration later.
 
 ---
 
@@ -137,8 +145,11 @@ The join record between a User and an Organization — a User can belong to any 
 |---|---|---|
 | `user_id` | string | |
 | `organization_id` | string | |
+| `status` | enum | `pending` \| `active`. A membership added by email starts `pending` and becomes `active` when the person accepts. Only an `active` membership counts for anything: org-wide grants, `org_admin` standing, `member_overrides`. See [Organizations → Adding members](../../api-reference/organizations/#post-v1organizationsidmembers). |
 | `role` | enum | `org_admin` \| `member`. Standing *within this one Organization* — independent of any [PlatformRole](../roles-and-permissions/#platformrole) or [AppRole](../roles-and-permissions/#approle) the same User holds. Being `org_admin` of one Organization says nothing about standing in another, the same independence pattern [AppRole](../roles-and-permissions/#approle) already uses across Applications. |
-| `joined_at` | timestamp | |
+| `invited_by` | string, nullable | The User who added this membership by email. `null` for a direct add by `organizations.manage` and for the creator. |
+| `invited_at` | timestamp | When the membership row was created. |
+| `joined_at` | timestamp, nullable | When it became `active`. `null` while `pending`. |
 
 `org_admin` is what [API Reference → Organizations → Delegated admin](../../api-reference/organizations/#delegated-admin) resolves to — an org admin is simply a User whose `OrganizationMembership.role` is `org_admin` for that specific Organization, not a third Role scope alongside `platform` and `application_id`.
 

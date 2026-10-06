@@ -33,24 +33,24 @@ See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissi
 
 ## `GET /v1/permissions`
 
-Platform-scoped keys (fixed, built in), plus each visible Application's own declared keys (from its `permissions` field — see [Applications](../applications/#the-application-object)). See [Domain Model → Platform permission catalog](../../domain-model/roles-and-permissions/#platform-permission-catalog) for what each platform key grants.
+Platform-scoped keys (fixed, built in, with descriptions summarized from the authoritative [Platform permission catalog](../../domain-model/roles-and-permissions/#platform-permission-catalog)), plus each visible Application's own declared keys (from its `permissions` field — see [Applications](../applications/#the-application-object)). See [Domain Model → Platform permission catalog](../../domain-model/roles-and-permissions/#platform-permission-catalog) for what each platform key grants.
 
 ```json
 // Response — 200
 {
   "data": [
-    { "key": "users.list", "scope": "platform", "description": "List/search User accounts." },
+    { "key": "users.list", "scope": "platform", "description": "List/search User accounts. On an app-scoped key, confined to users with an access path to that Application." },
     { "key": "users.manage", "scope": "platform", "description": "Create, update, suspend, delete User accounts." },
-    { "key": "entitlements.manage", "scope": "platform", "description": "Grant, toggle, and revoke Entitlements." },
-    { "key": "applications.manage", "scope": "platform", "description": "Create and moderate Application catalog entries." },
-    { "key": "roles.manage", "scope": "platform", "description": "Define Roles and assign/remove them." },
-    { "key": "organizations.manage", "scope": "platform", "description": "Manage any Organization, its members, and org-wide grants." },
-    { "key": "billing.manage", "scope": "platform", "description": "View and manage any Tenant's platform subscription." },
+    { "key": "entitlements.manage", "scope": "platform", "description": "Grant, toggle, and revoke Entitlements for any user. On an app-scoped key, confined to that Application." },
+    { "key": "applications.manage", "scope": "platform", "description": "Create and edit Application catalog entries." },
+    { "key": "roles.manage", "scope": "platform", "description": "Define Roles and assign/remove them on any user. On an app-scoped key, confined to that Application's Roles." },
+    { "key": "organizations.manage", "scope": "platform", "description": "Manage any Organization: suspend/reactivate, membership, and member scope." },
+    { "key": "billing.manage", "scope": "platform", "description": "View any Tenant's platform subscription and usage, and open its billing portal." },
     { "key": "billing.refund", "scope": "platform", "description": "Issue platform-subscription refunds and credits." },
-    { "key": "audit.view", "scope": "platform", "description": "Query the Audit log for any user." },
-    { "key": "webhooks.manage", "scope": "platform", "description": "Manage any caller's webhook subscriptions." },
+    { "key": "audit.view", "scope": "platform", "description": "Query the Audit log for any user. On an app-scoped key, confined to that Application's events." },
+    { "key": "webhooks.manage", "scope": "platform", "description": "Manage any webhook subscription, and create platform-scoped ones." },
     { "key": "api_keys.manage", "scope": "platform", "description": "Create, rotate, and revoke any API Key." },
-    { "key": "tenants.manage", "scope": "platform", "description": "View any Tenant and run tier changes." },
+    { "key": "tenants.manage", "scope": "platform", "description": "View any Tenant and request a tier change on a customer's behalf." },
     { "key": "app.timetrack.export", "scope": "app_timetrack", "description": "Export timesheets as CSV/PDF." },
     { "key": "app.timetrack.manage_members", "scope": "app_timetrack", "description": "Add and remove team members inside TimeTrack." }
   ],
@@ -76,7 +76,7 @@ Filter with `?scope=platform` or `?scope=app_timetrack`. An app-scoped key sees 
 }
 ```
 
-- **`id` is derived, never chosen:** `role_platform_<name>` for platform Roles, and `role_<slug>_<name>` for app Roles, with any `-` in the slug turned into `_`. It's stable and human-readable, by design. See [Conventions → IDs](../conventions/#ids).
+- **`id` is derived, never chosen:** `role_platform_<name>` for platform Roles, and `role_<slug>_<name>` for app Roles, with the slug verbatim (`role_time-track_admin`). A slug never contains `_` and can't be `platform`, so no two (scope, name) pairs derive the same id. It's stable and human-readable, by design. See [Conventions → IDs](../conventions/#ids).
 - `name` matches `^[a-z][a-z0-9_]{1,40}$` and is unique within its `scope`. For an app Role it **must** be one of the Application's `available_app_roles`.
 - `seed: true` marks the four built-in platform Roles (`superadmin`, `support`, `billing_admin`, `member`). They can't be changed or deleted through the API.
 - `permissions` must be keys valid for the Role's own scope. A platform Role can hold only platform keys, and an app Role can hold only that Application's `app.<slug>.*` keys. Mixing them returns `422 unknown_permission`.
@@ -124,6 +124,17 @@ Filter by `?scope=platform` or `?scope=<application_id>`. What a caller sees:
 ```
 ```json
 // Response — 200, the full updated Role
+{
+  "id": "role_timetrack_admin",
+  "name": "admin",
+  "scope": "app_timetrack",
+  "description": "Full control inside TimeTrack.",
+  "permissions": ["app.timetrack.export", "app.timetrack.manage_members", "app.timetrack.approve"],
+  "seed": false,
+  "assignment_count": 12,
+  "created_at": "2025-11-03T00:00:00Z",
+  "updated_at": "2026-10-05T12:30:00Z"
+}
 ```
 
 `permissions` (replaced wholesale) and `description` only. A change takes effect immediately for every holder, on their next request, introspection call, or app token. Writes `role.updated`, which records the before and after permission sets. The same escalation rule as `POST` applies to platform Roles. Seed Roles return `403 seed_role_immutable`.
@@ -142,7 +153,7 @@ Changing a Role's permissions doesn't fire a webhook per holder. Apps learn of t
 {
   "data": [
     { "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S", "role_id": "role_platform_member", "application_id": null, "assigned_at": "2026-01-14T18:02:11Z", "assigned_by": { "type": "system", "id": "system" }, "implicit": false },
-    { "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S", "role_id": "role_timetrack_admin", "application_id": "app_timetrack", "assigned_at": "2026-10-03T12:05:00Z", "assigned_by": { "type": "user", "id": "usr_01JAG9SUPPORT0000000000000" }, "implicit": false },
+    { "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S", "role_id": "role_timetrack_admin", "application_id": "app_timetrack", "assigned_at": "2026-10-03T12:05:00Z", "assigned_by": { "type": "user", "id": "usr_01JAG9STAFF000000000000000" }, "implicit": false },
     { "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S", "role_id": "role_invoicer_member", "application_id": "app_invoicer", "assigned_at": null, "assigned_by": null, "implicit": true }
   ],
   "page": { "next_cursor": null, "has_more": false }
@@ -171,7 +182,7 @@ Changing a Role's permissions doesn't fire a webhook per holder. Apps learn of t
   "role_id": "role_timetrack_admin",
   "application_id": "app_timetrack",
   "assigned_at": "2026-10-03T12:05:00Z",
-  "assigned_by": { "type": "user", "id": "usr_01JAG9SUPPORT0000000000000" },
+  "assigned_by": { "type": "user", "id": "usr_01JAG9STAFF000000000000000" },
   "implicit": false
 }
 ```
@@ -216,18 +227,19 @@ The live introspection check described throughout [Trust Model](../../trust-mode
   "user_status": "active",
   "entitlement_status": "disabled",
   "access_paths": [
-    { "source": "purchase", "entitlement_id": "ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9", "status": "disabled" }
+    { "source": "purchase", "entitlement_id": "ent_01JAG9F4Q1W2E3R4T5Y6V7J809", "status": "disabled" }
   ],
-  "roles": ["role_invoicer_member"],
+  "roles": [],
   "effective_permissions": [],
   "computed_at": "2026-10-05T12:00:00Z"
 }
 ```
 
 - `allowed` is `user_status == "active" && entitlement_status == "active"`. It's the one boolean most callers need.
-- `entitlement_status` is the *resolved* status across every path (see [Access Control](../../access-control/#the-algorithm)). It's `"none"` if the user has no path at all.
+- `entitlement_status` is the *resolved* status across every path (see [Access Control](../../access-control/#the-algorithm)). It's `"none"` if the user has no path at all, and `"scheduled"` if their only live path is a grant whose `starts_at` is still in the future.
+- `roles` lists the user's explicit assignments for this Application, plus the implicit `default_app_role` **only while `allowed` is true**, since the default Role is held by "every user with active access". In the second example the user has no explicit Roles and no active access, so it's empty.
 - `effective_permissions` is **always empty when `allowed` is false**. When `allowed` is true, it contains only this Application's `app.<slug>.*` keys, from explicit and `default_app_role` assignments. Platform permissions never appear here.
-- `access_paths` lists every path, including org grants with their `organization_id` and `member_decision`, so a support agent can see *why*.
+- `access_paths` lists every path, including org grants with their `organization_id` and `member_decision` (`included`, `excluded`, or `seat_limit`), and future-dated grants with their `starts_at`, so a support agent can see *why*. Each entry has `source`, `entitlement_id`, and the row's own `status`; see [Domain Model → Entitlements → Worked example](../../domain-model/entitlements/#worked-example-who-gets-access-through-one-org-grant).
 - This always returns `200` with the current state, never `403`. It's an introspection query ("what's true right now"), not an attempted action. The caller enforcing access decides what to do with `allowed: false`.
 - Rate limit is 300/min per key (see [Non-Functional Requirements → Rate limiting](../../non-functional-requirements/#rate-limiting)). Apps on a hot path should prefer the app token, and call this before sensitive actions.
 

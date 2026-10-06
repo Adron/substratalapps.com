@@ -33,7 +33,7 @@ Identity data comes in two layers. **Profile** is who the user is, site-wide. **
 | `avatar_url` | string, nullable | |
 | `contact_email` | string, nullable | May differ from the User's login email. |
 | `contact_phone` | string, nullable | |
-| `locale` | string | IETF tag, e.g. `en-US`. Also readable via [Settings](../settings/) — kept here too since it's identity-adjacent (how to address the person) as much as preference. |
+| `locale` | string, read-only | IETF tag, e.g. `en-US`. A read-only mirror of the User's global [Settings](../settings/#settings-global) `locale`, which is the only place it's stored and the only place it's written. It's repeated here because it's identity-adjacent (how to address the person), so an app reading a Profile doesn't need a second call. Sending it in a Profile `PATCH` returns `422 read_only_field`. |
 | `updated_at` | timestamp | |
 
 ### Example
@@ -58,9 +58,12 @@ Created lazily. A read for a user with no record returns the defaults (`display_
 |---|---|---|
 | `user_id` | string | |
 | `application_id` | string | |
-| `display_handle` | string, nullable | Overrides `Profile.display_name` for display inside this one app. |
-| `custom` | object | Arbitrary JSON. Shape is owned entirely by the Application — the hub stores and returns it, but (unlike [AppSettings](../settings/#appsettings)) does not validate its contents against a schema, since this is display/identity data rather than configuration that drives behavior. |
-| `updated_at` | timestamp | |
+| `display_handle` | string, nullable | Overrides `Profile.display_name` for display inside this one app. 1–64 characters, not unique. |
+| `effective_display_name` | string, read-only | Computed on read, never stored: `display_handle` if set, otherwise the global `Profile.display_name`. |
+| `custom` | object | Arbitrary JSON, up to 16 KB serialized. Shape is owned entirely by the Application — the hub stores and returns it, but (unlike [AppSettings](../settings/#appsettings)) does not validate its contents against a schema, since this is display/identity data rather than configuration that drives behavior. |
+| `updated_at` | timestamp, nullable | `null` until the first write creates the row. |
+
+Erasure treats all of an AppProfile as personal data: the hard-delete cascade sets `display_handle` to `null` and `custom` to `{}` (see [Non-Functional Requirements → Hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade)).
 
 ### Example
 
@@ -69,6 +72,7 @@ Created lazily. A read for a user with no record returns the defaults (`display_
   "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_timetrack",
   "display_handle": "j.alvarez",
+  "effective_display_name": "j.alvarez",
   "custom": { "department": "Engineering" },
   "updated_at": "2026-09-20T14:15:00Z"
 }

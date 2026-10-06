@@ -21,15 +21,17 @@ The on/off switch for a user's access to an app. See [Domain Model → Entitleme
 | Method | Path | Requires | Purpose |
 |---|---|---|---|
 | `GET` | `/v1/users/{id}/entitlements` | self, `entitlements.manage`, or app-confined `entitlements.manage`/`users.list` | A user's entitlements, personal and org-sourced — what a dashboard renders as "your apps." |
-| `POST` | `/v1/users/{id}/entitlements` | `entitlements.manage` (platform or app-confined) | Grant a personal Entitlement. |
-| `GET` | `/v1/entitlements` | `entitlements.manage` (platform or app-confined) | Cross-user list: "who has app X." |
-| `GET` | `/v1/entitlements/{id}` | self, `entitlements.manage`, or the org admin of an `org_seat` row | Fetch one Entitlement. |
-| `PATCH` | `/v1/entitlements/{id}` | `entitlements.manage` (platform or app-confined); an org admin may change only `status` (`active` ⇄ `disabled`) and `member_scope`/`member_overrides` on their own Organization's `org_seat` row | **The toggle.** Change status, term, or org-grant scope. |
-| `DELETE` | `/v1/entitlements/{id}` | `entitlements.manage` | Hard-remove a grant made in error. |
+| `POST` | `/v1/users/{id}/entitlements` | `entitlements.manage` (platform or app-confined), or the Application's owner | Grant a personal Entitlement. |
+| `GET` | `/v1/entitlements` | `entitlements.manage` (platform or app-confined), or the Application's owner | Cross-user list: "who has app X." |
+| `GET` | `/v1/entitlements/{id}` | self, a member of the holding Organization, `entitlements.manage`, or the Application's owner | Fetch one Entitlement. |
+| `PATCH` | `/v1/entitlements/{id}` | `entitlements.manage` (platform or app-confined), or the Application's owner; an org admin may change only `status` (`active` ⇄ `disabled`) and `member_scope`/`member_overrides` on their own Organization's `org_seat` row | **The toggle.** Change status, term, or org-grant scope. |
+| `DELETE` | `/v1/entitlements/{id}` | `entitlements.manage` (platform or app-confined), or the Application's owner | Hard-remove a grant made in error. |
 
 Org-wide grants are created through [`POST /v1/organizations/{id}/entitlements`](../organizations/#post-v1organizationsidentitlements). Once created, they're read and changed through `/v1/entitlements/{id}` like any other Entitlement.
 
 **App-confined callers.** An app-scoped [API Key](../api-keys/#app-confined-permissions) holding `entitlements.manage` can do everything on this page, but only for Entitlements whose `application_id` is its own Application. That includes its own Application's org-wide grants (a developer's backend reflecting a team purchase). Anything else returns `404 entitlement_not_found`, so other apps' rows aren't revealed. This is how an Application developer reflects their own billing outcome. See [Workflows → Purchase → access](../../workflows/#purchase--access).
+
+**The Application's owner** (its `owner_user_id`, or an `org_admin` of `owner_organization_id`) can do the same with their own User token, confined to their Application in exactly the same way. Wherever this page says `entitlements.manage`, the owner is included for their own Application's rows. That's what lets a developer fix a grant by hand from the dashboard without minting a key.
 
 ## The Entitlement object
 
@@ -73,7 +75,7 @@ Org-wide grants are created through [`POST /v1/organizations/{id}/entitlements`]
       "ends_at": null
     },
     {
-      "id": "ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9",
+      "id": "ent_01JAG9F4Q1W2E3R4T5Y6V7J809",
       "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
       "organization_id": null,
       "application_id": "app_invoicer",
@@ -85,23 +87,23 @@ Org-wide grants are created through [`POST /v1/organizations/{id}/entitlements`]
       "disabled_reason": "billing_dispute"
     },
     {
-      "id": "ent_01JAGD4E5F6G7H8J9K0L1M2N3O",
+      "id": "ent_01JAGD4E5F6G7H8J9K011M2N30",
       "user_id": null,
-      "organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P",
+      "organization_id": "org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P",
       "application_id": "app_payroll",
       "status": "active",
       "source": "org_seat",
       "order_id": null,
       "starts_at": "2026-04-02T10:00:00Z",
       "ends_at": null,
-      "granted_via": { "organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P", "member_decision": "included" }
+      "granted_via": { "organization_id": "org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P", "member_decision": "included" }
     }
   ],
   "page": { "next_cursor": null, "has_more": false }
 }
 ```
 
-- Returns the user's **personal** rows, plus every **org-wide** row held by an Organization they belong to, each annotated with `granted_via`. See [Domain Model → Entitlements → Attribution](../../domain-model/entitlements/#attribution).
+- Returns the user's **personal** rows, plus every **org-wide** row held by an Organization they're an `active` member of, each annotated with `granted_via`. Org rows that exclude this user (`member_decision: "excluded"` or `"seat_limit"`) are still listed, so the user can see why they don't have access; they're never an access path. See [Domain Model → Entitlements → Attribution](../../domain-model/entitlements/#attribution).
 - `revoked` and `expired` rows are excluded by default. Pass `?status=revoked`, or `?include_inactive=true` for everything.
 - Filters: `application_id`, `status`, `source`.
 - An app-confined caller sees only rows for its own Application.
@@ -125,7 +127,7 @@ The question "does this user have access to app X right now?" is answered by [ef
 ```json
 // Response — 201
 {
-  "id": "ent_01JAGA1B2C3D4E5F6G7H8J9K0L",
+  "id": "ent_01JAGA1B2C3D4E5F6G7H8J9K01",
   "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "organization_id": null,
   "application_id": "app_invoicer",
@@ -146,7 +148,7 @@ The question "does this user have access to app X right now?" is answered by [ef
 | `application_id` | Required. The Application must be `approved` and visible to the caller (see [Applications](../applications/#who-can-see-an-application)); `internal` apps only accept grants from platform `entitlements.manage`. |
 | `source` | Required: `purchase`, `trial`, or `admin_grant`. `org_seat` is rejected here (`422 invalid_source`), because org grants go through Organizations. |
 | `order_id` | Optional, up to 255 characters. Strongly recommended for `purchase`. |
-| `starts_at` | Optional, defaults to now. It may be in the future: the row is created `active`, but access doesn't resolve until `starts_at` passes. Can't be more than 1 year ahead. |
+| `starts_at` | Optional, defaults to now. It may be in the future: the row is created `active`, but access doesn't resolve until `starts_at` passes (resolved status `scheduled`, then `access.granted` with `reason: entitlement_started`). Can't be more than 1 year ahead (`422 validation_failed`, `out_of_range`). |
 | `ends_at` | **Required** for `trial` (`422 ends_at_required`). Optional for the others. Must be after `starts_at`. |
 
 - Requires an `Idempotency-Key` header. A developer reflecting a purchase should key it on their own order or event id, so a retried billing webhook on their side never double-grants. See [Conventions → Idempotency](../conventions/#idempotency).
@@ -213,7 +215,24 @@ Returns the Entitlement object. Self may fetch their own personal rows, plus org
 { "member_scope": "denylist", "member_overrides": ["usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"] }
 ```
 ```json
-// Response — 200, the full updated Entitlement
+// Response — 200, the full updated Entitlement (here, after "turn off")
+{
+  "id": "ent_01JAG9F4Q1W2E3R4T5Y6V7J809",
+  "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
+  "organization_id": null,
+  "application_id": "app_invoicer",
+  "status": "disabled",
+  "source": "purchase",
+  "order_id": "sub_1Q9z8X7c6V5b4N3m",
+  "starts_at": "2026-03-02T09:00:00Z",
+  "ends_at": null,
+  "disabled_reason": "billing_dispute",
+  "member_scope": null,
+  "member_overrides": null,
+  "test_mode": false,
+  "created_at": "2026-03-02T09:00:00Z",
+  "updated_at": "2026-09-30T16:22:41Z"
+}
 ```
 
 **Status transitions.** Anything not listed here returns `409 invalid_status_transition`.
@@ -223,8 +242,9 @@ Returns the Entitlement object. Self may fetch their own personal rows, plus org
 | `active → disabled` | `entitlements.manage`; org admin on `org_seat` | `disabled_reason` **required** (`422 disabled_reason_required`), 1–255 characters. Reversible. |
 | `disabled → active` | same | `disabled_reason` is cleared automatically. |
 | `active`/`disabled`/`expired → revoked` | `entitlements.manage` only (not org admins) | Terminal. `disabled_reason` is required and records why ("refunded", "chargeback", "tos_violation"). |
-| `expired → active` | `entitlements.manage` only | Renewal. Only valid together with an `ends_at` in the future, or `ends_at: null`. |
+| `expired → active` | `entitlements.manage` only | Renewal. Only valid together with an `ends_at` in the future, or `ends_at: null`. Returns `409 entitlement_already_exists` (with `details.existing_entitlement_id`) if a newer live row now exists for the same holder and Application. |
 | `active → expired` | system only | Happens when `ends_at` passes. A sweep runs every 5 minutes, and access resolution also treats `ends_at <= now` as expired immediately, so expiry is never late. |
+| `disabled → expired` | system only | `ends_at` passed while the row was disabled. Same sweep. `disabled_reason` is kept. No `access.*` event, since a disabled row wasn't granting access. |
 | `revoked → *` | nobody | Grant a new Entitlement instead. |
 
 **Other writable fields:**
@@ -272,5 +292,11 @@ Removes the record entirely. It's reserved for correcting a grant made by mistak
 | `not_an_org_grant` | 422 | `member_scope`/`member_overrides` on a personal row. |
 | `member_override_not_a_member` | 422 | A `member_overrides` id isn't a current member. |
 | `application_not_available` | 409 | The Application isn't `approved`, or is `internal` and the caller isn't platform. |
+| `plan_limit_reached` | 409 | The grant would add a seat beyond the Application's Starter Tenant's cap; see [Conventions → Plan limit errors](../conventions/#plan-limit-errors). |
+| `subscription_required` | 402 | The grant would add a seat on a `restricted` Tenant. |
+| `idempotency_key_required` | 400 | `POST` without an `Idempotency-Key`. |
+| `read_only_field` | 422 | `PATCH` touches `starts_at`, `user_id`, `organization_id`, or `application_id`. |
+| `tenant_suspended` | 403 | Any write when the Application's Tenant is suspended. |
+| `validation_failed` | 422 | For example `starts_at` more than 1 year ahead, or `ends_at` not after `starts_at`. |
 | `entitlement_order_linked` | 409 | `DELETE` on a row with `order_id`. |
 | `entitlement_too_old` | 409 | `DELETE` on a row older than 24 hours. |

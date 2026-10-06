@@ -22,13 +22,13 @@ See [Domain Model → Users & Organizations](../../domain-model/users-and-organi
 |---|---|---|---|
 | `GET` | `/v1/users` | `users.list` (or an app-confined `users.list`) | List/search users. |
 | `POST` | `/v1/users` | `users.manage` | Create a user (invite, or direct creation). |
-| `GET` | `/v1/users/{id}` | self, `users.list`, or app-confined `users.list` | Fetch one user. `{id}` may be `me`. |
-| `PATCH` | `/v1/users/{id}` | self (`email` only) or `users.manage` | Update `email`; `users.manage` may also set `status`. |
+| `GET` | `/v1/users/{id}` | self, `users.list`, or app-confined `users.list` | Fetch one user. `{id}` may be `me`. Soft-deleted users are visible to `users.manage` only. |
+| `PATCH` | `/v1/users/{id}` | self (`email` only) or `users.manage` | Update `email`; `users.manage` may also set `status`, including restoring a soft-deleted User. |
 | `DELETE` | `/v1/users/{id}` | self or `users.manage` | Soft-delete. |
 | `POST` | `/v1/users/{id}/suspend` | `users.manage` | Shortcut for `PATCH {status: "suspended"}`. |
 | `POST` | `/v1/users/{id}/invitation` | `users.manage` | Re-send the invitation email to an `invited` user. |
 | `GET` | `/v1/users/{id}/export` | self or `users.manage` | Everything this API holds about this User, as one bundle (GDPR Article 20 / CCPA right-to-know). |
-| `POST` | `/v1/users/{id}/erasure-requests` | self or `users.manage` | Request right-to-erasure: soft-delete now, hard-delete cascade after 7 days. |
+| `POST` | `/v1/users/{id}/erasure-requests` | self or `users.manage` (including for an already soft-deleted User) | Request right-to-erasure: soft-delete now, hard-delete cascade after 7 days. |
 | `DELETE` | `/v1/users/{id}/erasure-requests/current` | `users.manage` | Cancel a scheduled erasure inside its 7-day window. |
 
 Password, MFA, and session endpoints under `/v1/users/{id}/…` are specified on [Auth](../auth/).
@@ -74,7 +74,7 @@ GET /v1/users?status=active&email=jordan@example.com
 
 | Filter | Matches |
 |---|---|
-| `status` | `active`, `invited`, `suspended`. (`deleted` users are never returned — they 404.) |
+| `status` | `active`, `invited`, `suspended`, and, for `users.manage` callers only, `deleted`. Without an explicit `status=deleted`, deleted users are never listed; to everyone else they don't exist (404). |
 | `email` | Exact, case-insensitive. |
 | `q` | Case-insensitive prefix match on `email` or Profile `display_name`, minimum 3 characters. |
 | `application_id` | Users holding any access path — personal Entitlement in any status, or membership in an Organization holding a grant — to that Application. |
@@ -140,6 +140,7 @@ A User's Organization memberships aren't a field here — see `GET /v1/organizat
 | `active → suspended` | Same as `POST /suspend`, below. | `user.suspended` |
 | `suspended → active` | Login works again; `access.granted` fires for every Application the user still has active access to. | `user.reactivated` |
 | `invited → active` | Activates without a password (see `POST` above). | `user.updated` |
+| `deleted → active` | **Restore.** Undoes a soft-delete: login works again, and `access.granted` fires for every Application the user still has active access to. Rejected with `409 erasure_scheduled` while an erasure request is scheduled (cancel it first), with `409 email_taken` if a new account has taken the email meanwhile (change the email in the same request to proceed), and with `404 user_not_found` once the erasure cascade has completed. | `user.reactivated` |
 | anything `→ deleted` | Rejected — use `DELETE`. | — |
 | `→ invited` | Rejected. | — |
 
@@ -151,7 +152,7 @@ Rejected transitions return `409 invalid_status_transition`. A self-service call
 // Response — 204
 ```
 
-Soft-delete: sets `status: deleted` and `deleted_at`, revokes every session, fires `access.revoked` (reason `user_deleted`) for every Application the user had active access to, and from then on `GET /v1/users/{id}` 404s. Self, or `users.manage`. Entitlements, Roles, Profile, and Settings are retained, not removed — hard deletion is the separate erasure process below. The email address becomes reusable by a new signup immediately. Writes `user.deleted`.
+Soft-delete: sets `status: deleted` and `deleted_at`, revokes every session, fires `access.revoked` (reason `user_deleted`) for every Application the user had active access to, and from then on `GET /v1/users/{id}` 404s for everyone but `users.manage`, who can still fetch, restore, or request erasure for the account. Self, or `users.manage`. Entitlements, Roles, Profile, and Settings are retained, not removed — hard deletion is the separate erasure process below. The email address becomes reusable by a new signup immediately. Writes `user.deleted`.
 
 ## `POST /v1/users/{id}/suspend`
 
@@ -160,10 +161,23 @@ Soft-delete: sets `status: deleted` and `deleted_at`, revokes every session, fir
 { "reason": "Chargeback fraud investigation, ticket SUP-2231" }
 ```
 ```json
-// Response — 200, the User with status "suspended"
+// Response — 200, the User
+{
+  "id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
+  "email": "jordan@example.com",
+  "email_verified": true,
+  "pending_email": null,
+  "status": "suspended",
+  "mfa_enabled": false,
+  "signup_application_id": "app_timetrack",
+  "test_mode": false,
+  "created_at": "2026-01-14T18:02:11Z",
+  "updated_at": "2026-10-05T12:40:00Z",
+  "last_login_at": "2026-10-02T09:41:03Z"
+}
 ```
 
-Requires `users.manage`. `reason` is optional but recorded on the Audit Event (`user.suspended`). Revokes every session and fires `access.revoked` (reason `user_suspended`) for every Application the user had active access to — the user's Entitlements themselves are **not** changed, so reactivation restores exactly what was there. To cut off one specific app instead of the whole account, use [Entitlements](../entitlements/). Destructive — see [MCP Server → Tool annotations](../../mcp-server/#tool-annotations--safety).
+Requires `users.manage`. Suspending an already-suspended User returns `200` with no change and no new events. `reason` is optional but recorded on the Audit Event (`user.suspended`). Revokes every session and fires `access.revoked` (reason `user_suspended`) for every Application the user had active access to — the user's Entitlements themselves are **not** changed, so reactivation restores exactly what was there. To cut off one specific app instead of the whole account, use [Entitlements](../entitlements/). Destructive — see [MCP Server → Tool annotations](../../mcp-server/#tool-annotations--safety).
 
 ## `POST /v1/users/{id}/invitation`
 
@@ -188,10 +202,10 @@ Self, or `users.manage`. Limited to 5 calls per user per day.
     { "method": "password", "mfa_enabled": true, "last_used_at": "2026-10-02T09:41:03Z" }
   ],
   "sessions": [
-    { "id": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8", "created_at": "2026-10-02T09:41:03Z", "ip_address": "203.0.113.24", "user_agent": "TimeTrack/2.4 (iOS 19.0)" }
+    { "id": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8", "created_at": "2026-10-02T09:41:03Z", "ip_address": "203.0.113.24", "user_agent": "TimeTrack/2.4 (iOS 19.0)" }
   ],
   "organizations": [
-    { "organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P", "role": "member", "joined_at": "2026-09-20T14:00:00Z" }
+    { "organization_id": "org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P", "role": "member", "joined_at": "2026-09-20T14:00:00Z" }
   ],
   "roles": [
     { "role_id": "role_timetrack_admin", "application_id": "app_timetrack", "assigned_at": "2026-10-03T12:05:00Z" }
@@ -210,7 +224,7 @@ Self, or `users.manage`. Limited to 5 calls per user per day.
 }
 ```
 
-Every section reads from exactly the tables the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) writes to — export and erasure are deliberately symmetric. `identities` never includes `password_hash` or `mfa_secret`; `audit_events` is this User's own trail as `target_user_id` (hot storage only — events already archived per [Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle) are available on request through support). The response is always complete and synchronous; there is no pagination. If a real account ever makes this too large to return in one response (practically, over 10 MB), the endpoint gains an asynchronous `202` + download-link mode as an additive change.
+Every section reads from a table the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) clears, with one deliberate exception: `settings`. Global Settings is exported because it's keyed to the User, but erasure leaves it in place because it identifies no one once the rest is gone (see the cascade's closing note). `identities` never includes `password_hash` or `mfa_secret`; `audit_events` is this User's own trail as `target_user_id` (hot storage only — events already archived per [Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle) are available on request through support). The response is always complete and synchronous; there is no pagination. If a real account ever makes this too large to return in one response (practically, over 10 MB), the endpoint gains an asynchronous `202` + download-link mode as an additive change.
 
 ## `POST /v1/users/{id}/erasure-requests`
 
@@ -230,7 +244,7 @@ The 7-day delay before the hard-delete cascade sits well inside GDPR's 30-day ce
 }
 ```
 
-Self, or `users.manage`. Performs the soft-delete immediately (same effects as `DELETE` above), then runs the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) 7 days later — well inside GDPR's 30-day ceiling, with a short window to catch a request made in error or by someone who took over the account. `users.manage` can cancel inside that window with `DELETE /v1/users/{id}/erasure-requests/current` (`204`; the user stays soft-deleted, and an admin can then reactivate with `PATCH status: active`). Writes `user.erasure_requested`; the cascade writes `user.erased` when it completes. Destructive.
+Self, or `users.manage`. Performs the soft-delete immediately (same effects as `DELETE` above; skipped if the User is already soft-deleted, which `users.manage` can still request erasure for), then runs the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) 7 days later — well inside GDPR's 30-day ceiling, with a short window to catch a request made in error or by someone who took over the account. `users.manage` can cancel inside that window with `DELETE /v1/users/{id}/erasure-requests/current` (`204`; the user stays soft-deleted, and an admin can then restore them with `PATCH status: active`, per the transition table above). Writes `user.erasure_requested`; the cascade writes `user.erased` when it completes. Destructive.
 
 Calling this for an already-scheduled user returns the existing request (`202`, same body) — it's idempotent.
 
@@ -239,7 +253,10 @@ Calling this for an already-scheduled user returns the existing request (`202`, 
 | Code | Status | When |
 |---|---|---|
 | `email_taken` | 409 | `email` collides with an existing user on create or update. |
-| `user_not_found` | 404 | `{id}` doesn't resolve — including a soft-deleted user, which 404s rather than returning a `deleted` status, to avoid leaking existence past deletion. |
+| `user_not_found` | 404 | `{id}` doesn't resolve — including a soft-deleted user for any caller without `users.manage`, which 404s rather than returning a `deleted` status, to avoid leaking existence past deletion. |
 | `status_change_forbidden` | 403 | A self-service caller's `PATCH` attempts to change `status`. |
 | `invalid_status_transition` | 409 | A `status` change not in the table above, or an invitation re-send for a non-`invited` user. |
 | `erasure_not_scheduled` | 404 | Cancelling an erasure that isn't pending. |
+| `erasure_scheduled` | 409 | Restoring a soft-deleted User while their erasure request is still scheduled. |
+| `user_token_required` | 400 | `me` used with an API Key. |
+| `validation_failed` | 422 | Malformed email, or an unknown `status` value. |

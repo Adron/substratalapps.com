@@ -36,14 +36,14 @@ GET /v1/audit-events?target_user_id=usr_01JAG3Z9X8QS3F6K2M4N5P6R7S&since=2026-09
 {
   "data": [
     {
-      "id": "evt_01JAG7X3P8QY1L0M9N8O7P6Q5R",
+      "id": "evt_01JAG7X3P8QY110M9N807P6Q5R",
       "action": "entitlement.disabled",
-      "actor": { "type": "user", "id": "usr_01JAG9SUPPORT0000000000000", "via_api_key_id": null },
-      "target": { "type": "entitlement", "id": "ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9" },
+      "actor": { "type": "user", "id": "usr_01JAG9STAFF000000000000000" },
+      "target": { "type": "entitlement", "id": "ent_01JAG9F4Q1W2E3R4T5Y6V7J809" },
       "target_user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
       "application_id": "app_invoicer",
       "organization_id": null,
-      "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
+      "tenant_id": "tnt_01JAG1SYSTEM00000000000000",
       "before": { "status": "active" },
       "after": { "status": "disabled", "disabled_reason": "billing_dispute" },
       "request_id": "req_7c1e9a2f4b",

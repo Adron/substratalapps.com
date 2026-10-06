@@ -12,6 +12,40 @@ What's changed in this specification over time. Questions still awaiting a decis
 
 ---
 
+## 2026-10-06 — Domain Model and API Reference review
+
+A review of every Domain Model and API Reference page against each other, the database schema, and `openapi.yaml`. Every fix is stated on the page it affects.
+
+**Security and correctness**
+
+- **Signup no longer completes an invitation.** Signing up with an `invited` User's email used to activate that account with no invitation token, handing whatever was pre-attached to it to anyone who knew the address. It now returns `409 email_taken` (`details.reason: "invitation_pending"`) and re-sends the invitation. See [Auth → Signup](../api-reference/auth/#post-v1authsignup).
+- **Organization invitations are now `pending` until accepted.** Since anyone can create an Organization, adding members by email used to reveal whether an address had an account, and that account's name. Adds by email now create a `pending` membership whose response looks the same either way. Adds by `user_id` are restricted to `organizations.manage`. A new [`POST /v1/organizations/{id}/members/me/accept`](../api-reference/organizations/#post-v1organizationsidmembersmeaccept) endpoint and audit action `organization.member_invited` support this.
+- **Test-mode Users can sign in.** Uniqueness is per mode, so the email-keyed auth endpoints now take `test_mode` ([Auth → Test-mode Users](../api-reference/auth/#test-mode-users)). `include_test` is gone: test and live rows never cross, under any parameter.
+- **Role ids can't collide.** The slug now appears verbatim in Role ids (it never contains `_`), and `platform` is a reserved slug. Application ids are documented as `app_<slug>`, the second derived-id exception after Role.
+- **Typed-settings view and index names** are now built from hashes, so they always fit Postgres's 63-byte limit.
+- **Support can read for investigations.** Reading AppProfile/AppSettings/global Settings past the access gate now needs `users.list` (which `support` holds), not `users.manage` (which it doesn't).
+- **Application owners can grant Entitlements** with their own User token, personal and org-wide alike, confined to their Application exactly like its app key.
+
+**Contradictions resolved**
+
+- One rule for soft-deleted vs. terminal records ([Conventions → Filtering](../api-reference/conventions/#filtering)): terminal records stay fetchable; soft-deleted Users 404 except to `users.manage`. Flags unified on `include_inactive`.
+- Webhook `DELETE` drops queued deliveries (Conventions said otherwise).
+- Audit Events: the erasure cascade's redaction is now documented as one of two scheduled jobs allowed to touch an event; `actor.via_api_key_id` (never defined) is removed; `user.updated` and `role_assignment` targets are defined precisely.
+- Erasure: a soft-deleted User can be restored (`deleted → active`) or have erasure requested by `users.manage`; the cascade also clears memberships and `member_overrides`. Export and the cascade are described accurately (export includes global Settings; erasure leaves it).
+- `application_not_available` is `409` everywhere. The implicit `default_app_role` is listed only while access is active.
+- `Profile.locale` is a read-only mirror of `Settings.locale`. Settings resolution is described as the two disjoint chains it actually is.
+- Credential storage (webhook secrets are KMS-encrypted, recovery codes Argon2id), `order_id` examples, and the supporting-entity count/ER diagram corrected. Every example id is now a valid ULID.
+
+**Specified (previously missing)**
+
+- Entitlements: `disabled → expired`, renewal conflicts, a `scheduled` resolved status for future `starts_at` and an `access.granted` reason `entitlement_started`, and which excluded org rows a member sees.
+- `403 tenant_suspended`; `409 idempotency_key_in_flight` in the global table; the `plan_limit_reached` `details` shape, with usage keys renamed to match (`app_roles`, `webhooks`).
+- The hosted flow's [authorization endpoint](../api-reference/auth/#the-authorization-endpoint) (`authorization_endpoint` in OIDC discovery); MFA disable with a recovery code; what a session's `expires_at` means.
+- SSO: a domain is claimable by one active connection platform-wide, and SSOConnection has no API until the broker ships. Webhooks: request `scope`, per-attempt signing, `webhook.test` delivery rules, and a [payload versions](../api-reference/webhooks/#payload-versions) table.
+- Missing error codes added to each resource's table; missing fields added to the Domain Model (User, AppProfile, Application, Role, Tenant) and the database schema (`test_mode`, `created_at`, `version`, `current_period_start`).
+
+**New examples:** org-grant resolution worked through all three `member_scope` values, a settings schema change producing a stale override, a test-mode walkthrough, Application owner onboarding end to end, webhook signature verification in Node.js and Python, field-validation errors, a plan-limit error, and full responses where pages only said "the full object".
+
 ## 2026-10-05 — decisions moved into the spec
 
 - **Removed the Decisions page.** Every resolved decision (#1–#15) now lives on the page an implementer would actually read, with its rationale, instead of on a separate log. For example, identity is in [Auth → Native auth and per-Organization SSO](../api-reference/auth/#native-auth-and-per-organization-sso), and billing ownership is in [Orders & Audit → Billing system of record](../domain-model/orders-and-audit/#billing-system-of-record). New sections were added where a page didn't yet carry the reasoning, among them [Trust Model → Applications are separately hosted](../trust-model/#applications-are-separately-hosted), [Tenancy → Tenant vs. Organization](../domain-model/tenancy/#tenant-vs-organization), [Settings → Schema validation](../domain-model/settings/#schema-validation), and [Pricing → How the subscription is charged](../pricing/#how-the-subscription-is-charged). Every link to the old page was repointed.

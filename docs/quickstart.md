@@ -67,7 +67,7 @@ curl -s -X POST "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/entitlemen
 
 ```json
 {
-  "id": "ent_01JAGA1B2C3D4E5F6G7H8J9K0L",
+  "id": "ent_01JAGA1B2C3D4E5F6G7H8J9K01",
   "application_id": "app_timetrack",
   "status": "active",
   "source": "admin_grant",
@@ -91,7 +91,7 @@ curl -s "$SUBSTRATAL_API/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/apps/app_timetrack
   "allowed": false,
   "user_status": "invited",
   "entitlement_status": "active",
-  "access_paths": [ { "source": "admin_grant", "entitlement_id": "ent_01JAGA1B2C3D4E5F6G7H8J9K0L", "status": "active" } ],
+  "access_paths": [ { "source": "admin_grant", "entitlement_id": "ent_01JAGA1B2C3D4E5F6G7H8J9K01", "status": "active" } ],
   "roles": [],
   "effective_permissions": [],
   "computed_at": "2026-10-05T12:00:00Z"
@@ -123,7 +123,7 @@ Repeat step 4 and `effective_permissions` now includes whatever `role_timetrack_
 ## 6. Turn it off
 
 ```bash
-curl -s -X PATCH "$SUBSTRATAL_API/entitlements/ent_01JAGA1B2C3D4E5F6G7H8J9K0L" \
+curl -s -X PATCH "$SUBSTRATAL_API/entitlements/ent_01JAGA1B2C3D4E5F6G7H8J9K01" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{ "status": "disabled", "disabled_reason": "quickstart_demo" }'

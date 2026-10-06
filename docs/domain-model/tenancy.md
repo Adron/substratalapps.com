@@ -41,9 +41,12 @@ Every Application owner gets a Tenant automatically, the moment they register th
 | `subscription_status` | enum | `none` (Starter, no Stripe subscription) \| `active` \| `trialing` \| `past_due` \| `canceled` \| `unpaid` \| `incomplete` \| `incomplete_expired` \| `paused`. Mirrors Stripe and is read-only. See [API Reference → Billing](../../api-reference/billing/). |
 | `restricted` | boolean | `true` after a lapsed subscription when usage exceeds what the Tenant can drop to. Blocks new usage, never existing access. See [Pricing → Subscription lapse](../../pricing/#subscription-lapse--downgrades). |
 | `status` | enum | `active` \| `migrating` \| `suspended`. `migrating` is the transitional state during a tier-change maintenance window — see [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md). |
+| `application_count` | integer, read-only | Computed: how many Applications this Tenant owns. |
 | `created_at`, `updated_at` | timestamp | |
 
-`suspended` is a platform action, taken only for abuse or legal reasons, never for billing. It blocks every write *and* every app-token issuance for the Tenant's Applications. It's set directly by `tenants.manage` through ops tooling, and isn't exposed as an API transition today.
+The billing-period fields (`current_period_start`, `current_period_end`, `cancel_at_period_end`, seat counts) aren't part of the Tenant resource; they're on [`GET /v1/tenants/{id}/subscription`](../../api-reference/billing/#get-v1tenantsidsubscription). The database row holds them along with the Stripe ids (`stripe_customer_id`, `stripe_subscription_id`), which are internal and never returned by the API. See [Database Schema → tenants](../database-schema/#tenants).
+
+`suspended` is a platform action, taken only for abuse or legal reasons, never for billing. It blocks every write to the Tenant's data *and* every app-token issuance for the Tenant's Applications, both with `403 tenant_suspended`. Reads keep working. It's set directly by `tenants.manage` through ops tooling, and isn't exposed as an API transition today.
 
 **Constraint:** exactly one of `owner_user_id` / `owner_organization_id` is set — the same mutual-exclusivity pattern already used by [Entitlement](../entitlements/#fields) (`user_id`/`organization_id`) and [Application](../applications/#fields) (`owner_user_id`/`owner_organization_id`).
 
@@ -51,17 +54,19 @@ Every Application owner gets a Tenant automatically, the moment they register th
 
 ```json
 {
-  "id": "tnt_01JAGC3D4E5F6G7H8J9K0L1M2N",
+  "id": "tnt_01JAGC3D4E5F6G7H8J9K011M2N",
   "owner_type": "organization",
   "owner_user_id": null,
-  "owner_organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P",
+  "owner_organization_id": "org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P",
   "tier": "isolated",
   "plan": "enterprise",
   "region": "us-east-1",
   "subscription_status": "active",
   "restricted": false,
   "status": "active",
-  "created_at": "2026-04-02T10:00:00Z"
+  "application_count": 3,
+  "created_at": "2026-04-02T10:00:00Z",
+  "updated_at": "2026-09-14T03:12:00Z"
 }
 ```
 
@@ -90,7 +95,7 @@ Automating this into a customer-triggered flow is deliberately deferred, and it'
 
 ## What this does — and doesn't — isolate
 
-**Does:** an Application's catalog entry and everything scoped to it — [Entitlement](../entitlements/), [AppProfile](../profiles/#appprofile), [AppSettings](../settings/#appsettings), and the slice of the [Audit Event](../orders-and-audit/#audit-event) log with that `application_id` set. These rows denormalize `tenant_id` from the owning Application specifically so a Postgres RLS policy (and, for `isolated`/`dedicated_region`, the physical cluster-routing lookup) can enforce it without a join on every request — see [Database Schema](../database-schema/#tenants).
+**Does:** an Application's catalog entry and everything scoped to it — [Entitlement](../entitlements/), [AppProfile](../profiles/#appprofile), [AppSettings](../settings/#appsettings), its app-scoped [webhook subscriptions](../../api-reference/webhooks/), and the slice of the [Audit Event](../orders-and-audit/#audit-event) log with that `tenant_id` set. These rows denormalize `tenant_id` from the owning Application specifically so a Postgres RLS policy (and, for `isolated`/`dedicated_region`, the physical cluster-routing lookup) can enforce it without a join on every request — see [Database Schema](../database-schema/#tenants).
 
 **Doesn't:** a User's own global [Profile](../profiles/) or [Settings](../settings/) — those remain platform-wide, "one identity, used everywhere," regardless of which Tenant(s) the Applications they use happen to live in. It also doesn't reach any Application's *own*, separately-hosted infrastructure (see [Trust Model → Applications are separately hosted](../../trust-model/#applications-are-separately-hosted)). Tenancy governs where *this API's own* data lives, never where an Application runs.
 

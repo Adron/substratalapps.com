@@ -38,11 +38,18 @@ path_active(e) :=
 
 resolved_entitlement_status(user, application) :=
     "active" if path_active(personal_entitlement(user, application))
-    "active" if ∃ org ∈ organizations(user) :
+    "active" if ∃ org ∈ active_organizations(user) :
                    path_active(org_entitlement(org, application))
                    AND member_included(org_entitlement(org, application), user)
+                   AND NOT seat_limited(org_entitlement(org, application), user)
+    "scheduled" if some live path has status "active" but starts_at > now
     else the most relevant non-active status among the user's paths, by precedence
          disabled > expired > revoked, or "none" if no path exists at all
+
+active_organizations(user) := organizations where the user's membership.status == "active"
+                              (a pending invitation is never a path)
+seat_limited(grant, user)  := the grant's Application is on a Starter Tenant at its seat cap
+                              and this user isn't already one of its seats (see Pricing → Enforcement)
 
 member_included(grant, user) :=
     grant.member_scope == "all_members"
@@ -54,6 +61,7 @@ effective_permissions(user, application) :=
       where app_roles = explicit assignments scoped to application
                       ∪ { application.default_app_role } if set
     — only ever app.<slug>.* keys; empty unless user.status and the entitlement are both active
+      (so the implicit default_app_role is only "held" while access is active)
 ```
 
 Hub endpoints themselves are authorized by a separate, simpler check, `has_platform_permission(caller, permission)`. That's the union of the permissions on the caller's *platform* Roles, or of an API Key's own `permissions` (confined to its Application for an app-scoped key). Platform permissions never leak into an Application's `effective_permissions`, and app permissions never authorize a hub endpoint.

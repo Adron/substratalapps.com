@@ -14,9 +14,12 @@ info:
 
     Vendor extensions used here:
     `x-substratal-destructive` (`always` | `conditional`) marks operations
-    rejected for API Keys with restrict_destructive=true and annotated
-    destructiveHint for MCP; `x-substratal-destructive-when` describes the
-    condition. `x-substratal-phase` gives the roadmap phase an operation
+    annotated destructiveHint for MCP and rejected for API Keys with
+    restrict_destructive=true. For `conditional`, only requests matching
+    `x-substratal-destructive-when` are rejected; the rest of the
+    operation stays callable.
+    Application and Role ids are derived (app_<slug>, role_<slug>_<name>),
+    not random; every other id is a prefix plus a ULID. `x-substratal-phase` gives the roadmap phase an operation
     ships in.
   license:
     name: Unlicensed draft — internal specification, not yet released
@@ -70,6 +73,7 @@ paths:
       operationId: auth.signup
       tags: [Auth]
       summary: Create an account with email and password
+      description: "An email held by an invited User is rejected with 409 email_taken (details.reason invitation_pending) and the invitation is re-sent; invitations complete only through invitations/accept."
       security: []
       x-substratal-phase: mvp
       requestBody:
@@ -84,6 +88,7 @@ paths:
                 password: { type: string, format: password, minLength: 12, maxLength: 128 }
                 display_name: { type: string, minLength: 1, maxLength: 100 }
                 application_id: { type: string, description: "Informational: records which app the signup came from. Grants nothing." }
+                test_mode: { type: boolean, default: false, description: "Create a test-mode User." }
       responses:
         "201":
           description: Account created and signed in
@@ -111,6 +116,7 @@ paths:
               properties:
                 email: { type: string, format: email }
                 password: { type: string, format: password }
+                test_mode: { type: boolean, default: false, description: "Sign in the test-mode account with this email." }
       responses:
         "200":
           description: A session, or an MFA challenge when mfa_required is true
@@ -200,7 +206,7 @@ paths:
       operationId: auth.createAppToken
       tags: [Auth]
       summary: Mint a per-app JWT from a platform session (embedded login)
-      description: "Requires a User token. Fails with entitlement_required unless the user's resolved access to the Application is active."
+      description: "Requires a User token. Fails with 403 entitlement_required unless the user's resolved access to the Application is active, 409 application_not_available unless it's approved, and 403 tenant_suspended if its Tenant is suspended."
       x-substratal-phase: mvp
       requestBody:
         required: true
@@ -221,6 +227,8 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
 
   /auth/oauth/authorization-codes:
     post:
@@ -326,6 +334,7 @@ paths:
               required: [email]
               properties:
                 email: { type: string, format: email }
+                test_mode: { type: boolean, default: false }
       responses:
         "202": { description: Accepted }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -346,6 +355,7 @@ paths:
               required: [email]
               properties:
                 email: { type: string, format: email }
+                test_mode: { type: boolean, default: false }
       responses:
         "202": { description: Accepted }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -525,12 +535,15 @@ paths:
           application/json:
             schema:
               type: object
-              required: [code]
+              description: "Exactly one of code or recovery_code."
               properties:
-                code: { type: string, description: "TOTP code or recovery code" }
+                code: { type: string, pattern: "^[0-9]{6}$", description: "A current TOTP code" }
+                recovery_code: { type: string }
       responses:
         "204": { description: Disabled }
         "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
 
   /users/{id}/sessions:
     parameters:
@@ -584,14 +597,13 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Cursor"
-        - { name: status, in: query, schema: { type: string, enum: [active, invited, suspended] } }
+        - { name: status, in: query, description: "deleted is allowed for users.manage only", schema: { type: string, enum: [active, invited, suspended, deleted] } }
         - { name: email, in: query, schema: { type: string, format: email } }
         - { name: q, in: query, schema: { type: string, minLength: 3 } }
         - { name: application_id, in: query, schema: { type: string } }
         - { name: organization_id, in: query, schema: { type: string } }
         - { name: created_after, in: query, schema: { type: string, format: date-time } }
         - { name: created_before, in: query, schema: { type: string, format: date-time } }
-        - $ref: "#/components/parameters/IncludeTest"
       responses:
         "200":
           description: A page of users
@@ -662,7 +674,7 @@ paths:
               type: object
               properties:
                 email: { type: string, format: email }
-                status: { type: string, enum: [active, suspended] }
+                status: { type: string, enum: [active, suspended], description: "users.manage only. active on a deleted User restores it." }
       responses:
         "200":
           description: Updated user
@@ -727,7 +739,7 @@ paths:
       operationId: users.export
       tags: [Users]
       summary: Export everything this API holds about this user
-      description: "Self, or users.manage. GDPR Article 20 / CCPA right-to-know. Symmetric with the hard-delete cascade."
+      description: "Self, or users.manage. GDPR Article 20 / CCPA right-to-know. Covers every table the hard-delete cascade clears, plus global Settings, which the cascade leaves in place."
       x-substratal-phase: mvp
       responses:
         "200":
@@ -818,7 +830,7 @@ paths:
     get:
       operationId: settings.get
       tags: [Settings]
-      summary: Fetch global Settings
+      summary: Fetch global Settings (self, or platform users.list)
       x-substratal-phase: mvp
       responses:
         "200":
@@ -855,7 +867,7 @@ paths:
     get:
       operationId: appProfiles.get
       tags: [Profiles]
-      summary: Fetch per-app AppProfile (defaults if none written yet)
+      summary: Fetch per-app AppProfile (self, the app's own key, or platform users.list; defaults if none written yet)
       x-substratal-phase: phase2
       responses:
         "200":
@@ -899,7 +911,7 @@ paths:
     get:
       operationId: appSettings.get
       tags: [Settings]
-      summary: Fetch fully resolved per-app settings
+      summary: Fetch fully resolved per-app settings (self, the app's own key, or platform users.list)
       x-substratal-phase: phase2
       responses:
         "200":
@@ -1053,7 +1065,7 @@ paths:
       operationId: entitlements.grant
       tags: [Entitlements]
       summary: Grant a personal Entitlement
-      description: "Requires entitlements.manage (platform, or app-confined to the key's own Application)."
+      description: "Requires entitlements.manage (platform, or app-confined to the key's own Application), or the Application's owner."
       x-substratal-phase: mvp
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -1085,7 +1097,7 @@ paths:
     get:
       operationId: entitlements.list
       tags: [Entitlements]
-      summary: List entitlements across users (entitlements.manage; app keys confined)
+      summary: List entitlements across users (entitlements.manage or the Application's owner; app keys and owners confined)
       x-substratal-phase: mvp
       parameters:
         - $ref: "#/components/parameters/Limit"
@@ -1098,7 +1110,6 @@ paths:
         - { name: order_id, in: query, schema: { type: string } }
         - { name: ends_before, in: query, schema: { type: string, format: date-time } }
         - { name: include_inactive, in: query, schema: { type: boolean, default: false } }
-        - $ref: "#/components/parameters/IncludeTest"
       responses:
         "200":
           description: A page of Entitlements
@@ -1447,6 +1458,7 @@ paths:
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Cursor"
         - { name: role, in: query, schema: { $ref: "#/components/schemas/OrganizationMemberRole" } }
+        - { name: membership_status, in: query, schema: { $ref: "#/components/schemas/OrganizationMembershipStatus" } }
         - { name: q, in: query, schema: { type: string } }
       responses:
         "200":
@@ -1457,7 +1469,8 @@ paths:
     post:
       operationId: organizations.addMember
       tags: [Organizations]
-      summary: Add a member by user_id or email (invites unknown emails)
+      summary: Invite a member by email (org admin), or add one directly by user_id (organizations.manage)
+      description: "By email, creates a pending membership (and an invited User if none exists) and emails an invitation; the response is identical whether or not the email already had an account. By user_id (organizations.manage only), the membership is active immediately. Never fails on a plan limit."
       x-substratal-phase: phase2
       requestBody:
         required: true
@@ -1474,12 +1487,31 @@ paths:
                 - required: [email]
       responses:
         "201":
-          description: Member added
+          description: Member invited (pending) or added (active)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/OrganizationMember" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+
+  /organizations/{id}/members/me/accept:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: organizations.acceptMembership
+      tags: [Organizations]
+      summary: Accept a pending membership (the invited User's own token)
+      x-substratal-phase: phase2
+      responses:
+        "200":
+          description: The member, now active
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationMember" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
 
   /organizations/{id}/members/{userId}:
     parameters:
@@ -1511,7 +1543,7 @@ paths:
     delete:
       operationId: organizations.removeMember
       tags: [Organizations]
-      summary: Remove a member, or leave (userId = me)
+      summary: Remove a member or withdraw an invitation; or leave or decline (userId = me)
       x-substratal-phase: phase2
       x-substratal-destructive: always
       responses:
@@ -1882,7 +1914,7 @@ paths:
                       - $ref: "#/components/schemas/WebhookEvent"
                       - { type: string, const: "*" }
                 description: { type: string, maxLength: 255 }
-                application_id: { type: string, description: "Required when created by an Application owner's user token; implied for an app key." }
+                scope: { type: string, description: "An application_id, or 'platform' (webhooks.manage only). Required for an owner's User token or a webhooks.manage caller; optional for an app key, where it defaults to (and must equal) the key's own Application." }
       responses:
         "201":
           description: Webhook created — includes the secret once
@@ -2033,7 +2065,7 @@ paths:
         - { name: scope, in: query, schema: { type: string } }
         - { name: mode, in: query, schema: { type: string, enum: [live, test] } }
         - { name: intended_use, in: query, schema: { type: string, enum: [service, agent] } }
-        - { name: include_revoked, in: query, schema: { type: boolean, default: false } }
+        - { name: include_inactive, in: query, description: "Include revoked and expired keys", schema: { type: boolean, default: false } }
       responses:
         "200":
           description: A page of API Keys
@@ -2167,10 +2199,6 @@ components:
       required: false
       description: The ETag from a prior read. A mismatch returns 409 version_conflict.
       schema: { type: string }
-    IncludeTest:
-      name: include_test
-      in: query
-      schema: { type: boolean, default: false }
     UserIdOrMe:
       name: id
       in: path
@@ -2284,7 +2312,6 @@ components:
       properties:
         type: { type: string, enum: [user, api_key, system] }
         id: { type: string }
-        via_api_key_id: { type: [string, "null"] }
 
     Region:
       type: string
@@ -2357,7 +2384,7 @@ components:
         id: { type: string }
         created_at: { type: string, format: date-time }
         last_seen_at: { type: string, format: date-time }
-        expires_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time, description: "The earlier of the idle expiry (30 days after the last refresh) and the absolute expiry (90 days after creation)." }
         ip_address: { type: string }
         user_agent: { type: string }
         amr: { type: array, items: { type: string } }
@@ -2450,7 +2477,6 @@ components:
         avatar_url: { type: [string, "null"], format: uri, maxLength: 2048 }
         contact_email: { type: [string, "null"], format: email }
         contact_phone: { type: [string, "null"], pattern: "^\\+[1-9][0-9]{7,14}$" }
-        locale: { type: string, example: en-US }
 
     Profile:
       allOf:
@@ -2458,6 +2484,7 @@ components:
         - type: object
           properties:
             user_id: { type: string }
+            locale: { type: string, readOnly: true, example: en-US, description: "Mirror of the global Settings locale; write it there." }
             updated_at: { type: string, format: date-time }
 
     AppProfile:
@@ -2538,7 +2565,7 @@ components:
     ApplicationWrite:
       type: object
       properties:
-        slug: { type: string, pattern: "^[a-z][a-z0-9-]{1,63}$", description: "Create only; immutable" }
+        slug: { type: string, pattern: "^(?!platform$)[a-z][a-z0-9-]{1,63}$", description: "Create only; immutable. 'platform' is reserved. The Application's id is app_<slug>." }
         name: { type: string, minLength: 1, maxLength: 100 }
         description: { type: string, maxLength: 2000 }
         icon_url: { type: string, format: uri }
@@ -2579,7 +2606,8 @@ components:
 
     ResolvedEntitlementStatus:
       type: string
-      enum: [active, disabled, expired, revoked, none]
+      enum: [active, scheduled, disabled, expired, revoked, none]
+      description: "scheduled: the only live path is a grant whose starts_at is in the future." 
 
     EntitlementSource:
       type: string
@@ -2713,8 +2741,9 @@ components:
         id: { type: string }
         name: { type: string }
         status: { type: string, enum: [active, suspended] }
-        member_count: { type: integer }
+        member_count: { type: integer, description: "Active members only" }
         my_role: { $ref: "#/components/schemas/OrganizationMemberRole" }
+        my_membership_status: { $ref: "#/components/schemas/OrganizationMembershipStatus" }
         created_by: { type: string }
         test_mode: { type: boolean }
         created_at: { type: string, format: date-time }
@@ -2736,10 +2765,15 @@ components:
       properties:
         user_id: { type: string }
         email: { type: string, format: email }
-        display_name: { type: [string, "null"] }
-        status: { $ref: "#/components/schemas/UserStatus" }
+        display_name: { type: [string, "null"], description: "null while the membership is pending" }
+        membership_status: { $ref: "#/components/schemas/OrganizationMembershipStatus" }
         role: { $ref: "#/components/schemas/OrganizationMemberRole" }
-        joined_at: { type: string, format: date-time }
+        invited_at: { type: string, format: date-time }
+        joined_at: { type: [string, "null"], format: date-time }
+
+    OrganizationMembershipStatus:
+      type: string
+      enum: [pending, active]
 
     OrganizationMemberPage:
       allOf:
@@ -2862,7 +2896,7 @@ components:
               limit: { type: [integer, "null"] }
               current: { type: integer }
               included: { type: integer }
-              max_current: { type: integer }
+          description: "Keys: applications, seats, app_roles (current = highest count on any one Application), webhooks, audit_hot_window_days. The same names as plan_limit_reached's details.resource." 
         fits_plans: { type: array, items: { $ref: "#/components/schemas/TenantPlan" } }
 
     RedirectSession:
@@ -2909,6 +2943,7 @@ components:
         - application.review_status_changed
         - organization.created
         - organization.updated
+        - organization.member_invited
         - organization.member_added
         - organization.member_removed
         - organization.member_role_changed
@@ -2985,6 +3020,7 @@ components:
       type: string
       enum:
         - entitlement_granted
+        - entitlement_started
         - entitlement_enabled
         - entitlement_disabled
         - entitlement_revoked
@@ -3083,7 +3119,12 @@ components:
           properties:
             id: { type: string }
             secret_hint: { type: string, example: "…6c8e" }
-            created_by: { $ref: "#/components/schemas/Actor" }
+            created_by:
+              type: object
+              description: "Always a User: API Keys can't create API Keys."
+              properties:
+                type: { type: string, enum: [user] }
+                id: { type: string }
             last_used_at: { type: [string, "null"], format: date-time }
             created_at: { type: string, format: date-time }
             revoked_at: { type: [string, "null"], format: date-time }

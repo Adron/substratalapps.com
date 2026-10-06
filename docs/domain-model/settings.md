@@ -15,15 +15,19 @@ nav_order: 6
 
 ## The split: global, per-app, and defaults
 
-Settings is configuration, not identity — see [Profiles](../profiles/) for the identity-data counterpart to this same global/per-app split. Three layers, read in this order:
+Settings is configuration, not identity — see [Profiles](../profiles/) for the identity-data counterpart to this same global/per-app split. There are three layers, but no single key passes through all three. Keys come in two disjoint kinds, and each kind falls through two layers:
 
 ```
-AppSettings override (this user, this app)
-  → Settings override (this user, global)
-    → Application's declared default for that key
+Reserved global keys (locale, timezone, theme, notifications):
+  AppSettings override (this user, this app)
+    → global Settings (this user)
+
+Keys the Application declares in its settings_schema:
+  AppSettings override (this user, this app)
+    → the Application's declared default for that key
 ```
 
-The hub resolves this fallthrough server-side. See [Workflows → Settings resolution, in practice](../../workflows/#settings-resolution-in-practice).
+An Application can't declare a reserved key, and global Settings holds nothing but reserved keys, so the two chains never overlap. The hub resolves both server-side, exactly as in [Resolution rules](#resolution-rules) below. See [Workflows → Settings resolution, in practice](../../workflows/#settings-resolution-in-practice).
 
 | Field | Global `Settings` | `AppSettings` (per User × Application) |
 |---|---|---|
@@ -78,18 +82,31 @@ Write (only the override):
 Read, resolved (`GET /v1/users/{id}/apps/{appId}/settings`):
 ```json
 {
+  "user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_timetrack",
   "resolved": {
     "locale": "en-US",
+    "timezone": "America/Denver",
     "theme": "dark",
+    "notifications": { "email": true, "sms": false },
     "default_billable": true,
     "week_start": "monday"
   },
-  "overrides": { "week_start": "monday" }
+  "sources": {
+    "locale": "global",
+    "timezone": "global",
+    "theme": "global",
+    "notifications": "global",
+    "default_billable": "app_default",
+    "week_start": "app_override"
+  },
+  "overrides": { "week_start": "monday" },
+  "stale_overrides": [],
+  "updated_at": "2026-09-20T14:15:00Z"
 }
 ```
 
-Here, `locale` and `theme` fell through to global [Settings](#settings-global), `default_billable` fell through to the Application's declared default, and only `week_start` reflects an explicit per-app override.
+Here, all four reserved keys fell through to global [Settings](#settings-global) (they always appear), `default_billable` fell through to the Application's declared default, and only `week_start` reflects an explicit per-app override. `sources` says which layer each resolved value came from: `global`, `app_override`, or `app_default`.
 
 ## Resolution rules
 
@@ -112,8 +129,13 @@ for key, property in settings_schema.properties:
     elif "default" in property:      resolved[key] = property.default
     else:                            omit key
 
-valid_override(key) := overrides[key] if it validates against the CURRENT schema, else
+valid_override(key) := overrides[key] if it is valid right now, else
                        treat as absent and list key in stale_overrides
+
+"valid right now" means:
+  reserved key  → passes the same platform rules as PATCH /v1/users/{id}/settings
+                  (BCP 47 locale, IANA timezone, theme enum, notifications channel map)
+  declared key  → validates against that property in the Application's CURRENT settings_schema
 ```
 
 The Application's declared default is the JSON Schema `default` keyword on each property, so there's no separate defaults field to keep in sync. A user can override a reserved global key per app. For example, `theme: "light"` in one app while their global theme stays `dark`.
@@ -129,6 +151,46 @@ The rules an Application's schema must follow. They're checked on `POST`/`PATCH 
 - A `default`, if present, must itself validate against its property.
 - **`x-pii: true`** on a property marks it as personal data. The [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) removes PII-marked keys from a deleted user's overrides and leaves the rest, such as a `week_start` preference. A schema without `x-pii` marks is treated as having no PII.
 - **Changing a schema never rewrites stored data.** Removing a property, or changing its type, makes existing overrides for it *stale* (see `stale_overrides` above). It doesn't make them errors. The Application's owner can see how many users hold stale values per key in `GET /v1/applications/{id}` → `settings_schema_stats`.
+
+### Example: a schema change makes an override stale
+
+TimeTrack's schema declares `week_start` as a string, and a user overrides it:
+
+```json
+// PATCH /v1/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/apps/app_timetrack/settings
+{ "overrides": { "week_start": "monday" } }
+```
+
+Later, the owner changes `week_start` to an integer day number (0 = Sunday) with a default of `0`:
+
+```json
+// PATCH /v1/applications/app_timetrack
+{ "settings_schema": { "type": "object", "properties": {
+    "default_billable": { "type": "boolean", "default": true },
+    "week_start": { "type": "integer", "minimum": 0, "maximum": 6, "default": 0 }
+} } }
+```
+
+Nothing stored is rewritten. The user's next read skips the stale value and falls back to the new default:
+
+```json
+// GET /v1/users/usr_01JAG3Z9X8QS3F6K2M4N5P6R7S/apps/app_timetrack/settings (excerpt)
+{
+  "resolved": { "default_billable": true, "week_start": 0, "...": "..." },
+  "sources": { "default_billable": "app_default", "week_start": "app_default", "...": "..." },
+  "overrides": { "week_start": "monday" },
+  "stale_overrides": ["week_start"]
+}
+```
+
+The owner sees the count across all users on the Application:
+
+```json
+// GET /v1/applications/app_timetrack (excerpt)
+{ "settings_schema_stats": { "stale_override_counts": { "week_start": 1 } } }
+```
+
+The stale value stays in `overrides` until that user (or the app's backend) writes `week_start` again, for example `{ "overrides": { "week_start": 1 } }`, or clears it with `null`. Either write removes it from `stale_overrides` and the count drops back to zero.
 
 ## Why the write shape and the read shape differ
 

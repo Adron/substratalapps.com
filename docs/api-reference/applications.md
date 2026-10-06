@@ -31,8 +31,8 @@ See [Domain Model → Applications](../../domain-model/applications/) for the fu
 
 | `visibility` | Listed / fetchable by | Who can grant an Entitlement to it |
 |---|---|---|
-| `public` | Every authenticated caller, as long as `review_status: approved`. | Platform `entitlements.manage`, or the app's own confined key. |
-| `invite_only` | Users with any access path to it, its owner, its own app key, and `applications.manage`. | Same as `public`. |
+| `public` | Every authenticated caller, as long as `review_status: approved`. | Platform `entitlements.manage`, the app's own confined key, or the app's owner. |
+| `invite_only` | Users with any access path to it, its owner, its own app key, and `applications.manage`. Access paths come from grants made by the parties in the next column, so nobody needs to *see* the app before being granted it. | Same as `public`. |
 | `internal` | Only `applications.manage` holders and its own app key. | Platform `entitlements.manage` only. |
 
 Applications that aren't `approved` are visible only to their owner, their own key, and `applications.manage`, whatever their `visibility`.
@@ -69,11 +69,11 @@ Applications that aren't `approved` are visible only to their owner, their own k
   "available_app_roles": ["admin", "member"],
   "default_app_role": "member",
   "visibility": "public",
-  "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000",
+  "owner_user_id": "usr_01JAG0SYSTEM00000000000000",
   "owner_organization_id": null,
   "review_status": "approved",
   "review_notes": null,
-  "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
+  "tenant_id": "tnt_01JAG1SYSTEM00000000000000",
   "test_mode": false,
   "created_at": "2025-11-03T00:00:00Z",
   "updated_at": "2026-09-01T00:00:00Z"
@@ -82,7 +82,8 @@ Applications that aren't `approved` are visible only to their owner, their own k
 
 | Field | Rules |
 |---|---|
-| `slug` | Matches `^[a-z][a-z0-9-]{1,63}$`, is unique, and is **immutable** once set. It's embedded in permission keys (`app.<slug>.*`) and Role ids. |
+| `id` | Read-only and derived: `app_` plus `slug` (see [Conventions → IDs](../conventions/#ids)). |
+| `slug` | Matches `^[a-z][a-z0-9-]{1,63}$` (no `_`), isn't `platform` (reserved), is unique across live and test mode, and is **immutable** once set. It's embedded in the `id`, permission keys (`app.<slug>.*`), and Role ids (`role_<slug>_<name>`, verbatim). |
 | `name` | 1–100 characters. |
 | `launch_url` | `https` URL. Where the future dashboard sends a user to open the app. |
 | `redirect_uris` | 0–10 entries, each an exact-match string: an `https://` URL, or a private-use URI scheme for native apps (reverse-DNS, `com.example.app:/path`). `http://localhost` and `http://127.0.0.1` with any port are allowed for development only on a `test_mode` Application. Required (non-empty) before the hosted authorization-code flow will issue a code — see [Auth](../auth/#post-v1authoauthauthorization-codes). |
@@ -91,7 +92,7 @@ Applications that aren't `approved` are visible only to their owner, their own k
 | `settings_schema_stats` | Read-only. `stale_override_counts` is a key → count map of how many users hold overrides that no longer validate. |
 | `permissions` | The Application's own permission catalog, 0–100 entries. Each `key` must start with `app.<slug>.`, then match `[a-z0-9_.]{1,64}`. `description` is up to 255 characters. This is what `GET /v1/permissions` lists, and it's the only set an AppRole may draw from. |
 | `available_app_roles` | The role-name vocabulary: 0–20 names, each matching `^[a-z][a-z0-9_]{1,40}$`. Every app-scoped [Role](../roles-and-permissions/) for this Application must use one of these names. |
-| `default_app_role` | `null`, or one of `available_app_roles`. If set, every user with active access to the app **implicitly** holds the app-scoped Role with that name, without an assignment row. The Role must exist (`role_<slug>_<name>`) for it to grant anything. |
+| `default_app_role` | `null`, or one of `available_app_roles`. If set, every user with active access to the app **implicitly** holds the app-scoped Role with that name (`role_<slug>_<name>`, always present because it's seeded with the name), without an assignment row. |
 | `tenant_id` | Read-only. Resolved from the owner's Tenant at creation, and the Tenant is created if needed. |
 
 ## `GET /v1/applications`
@@ -142,17 +143,44 @@ Returns the full Application object above.
   "available_app_roles": ["admin", "member"],
   "default_app_role": "member",
   "visibility": "public",
-  "owner_user_id": "usr_01JAG0SUBSTRATAL0000000000"
+  "owner_user_id": "usr_01JAG0SYSTEM00000000000000"
 }
 ```
 ```json
-// Response — 201, the full object, with review_status "approved" and tenant_id filled in
+// Response — 201
+{
+  "id": "app_invoicer",
+  "slug": "invoicer",
+  "name": "Invoicer",
+  "description": "Send and track invoices.",
+  "icon_url": null,
+  "launch_url": "https://invoicer.substratalapps.com/sso/launch",
+  "redirect_uris": ["https://invoicer.substratalapps.com/oauth/callback"],
+  "support_url": null,
+  "email_from_name": null,
+  "settings_schema": { "type": "object", "properties": { "currency": { "type": "string", "enum": ["USD", "EUR"], "default": "USD" } } },
+  "settings_schema_stats": { "stale_override_counts": {} },
+  "permissions": [ { "key": "app.invoicer.view", "description": "View invoices." }, { "key": "app.invoicer.send", "description": "Send invoices." } ],
+  "available_app_roles": ["admin", "member"],
+  "default_app_role": "member",
+  "visibility": "public",
+  "owner_user_id": "usr_01JAG0SYSTEM00000000000000",
+  "owner_organization_id": null,
+  "review_status": "approved",
+  "review_notes": null,
+  "tenant_id": "tnt_01JAG1SYSTEM00000000000000",
+  "test_mode": false,
+  "created_at": "2026-10-05T12:00:00Z",
+  "updated_at": "2026-10-05T12:00:00Z"
+}
 ```
+
+The Roles `role_invoicer_admin` and `role_invoicer_member` now exist with no permissions.
 
 - Requires `applications.manage`. Through Phase 2 this is how **every** Application comes to exist, including a paying customer's. Staff create it with the customer as owner, and the owner manages it from then on ("concierge onboarding").
 - `slug`, `name`, `launch_url`, and exactly one of `owner_user_id`/`owner_organization_id` are required. Everything else is optional.
 - Resolves the owner's [Tenant](../tenancy/), creating one if needed. A new Tenant gets `tier: shared`, and `plan: starter` for a User owner or `plan: team` for an Organization owner.
-- **Seeds the app's Roles.** For each name in `available_app_roles`, a Role `role_<slug>_<name>` is created with no permissions, and the owner then fills them in with `PATCH /v1/roles/{id}`. Because every app-scoped Role must use a name from `available_app_roles`, the plan's **AppRoles limit** (Starter 3, Team and Enterprise unlimited) is simply a cap on the length of `available_app_roles`. Exceeding it on `POST` or `PATCH` returns `409 plan_limit_reached` (`resource: "app_roles"`).
+- **Seeds the app's Roles.** For each name in `available_app_roles`, a Role `role_<slug>_<name>` is created with no permissions, and the owner then fills them in with `PATCH /v1/roles/{id}`. Because every app-scoped Role must use a name from `available_app_roles`, the plan's **AppRoles limit** (Starter 3, Team and Enterprise unlimited) is simply a cap on the length of `available_app_roles`. Exceeding it on `POST` or `PATCH` returns `409 plan_limit_reached` (`resource: "app_roles"`; see [Conventions → Plan limit errors](../conventions/#plan-limit-errors)).
 - Rejected with `409 plan_limit_reached` if the owner's Tenant is already at its plan's Applications cap (1/5/unlimited). Rejected with `402 subscription_required` if the Tenant is `restricted`. Both are independent of the caller's own permission. See [Pricing → Enforcement](../../pricing/#enforcement).
 - Writes `application.created`.
 
@@ -170,7 +198,9 @@ Returns the full Application object above.
 }
 ```
 ```json
-// Response — 200, full updated object
+// Response — 200, the full updated Application (same shape as above), now with
+// "available_app_roles": ["admin", "editor", "member"], three permissions, and a new updated_at.
+// The Role role_timetrack_editor was seeded with no permissions.
 ```
 
 There are two kinds of caller, and they can change different fields:
@@ -226,4 +256,41 @@ Any other transition returns `409 invalid_review_transition`. A transition to `r
 | `review_notes_required` | 422 | Transition to `rejected`/`suspended` without `review_notes`. |
 | `invalid_review_transition` | 409 | A `review_status` change not in the table above. |
 | `ownership_change_requires_migration` | 409 | An ownership change across non-`shared` Tenants. |
-| `plan_limit_reached` | 409 | `POST` would exceed the owner Tenant's Applications cap. |
+| `plan_limit_reached` | 409 | `POST` would exceed the owner Tenant's Applications cap, or `POST`/`PATCH` would exceed its AppRoles cap. |
+| `subscription_required` | 402 | `POST` on a `restricted` Tenant. |
+| `read_only_field` | 422 | `PATCH` touches `id`, `slug`, `tenant_id`, `created_at`, or `settings_schema_stats`. |
+| `validation_failed` | 422 | A field breaks a rule in the table above; see [Validation errors](#validation-errors). |
+
+### Validation errors
+
+Every rule in [The Application object](#the-application-object) table reports through `details.fields`, all failures at once:
+
+```json
+// POST /v1/applications with a bad slug, an http launch_url, and too many role names
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "3 fields failed validation.",
+    "details": {
+      "fields": [
+        { "field": "slug", "code": "invalid_format", "pattern": "^[a-z][a-z0-9-]{1,63}$" },
+        { "field": "launch_url", "code": "invalid_format", "allowed": ["https"] },
+        { "field": "available_app_roles", "code": "too_long", "max": 20 }
+      ]
+    }
+  }
+}
+```
+
+A reserved slug is `{ "field": "slug", "code": "unknown_value", "allowed": "anything but platform" }`, and a taken one is `409 slug_taken`, not a field error, because it's about existing state.
+
+## Owner onboarding, end to end
+
+What a paying customer does after staff have created their Application (concierge onboarding), all with their own User token and no platform permission:
+
+1. **Find your Tenant:** `GET /v1/tenants` returns the one Tenant you own, with its `plan` and `tier`. `GET /v1/applications?owned=true` lists your Applications.
+2. **Configure the app:** `PATCH /v1/applications/app_invoicer` with your `redirect_uris`, `settings_schema`, `permissions`, and `available_app_roles`. Then give each seeded Role its permissions with `PATCH /v1/roles/role_invoicer_admin` `{"permissions": ["app.invoicer.view", "app.invoicer.send"]}`.
+3. **Create your backend's key:** `POST /v1/api-keys` `{"name": "invoicer-backend", "scope": "app_invoicer", "permissions": ["entitlements.manage", "users.list"]}`. Store the `secret`; it's shown once. Create a `"mode": "test"` key too for integration tests.
+4. **Subscribe to revocations:** `POST /v1/webhooks` `{"scope": "app_invoicer", "url": "https://invoicer.example.com/hooks/substratal", "events": ["access.revoked", "role.removed"]}`. Store the `signing_secret`. This pair is the [compliance minimum](../webhooks/#post-v1webhooks).
+5. **Grant access as your billing says:** from your backend, with the app key, `POST /v1/users/{id}/entitlements` for a personal purchase, or `POST /v1/organizations/{id}/entitlements` for a team purchase. Both need an `Idempotency-Key`; key it on your own order id.
+6. **Check your bill:** `GET /v1/tenants/{id}/usage` shows where you are against your plan's limits, and `POST /v1/tenants/{id}/billing/checkout-sessions` upgrades to Team when you need to.

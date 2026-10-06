@@ -105,9 +105,9 @@ The "kill switch": a support agent or admin disabling one user's access to one a
 
 ## Team purchase (org-wide grant)
 
-1. A customer creates an [Organization](../api-reference/organizations/#post-v1organizations) (self-service) and invites members.
+1. A customer creates an [Organization](../api-reference/organizations/#post-v1organizations) (self-service) and invites members by email. Each invitation is a `pending` membership until the person accepts it.
 2. The customer pays the developer for a team plan. The developer's backend calls `POST /v1/organizations/{id}/entitlements` with its app key: `order_id`, and optionally `member_scope`.
-3. Every included member gets access. `access.granted` fires once per member. New members added later are included automatically under `all_members`/`denylist`.
+3. Every included member gets access. `access.granted` fires once per member. New members are included automatically under `all_members`/`denylist` once they accept their invitation (a `pending` membership grants nothing).
 4. Seat changes on the customer's side need no API call unless the developer limits seats with `member_scope: allowlist`. Billing per member is the developer's business; each included member counts as one *Substratal* seat for the developer's own plan (see [Pricing](../pricing/#what-seat-means-here)).
 
 ## An org admin narrows who an org-wide grant reaches

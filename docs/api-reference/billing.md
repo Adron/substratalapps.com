@@ -42,7 +42,7 @@ Stripe tells this API about every change through its webhook. This API never tak
 ```json
 // Response — 200, a Team Tenant
 {
-  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K0L1M2N",
+  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K011M2N",
   "plan": "team",
   "subscription_status": "active",
   "restricted": false,
@@ -57,7 +57,7 @@ Stripe tells this API about every change through its webhook. This API never tak
 ```json
 // Response — 200, a Starter Tenant
 {
-  "tenant_id": "tnt_01JAG2STARTER00000000000000",
+  "tenant_id": "tnt_01JAG2STARTER0000000000000",
   "plan": "starter",
   "subscription_status": "none",
   "restricted": false,
@@ -85,20 +85,20 @@ Invoices and receipts aren't mirrored here. Stripe is the system of record for t
 ```json
 // Response — 200
 {
-  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K0L1M2N",
+  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K011M2N",
   "plan": "team",
   "limits": {
     "applications":          { "limit": 5,    "current": 2 },
     "seats":                 { "limit": null, "current": 31, "included": 25 },
-    "app_roles_per_application": { "limit": null, "max_current": 4 },
-    "webhook_subscriptions": { "limit": 10,   "current": 3 },
+    "app_roles":             { "limit": null, "current": 4 },
+    "webhooks":              { "limit": 10,   "current": 3 },
     "audit_hot_window_days": { "limit": 365 }
   },
   "fits_plans": ["team", "enterprise"]
 }
 ```
 
-`limit: null` means unlimited. `fits_plans` lists which plans the Tenant's *current* usage would fit, which is what a "can I downgrade?" screen needs.
+`limit: null` means unlimited. The keys under `limits` are the same `resource` names a [`409 plan_limit_reached`](../conventions/#plan-limit-errors) error reports, so the two always agree. `app_roles` is per Application, so its `current` is the highest count on any one of the Tenant's Applications. `audit_hot_window_days` is a retention window, not a count, so it has no `current`. `fits_plans` lists which plans the Tenant's *current* usage would fit, which is what a "can I downgrade?" screen needs.
 
 ## `POST /v1/tenants/{id}/billing/checkout-sessions`
 
@@ -150,3 +150,6 @@ Plan and billing changes write Audit Events (`tenant.plan_changed`, `tenant.subs
 | `subscription_exists` | 409 | Checkout requested while a non-lapsed subscription exists. |
 | `no_billing_account` | 409 | Portal requested for a Tenant that has never paid. |
 | `billing_unavailable` | 503 | Stripe is unreachable. `Retry-After` is set. |
+| `user_token_required` | 400 | Any of these endpoints called with an API Key. |
+| `idempotency_key_required` | 400 | `checkout-sessions` without an `Idempotency-Key`. |
+| `forbidden` | 403 | Checkout by anyone but the owner, or another endpoint without the permission in the table above. |

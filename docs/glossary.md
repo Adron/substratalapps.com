@@ -55,7 +55,7 @@ Not an entity of this API. It's the developer's own commerce record, in their ow
 A domain/grouping object for Users — a company, or a group within a company — used to organize shared admin standing and group-wide Application access. Decoupled from infrastructure placement; see [Tenant](#tenant) and [Tenant vs. Organization](../domain-model/tenancy/#tenant-vs-organization). Pulled into [Phase 2](../roadmap/#phase-2); see [Organizations](../domain-model/users-and-organizations/#organization).
 
 #### OrganizationMembership
-The join record between a User and an Organization, carrying that User's standing *within* that one Organization (`org_admin` or `member`) — a User can hold this for any number of Organizations at once. See [Domain Model → Users & Organizations](../domain-model/users-and-organizations/#organizationmembership).
+The join record between a User and an Organization, carrying that User's standing *within* that one Organization (`org_admin` or `member`) and whether it's `pending` (invited, not yet accepted) or `active` — a User can hold this for any number of Organizations at once. See [Domain Model → Users & Organizations](../domain-model/users-and-organizations/#organizationmembership).
 
 #### Permission
 An atomic, checkable capability, written as a dotted key (`billing.manage`, `app.timetrack.export`). Never assigned directly to a user — always granted through a [Role](#role).

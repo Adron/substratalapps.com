@@ -31,7 +31,7 @@ A long-lived credential scoped to either one Application (for an app's own backe
 | `restrict_destructive` | boolean | Default follows `intended_use` (`true` for `agent`, `false` for `service`) unless set explicitly. See below. |
 | `secret_hint` | string | Last 4 characters of the current secret, e.g. `"…6c8e"`, so an operator can tell keys apart without the secret. |
 | `expires_at` | timestamp, nullable | Optional hard expiry, set at creation. After it, the key behaves as revoked (`401`). |
-| `created_by` | object | `{ "type": "user" \| "api_key", "id": "…" }`. |
+| `created_by` | object | `{ "type": "user", "id": "usr_…" }`. Always a User: an API Key can never create API Keys (see below). |
 | `last_used_at` | timestamp, nullable | Updated at most once a minute. |
 | `created_at` | timestamp | |
 | `revoked_at` | timestamp, nullable | |
@@ -40,7 +40,7 @@ A long-lived credential scoped to either one Application (for an app's own backe
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/v1/api-keys` | List keys in scope for the caller. Filter by `scope`, `mode`, `intended_use`, and `include_revoked`. |
+| `GET` | `/v1/api-keys` | List keys in scope for the caller. Filter by `scope`, `mode`, `intended_use`, and `include_inactive` (include revoked and expired keys). |
 | `POST` | `/v1/api-keys` | Create a key. Returns the secret once. |
 | `GET` | `/v1/api-keys/{id}` | Fetch one key (never the secret). |
 | `PATCH` | `/v1/api-keys/{id}` | Change `name`, `permissions`, or `restrict_destructive`. |
@@ -65,13 +65,14 @@ An API Key can never create, change, or rotate API Keys, including itself (`400 
   "scope": "app_timetrack",
   "permissions": ["app.timetrack.export"],
   "mode": "live",
-  "intended_use": "service"
+  "intended_use": "service",
+  "expires_at": "2027-10-04T00:00:00Z"
 }
 ```
 ```json
 // Response — 201
 {
-  "id": "key_01JAGE5F6G7H8J9K0L1M2N3O4P",
+  "id": "key_01JAGE5F6G7H8J9K011M2N304P",
   "name": "timetrack-backend",
   "scope": "app_timetrack",
   "permissions": ["app.timetrack.export"],
@@ -79,11 +80,16 @@ An API Key can never create, change, or rotate API Keys, including itself (`400 
   "intended_use": "service",
   "restrict_destructive": false,
   "secret": "satk_live_9f2a1c7e4b3d8f0a2c5e7b1d9f3a6c8e",
+  "secret_hint": "…6c8e",
+  "expires_at": "2027-10-04T00:00:00Z",
+  "created_by": { "type": "user", "id": "usr_01JAG0SYSTEM00000000000000" },
   "last_used_at": null,
   "created_at": "2026-10-04T09:30:00Z",
   "revoked_at": null
 }
 ```
+
+`name`, `scope`, and `permissions` are required. `mode` defaults to `live`, `intended_use` to `service`, and `restrict_destructive` to the `intended_use` default. `expires_at` is optional and must be in the future.
 
 `secret` is returned **only** in this response — store it immediately; it's not retrievable afterward, only rotatable. The key is used exactly like a user access token: `Authorization: Bearer satk_live_...`.
 
@@ -109,7 +115,7 @@ That's addressed with two fields on the existing API Key, not a new key *type* (
 ```json
 // Response — 201, restrict_destructive defaulted to true from intended_use
 {
-  "id": "key_01JAGF6G7H8J9K0L1M2N3O4P5Q",
+  "id": "key_01JAGF6G7H8J9K011M2N304P5Q",
   "name": "support-assistant-mcp",
   "scope": "platform",
   "permissions": ["audit.view", "users.list", "entitlements.manage"],
@@ -129,12 +135,12 @@ This key carries `entitlements.manage` — it *can* toggle an Entitlement off �
   "error": {
     "code": "destructive_operation_restricted",
     "message": "This API Key has restrict_destructive enabled and cannot perform this operation.",
-    "details": { "key_id": "key_01JAGF6G7H8J9K0L1M2N3O4P5Q" }
+    "details": { "key_id": "key_01JAGF6G7H8J9K011M2N304P5Q" }
   }
 }
 ```
 
-"Destructive" is one rule, not a per-endpoint list maintained twice: the same classification [MCP Server → Tool annotations & safety](../../mcp-server/#tool-annotations--safety) uses to derive `destructiveHint` for a tool call. The complete list of destructive operations is maintained there once, and marked on each operation in `openapi.yaml` as `x-substratal-destructive`. A `restrict_destructive` key can still read everything its permissions allow and call every non-destructive write; it's blocked from exactly that set, regardless of what permissions it otherwise carries — the permission check and the destructive-operation check are independent gates, both have to pass.
+"Destructive" is one rule, not a per-endpoint list maintained twice: the same classification [MCP Server → Tool annotations & safety](../../mcp-server/#tool-annotations--safety) uses to derive `destructiveHint` for a tool call. The complete list of destructive operations is maintained there once, and marked on each operation in `openapi.yaml` as `x-substratal-destructive`. Some operations are always destructive (every `DELETE`, for example). Others are destructive only for certain request bodies: `PATCH /v1/entitlements/{id}` only when it sets `status` to `disabled` or `revoked`, so the same agent key can still extend a trial or convert one to a purchase. `openapi.yaml` marks these `x-substratal-destructive: conditional`, with the condition in `x-substratal-destructive-when`, and the server evaluates the condition against each request. A `restrict_destructive` key can still read everything its permissions allow and call every non-destructive write; it's blocked from exactly that set, regardless of what permissions it otherwise carries — the permission check and the destructive-operation check are independent gates, both have to pass.
 
 Setting `restrict_destructive: false` explicitly on an `intended_use: "agent"` key — overriding the safer default — writes an [Audit Event](../../domain-model/orders-and-audit/#audit-event) (`api_key.restrict_destructive_disabled`), since it's the deliberate exception worth a record, not the default worth none.
 
@@ -146,11 +152,20 @@ Uniqueness constraints include `test_mode` (e.g. `unique (email, test_mode) wher
 
 `mode: "test"` produces a `satk_test_…` secret instead of `satk_live_…` — same permissions and scope, but every resource it creates (Users, Entitlements, anything) is tagged `test_mode: true`:
 
-- Excluded from `GET` list endpoints by default, same as [soft-deleted records](../conventions/#filtering) — pass `?include_test=true` to see them.
+- Invisible to live credentials, and vice versa: a live key or live User token never reads or writes test rows, under any parameter, and a test credential never sees live rows. There's no flag that crosses the line.
 - Webhook deliveries from test-mode data only reach webhook subscriptions that were themselves created with a `test` key — a `live` integration never receives test traffic.
 - Subject to periodic cleanup (test data isn't held to the same [retention](../../non-functional-requirements/#data-retention) requirements as live data).
 
 This is how an Application's developer integration-tests against the real API without a separate sandbox deployment or risk to live data — see [Conventions → Authentication](../conventions/#authentication).
+
+### Walkthrough: a test run end to end
+
+1. **Create a test key** (as the Application's owner): `POST /v1/api-keys` with `"scope": "app_timetrack"`, `"mode": "test"`, `"permissions": ["entitlements.manage", "users.list"]`. The response's `secret` starts `satk_test_`. Applications are shared catalog rows, visible to test and live credentials alike (an Application's own `test_mode` flag only marks one created for testing, which is what allows `localhost` redirect URIs). Everything the test key *writes* is tagged `test_mode: true`.
+2. **Create a test User** with that key: `POST /v1/users` `{"email": "qa+1@example.com", "status": "active", "send_invitation": false}`. The response has `"test_mode": true`. A live User with the same email can exist alongside it without conflict.
+3. **Grant access**: `POST /v1/users/{id}/entitlements` with an `Idempotency-Key` and `{"application_id": "app_timetrack", "source": "trial", "ends_at": "…"}`. The Entitlement is `test_mode: true`, and the `entitlement.granted`/`access.granted` webhooks go only to subscriptions created with a test key.
+4. **Sign in as that User**: set a password through `POST /v1/auth/password/forgot` `{"email": "qa+1@example.com", "test_mode": true}`, then `POST /v1/auth/login` with `"test_mode": true` (see [Auth → Test-mode Users](../auth/#test-mode-users)). The access token and every app token carry `"test_mode": true`.
+5. **Check isolation**: `GET /v1/users?email=qa+1@example.com` with a *live* key returns an empty list. The test User doesn't exist as far as live credentials are concerned.
+6. **Clean up**, or don't: test rows older than 30 days are purged nightly.
 
 ## App-confined permissions
 
@@ -178,6 +193,21 @@ An app-scoped key can **never** carry `users.manage`, `applications.manage`, `or
 ```
 ```json
 // Response — 200, the key (no secret)
+{
+  "id": "key_01JAGF6G7H8J9K011M2N304P5Q",
+  "name": "support-assistant-mcp",
+  "scope": "platform",
+  "permissions": ["audit.view", "users.list"],
+  "mode": "live",
+  "intended_use": "agent",
+  "restrict_destructive": true,
+  "secret_hint": "…a41f",
+  "expires_at": null,
+  "created_by": { "type": "user", "id": "usr_01JAG9STAFF000000000000000" },
+  "last_used_at": "2026-10-05T11:58:12Z",
+  "created_at": "2026-10-04T09:45:00Z",
+  "revoked_at": null
+}
 ```
 
 `scope`, `mode`, and `intended_use` are fixed at creation (`422 read_only_field`), so replace the key to change them. A permission change takes effect on the key's next request.
@@ -191,7 +221,7 @@ An app-scoped key can **never** carry `users.manage`, `applications.manage`, `or
 ```json
 // Response — 200
 {
-  "id": "key_01JAGE5F6G7H8J9K0L1M2N3O4P",
+  "id": "key_01JAGE5F6G7H8J9K011M2N304P",
   "secret": "satk_live_2b8e4a1f9c3d7e0b5a8f1c4e9b2d7a0f",
   "...": "..."
 }
@@ -209,10 +239,13 @@ Immediate and permanent — sets `revoked_at`, and any request bearing that secr
 
 ## Errors specific to this resource
 
-| Code | When |
-|---|---|
-| `permission_not_grantable_to_scope` | `POST`/`PATCH` includes a permission the given `scope` isn't allowed to hold (see [App-confined permissions](#app-confined-permissions)). |
-| `unknown_permission` | A permission key that doesn't exist, or another Application's `app.*` key. |
-| `role_escalation_forbidden` | A platform key with a permission its creator doesn't hold. |
-| `api_key_not_found` | `{id}` doesn't resolve, or is already revoked. |
-| `destructive_operation_restricted` | A `restrict_destructive: true` key attempted an operation classified as destructive — see [Agent keys & `restrict_destructive`](#agent-keys--restrict_destructive). Not specific to key creation; this is returned by *any* endpoint the key calls. |
+| Code | Status | When |
+|---|---|---|
+| `permission_not_grantable_to_scope` | 422 | `POST`/`PATCH` includes a permission the given `scope` isn't allowed to hold (see [App-confined permissions](#app-confined-permissions)). |
+| `unknown_permission` | 422 | A permission key that doesn't exist, or another Application's `app.*` key. |
+| `role_escalation_forbidden` | 403 | A platform key with a permission its creator doesn't hold. |
+| `user_token_required` | 400 | An API Key tried to create, change, rotate, or revoke an API Key. |
+| `read_only_field` | 422 | A `PATCH` tried to change `scope`, `mode`, or `intended_use`. |
+| `api_key_not_found` | 404 | `{id}` doesn't resolve, or isn't visible to the caller. A revoked key is still fetchable by id (with `revoked_at` set), per [Conventions → Filtering](../conventions/#filtering). |
+| `api_key_revoked` | 409 | `PATCH`, `rotate`, or `DELETE` on a key that's already revoked or past `expires_at`. |
+| `destructive_operation_restricted` | 403 | A `restrict_destructive: true` key attempted an operation classified as destructive — see [Agent keys & `restrict_destructive`](#agent-keys--restrict_destructive). Not specific to key creation; this is returned by *any* endpoint the key calls. |

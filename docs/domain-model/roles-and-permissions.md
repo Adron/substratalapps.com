@@ -60,10 +60,14 @@ A named bundle of Permissions, scoped either to the whole platform or to one App
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | string | `role_` prefix. |
-| `name` | string | e.g. `support`, `admin`. |
+| `id` | string | Derived, never chosen: `role_platform_<name>`, or `role_<slug>_<name>` with the Application's slug verbatim. A slug never contains `_`, so the id is unambiguous; see [Conventions → IDs](../../api-reference/conventions/#ids). |
+| `name` | string | e.g. `support`, `admin`. Matches `^[a-z][a-z0-9_]{1,40}$`, unique within its `scope`. |
 | `scope` | string | `"platform"` or an `application_id`. |
+| `description` | string, nullable | Up to 2,000 characters. |
 | `permissions` | array of strings | Permission keys this role grants. |
+| `seed` | boolean | `true` for the four built-in platform Roles, which can't be changed or deleted. |
+| `assignment_count` | integer, read-only | Explicit assignments (implicit `default_app_role` holders aren't counted). |
+| `created_at`, `updated_at` | timestamp | |
 
 ### PlatformRole
 

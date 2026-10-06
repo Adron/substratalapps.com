@@ -38,11 +38,11 @@ Authorization: Bearer <token>
 
 User-facing requests carry a user access token (issued at login, see [Auth](../auth/)). Service-to-service requests (billing, an app's backend) carry a scoped [API Key](../api-keys/). Both go in the same header — the token type is distinguishable server-side by prefix, not by a different header name.
 
-**Test vs. live:** every API Key is created with `satk_test_…` or `satk_live_…` (see [API Keys](../api-keys/)) — there is no separate sandbox deployment to point at. A `test` key operates against the same database, but every record it creates is tagged `test_mode: true`, excluded from webhooks firing to any other caller's `live` subscriptions, and from rate-limit/analytics counters. This is cheaper to build and run than a parallel environment, and it's the right call at the current scale (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.
+**Test vs. live:** every API Key is created with `satk_test_…` or `satk_live_…` (see [API Keys](../api-keys/)) — there is no separate sandbox deployment to point at. A `test` key operates against the same database, but every record it creates is tagged `test_mode: true`. Test and live rows are invisible to each other: a test credential reads and writes only test rows, a live credential only live rows, and no query parameter crosses that line. Test-mode events only reach test-mode webhook subscriptions, and test traffic is excluded from analytics counters. A User created in test mode signs in with `"test_mode": true` on the auth endpoints (see [Auth → Test-mode Users](../auth/#test-mode-users)), and every token issued to them carries `test_mode: true`, which confines it to test rows the same way. This is cheaper to build and run than a parallel environment, and it's the right call at the current scale (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) — a true isolated sandbox is a Scale-out-trigger-shaped decision, not a day-one one.
 
 ## IDs
 
-Every resource ID is prefixed by type. Most are opaque ULIDs — generated, never reused, never recomputed from other fields, and not meant to be parsed for meaning beyond the prefix:
+Every resource ID is prefixed by type. Most are the prefix plus a ULID (26 Crockford base32 characters, so never `I`, `L`, `O`, or `U`): generated, never reused, never recomputed from other fields, and not meant to be parsed for meaning beyond the prefix. Application and Role ids are the two exceptions, described below the table.
 
 | Prefix | Entity |
 |---|---|
@@ -62,11 +62,16 @@ Every resource ID is prefixed by type. Most are opaque ULIDs — generated, neve
 | `wev_` | Webhook event (one delivered event payload) — see [Webhooks](../webhooks/#delivery). Distinct from `evt_`, an Audit Event. |
 | `dlv_` | Webhook delivery attempt — see [Webhooks](../webhooks/#delivery-log) |
 
-`order_id` on an Entitlement is **not** a resource ID of this API. It's an opaque reference string the developer supplies from their own billing system (for example, their own Stripe subscription id), up to 255 characters. Examples on this site use `ord_…`-style values for readability only. See [Orders & Audit → Order references](../../domain-model/orders-and-audit/#order).
+An [Erasure request](../users/#post-v1usersiderasure-requests) has no id of its own: there's at most one per User, so it's addressed by the User's id (`/v1/users/{id}/erasure-requests/current`).
 
-**Role is the deliberate exception.** A Role's `id` is a human-readable slug (`role_timetrack_admin`, `role_platform_member`), not a random ULID — Roles are commonly referenced from code and config (seed scripts, permission checks), where a stable, meaningful id is more useful than an opaque one. See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissions/#role).
+`order_id` on an Entitlement is **not** a resource ID of this API. It's an opaque reference string the developer supplies from their own billing system (for example, their own Stripe subscription id), up to 255 characters. Examples on this site use Stripe-style subscription ids (`sub_…`), the most common case. See [Orders & Audit → Order references](../../domain-model/orders-and-audit/#order).
 
-**Credential strings are not resource IDs** and follow their own prefix conventions, since they're secrets rather than addressable resources. Never log these or echo them back after their initial issuance. All are stored hashed (SHA-256), never in plaintext.
+**Application and Role are the deliberate exceptions.** Both are commonly referenced from code and config (seed scripts, permission checks, launch URLs), where a stable, meaningful id is more useful than an opaque one, so both ids are derived rather than random:
+
+- An **Application**'s `id` is `app_` plus its `slug`, verbatim (`app_timetrack`, `app_time-track`). `slug` is immutable, so the id is too. See [Applications](../applications/#the-application-object).
+- A **Role**'s `id` is `role_platform_<name>` or `role_<slug>_<name>`, with the Application's slug verbatim (`role_timetrack_admin`, `role_time-track_admin`, `role_platform_member`). A slug never contains `_`, so the first `_` after `role_` always ends the slug, and two different (slug, name) pairs can never derive the same id. The slug `platform` is reserved for the same reason. See [Domain Model → Roles & Permissions](../../domain-model/roles-and-permissions/#role).
+
+**Credential strings are not resource IDs** and follow their own prefix conventions, since they're secrets rather than addressable resources. Never log these or echo them back after their initial issuance. None is stored in plaintext. Tokens and API Key secrets are stored as SHA-256 hashes, since the API only ever needs to *verify* them. A webhook signing secret is stored KMS-encrypted instead, because the API has to *use* it to sign every delivery, and a hash can't sign. MFA recovery codes are stored as Argon2id hashes, since they're short enough to brute-force against a fast hash.
 
 | Prefix | Credential | Lifetime |
 |---|---|---|
@@ -104,29 +109,36 @@ Pass `next_cursor` back as `cursor` to get the next page. `has_more: false` mean
 
 List endpoints that support filtering take plain query parameters named after the field being matched (`?status=active`, `?application_id=app_timetrack`) — there's no separate filter DSL. Each resource page's endpoint table states which fields are filterable; passing an unsupported filter parameter is ignored rather than erroring, so adding a new filterable field later is never a breaking change.
 
-**Soft-deleted and terminal-state records are excluded by default.** A list endpoint doesn't return a soft-deleted User, a `revoked` Entitlement, or a `suspended` API Key unless the caller explicitly asks for it (`?status=revoked`, or a resource-specific `?include_deleted=true` where noted on that page). This is the default precisely so "list my entitlements" doesn't require every caller to remember to filter out the ones that don't matter anymore.
+**Soft-deleted and terminal-state records are excluded from lists by default.** A list endpoint doesn't return a soft-deleted User, a `revoked` or `expired` Entitlement, or a revoked API Key unless the caller explicitly asks for it, with an explicit `?status=…` or with `?include_inactive=true` on the lists that support it. This is the default precisely so "list my entitlements" doesn't require every caller to remember to filter out the ones that don't matter anymore.
+
+**Fetching by id** follows one rule:
+
+- A **terminal-state** record (a `revoked` or `expired` Entitlement, a revoked API Key, a `cancelled` tier-change request) is still fetchable by id by anyone allowed to see it, and shows its terminal state. Write operations on it return `409` with the resource's own code.
+- A **soft-deleted User** returns `404 user_not_found` to everyone except `users.manage` holders, so a deleted account's existence isn't leaked. `users.manage` can still fetch it (`status: deleted`), restore it, and manage its erasure request. See [Users → `DELETE`](../users/#delete-v1usersid).
+
+**Boolean scoping parameters.** A few list filters aren't named after a field because they widen or narrow the default set rather than match a value: `include_inactive=true` (include terminal-state rows) and `owned=true` (only what the caller owns, on [Applications](../applications/#get-v1applications)). They're the only two, and they mean the same thing wherever they appear.
 
 ## Delete semantics: hard vs. soft
 
 "Delete" doesn't mean the same thing on every resource, and this site doesn't pick one convention and force every resource into it — it picks the right one per resource and documents which, here, once, instead of leaving a caller to infer it from each page's own wording.
 
-**A soft delete** flips a `status` (or sets a `deleted_at`/`revoked_at` timestamp) rather than removing the row. The record is excluded from default list results — same rule as [Filtering](#filtering) above — but remains fetchable by id for an authorized caller, and every other field is untouched. Nothing about a soft delete scrubs, redacts, or moves data anywhere; it's purely a status change. Where a soft delete is reversible, reversing it restores exactly the prior state, nothing re-provisioned.
+**A soft delete** flips a `status` (or sets a `deleted_at`/`revoked_at` timestamp) rather than removing the row. The record is excluded from default list results, and whether it's still fetchable by id follows the rule in [Filtering](#filtering) above. Every other field is untouched. Nothing about a soft delete scrubs, redacts, or moves data anywhere; it's purely a status change. Where a soft delete is reversible, reversing it restores exactly the prior state, nothing re-provisioned.
 
 **A hard delete** removes the row entirely. Where this site allows it at all, it's reserved for correcting a mistake, not for the ordinary lifecycle of a real record — see each resource's own endpoint description for the specific line it draws.
 
 | Resource | `DELETE` behavior |
 |---|---|
-| [User](../../domain-model/users-and-organizations/) | **Soft.** `status: deleted`; 404s afterward. A separate, two-stage hard-delete cascade exists for right-to-erasure requests specifically — see [Non-Functional Requirements → Hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade). Not triggered by this call. |
+| [User](../../domain-model/users-and-organizations/) | **Soft.** `status: deleted`; 404s afterward to everyone but `users.manage`, who can restore it until the erasure cascade (if one was requested) completes. A separate, two-stage hard-delete cascade exists for right-to-erasure requests specifically — see [Non-Functional Requirements → Hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade). Not triggered by this call. |
 | [API Key](../api-keys/) | **Soft, but irreversible.** Sets `revoked_at`; the row and its usage history are retained, but unlike every other soft delete on this list, there is no un-revoke — a replacement means creating a new key. |
 | [Entitlement](../entitlements/) | **Hard** — but only for a grant with no `order_id`. Reserved for correcting a mistake (wrong user, wrong app, duplicate); real revocations use `PATCH status: revoked`/`disabled` instead, so the history survives. See [Entitlements → `DELETE`](../entitlements/#delete-v1entitlementsid). |
-| Organization member | **Hard.** The [OrganizationMembership](../../domain-model/users-and-organizations/#organizationmembership) join row is removed outright — membership has no "soft-removed" state of its own. |
+| Organization member | **Hard.** The [OrganizationMembership](../../domain-model/users-and-organizations/#organizationmembership) join row is removed outright, whether it was `pending` or `active`. Membership has no "soft-removed" state of its own. |
 | Role assignment | **Hard.** The [UserRoleAssignment](../../domain-model/roles-and-permissions/#userroleassignment) join row is removed outright; idempotent (removing an already-gone assignment still returns `204`). |
-| [Webhook](../webhooks/) subscription | **Hard.** Unsubscribing removes the subscription; already-queued deliveries still attempt, nothing new is enqueued. |
+| [Webhook](../webhooks/) subscription | **Hard.** Unsubscribing removes the subscription and its delivery log. Deliveries already in the retry queue are dropped, and nothing new is enqueued. |
 | [Application](../applications/), [Organization](../organizations/), [Role](../roles-and-permissions/) (the definition), [Tenant](../tenancy/) | **No `DELETE` endpoint at all.** Each has its own terminal-but-not-deleted state instead — `review_status: suspended`/`rejected` for an Application, `status: suspended` for an Organization (via `PATCH`) — because removing the catalog/definition entry itself would orphan everything that still references it (Entitlements, Role assignments, Roles scoped to it). |
 | [Profile](../../domain-model/profiles/) | No `DELETE` endpoint. Deleted outright, but only as step 2 of the [hard-delete cascade](../../non-functional-requirements/#hard-delete-cascade) above — never independently. |
-| [AppProfile](../../domain-model/profiles/#appprofile) / [AppSettings](../../domain-model/settings/#appsettings) | No `DELETE` endpoint. PII is scrubbed from `custom`/`overrides` in place by the hard-delete cascade's step 3; the row itself is retained even then. |
+| [AppProfile](../../domain-model/profiles/#appprofile) / [AppSettings](../../domain-model/settings/#appsettings) | No `DELETE` endpoint. The hard-delete cascade's step 3 clears personal data in place: all of an AppProfile (`display_handle` set to `null`, `custom` to `{}`), and only the `x-pii`-marked keys of AppSettings `overrides`. The rows themselves are retained even then. |
 | [Settings](../../domain-model/settings/) (global) | No `DELETE` endpoint, and not touched by the hard-delete cascade either — none of its fields (`locale`, `timezone`, `theme`, `notifications`) are personally identifying, so there's nothing on it the erasure right reaches. |
-| [Audit Event](../../domain-model/orders-and-audit/#audit-event) | Never deletable through the API, by anyone, under any permission — the one exception is the scheduled archival job moving an aged-out event to cold storage, which is an infrastructure process, not a caller-facing `DELETE`. See [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle). |
+| [Audit Event](../../domain-model/orders-and-audit/#audit-event) | Never deletable or editable through the API, by anyone, under any permission. Two scheduled infrastructure jobs are the only exceptions, and both only ever reduce an event to its shape: the archival job moves an aged-out event to cold storage, and the erasure cascade redacts `before`/`after` on a deleted User's events. See [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle). |
 
 ## Partial updates (`PATCH`)
 
@@ -191,12 +203,14 @@ A single resource is returned as a bare JSON object — no envelope:
 | `unauthenticated` | 401 | No Bearer token, a malformed or expired one, or a revoked API Key. |
 | `session_revoked` | 401 | The token's session was logged out or revoked. |
 | `forbidden` | 403 | Authenticated, but the caller lacks the required permission. `details.required_permission` names it. |
+| `tenant_suspended` | 403 | The Tenant that owns the data being written (or the Application an app token is requested for) is `suspended` by the platform. See [Tenancy](../../domain-model/tenancy/#fields). |
 | `destructive_operation_restricted` | 403 | A `restrict_destructive` API Key attempted a destructive operation — see [API Keys](../api-keys/#agent-keys--restrict_destructive). |
 | `subscription_required` | 402 | The owning Tenant is `restricted` after a lapsed subscription, and this write would add usage — see [Pricing → Subscription lapse](../../pricing/#subscription-lapse--downgrades). |
 | `not_found` | 404 | Generic not-found for a path that matches no route. Resource pages define their own `<resource>_not_found` codes. |
 | `version_conflict` | 409 | `If-Match` didn't match the current `ETag`. |
 | `idempotency_key_reused` | 409 | Same `Idempotency-Key`, different request body. |
-| `plan_limit_reached` | 409 | The owning Tenant is at a plan limit — see [Pricing → Enforcement](../../pricing/#enforcement). |
+| `idempotency_key_in_flight` | 409 | The first request with this `Idempotency-Key` is still being processed. Retry after a second. |
+| `plan_limit_reached` | 409 | The owning Tenant is at a plan limit — see [Plan limit errors](#plan-limit-errors) below and [Pricing → Enforcement](../../pricing/#enforcement). |
 | `payload_too_large` | 413 | Body over 1 MB. |
 | `validation_failed` | 422 | One or more fields fail validation. Uses `details.fields` — see below. |
 | `read_only_field` | 422 | A `PATCH` body included a read-only field. |
@@ -212,7 +226,7 @@ HTTP status follows a fixed mapping from error *class*, not a judgment call per 
 | `402` | Payment required — the owning Tenant's subscription has lapsed, and this write would add usage. | `subscription_required`. |
 | `401` | Missing or invalid auth — no Bearer token, an expired one, or a revoked API Key's secret. | A revoked key's secret used after `revoked_at`. |
 | `403` | Authenticated, but not permitted — a real permission or ownership check failed. | `moderation_field_forbidden`, `destructive_operation_restricted`. |
-| `404` | Not found — including a soft-deleted or never-existed resource; see [Filtering](#filtering) for why a soft-deleted record 404s rather than returning a `deleted` status. | `entitlement_not_found`. |
+| `404` | Not found — including a never-existed resource, one the caller isn't allowed to see, and a soft-deleted User; see [Filtering](#filtering) for which records 404 after deletion and which stay fetchable. | `entitlement_not_found`. |
 | `409` | Conflict — the request is individually valid, but the current state of the resource makes it impossible to apply as-is. | `entitlement_already_exists`, `version_conflict`, `plan_limit_reached`, an idempotency key reused with a different body. |
 | `422` | Semantically invalid — the request is well-formed but violates a declared rule beyond basic shape. | A `settings_schema` violation, `validation_failed`. |
 | `413` | Body too large. | `payload_too_large`. |
@@ -240,9 +254,33 @@ The dividing line between `409` and `422` worth internalizing: `409` is about *s
 
 A single-field error (like `entitlement_required` above) skips the array and puts the relevant IDs directly in `details` — the array form is specifically for "more than one thing wrong with this request body."
 
+Each entry's `code` is one of a small fixed set: `required`, `invalid_format`, `too_short`, `too_long`, `out_of_range`, `enum_mismatch`, `not_unique`, `unknown_value`, `undeclared_key`. Entries carry whatever bound applies (`min`, `max`, `allowed`, `pattern`). A few resource pages show examples for their own rules: [Applications](../applications/#validation-errors), [Profiles](../profiles/#patch-v1usersidprofile), and [Settings](../settings/#patch-v1usersidsettings).
+
+### Plan limit errors
+
+`409 plan_limit_reached` always carries the same `details`, so a client can render one "upgrade to continue" screen for every limit:
+
+```json
+{
+  "error": {
+    "code": "plan_limit_reached",
+    "message": "This Tenant's Starter plan allows 1 Application.",
+    "details": {
+      "resource": "applications",
+      "limit": 1,
+      "current": 1,
+      "plan": "starter",
+      "tenant_id": "tnt_01JAG2STARTER0000000000000"
+    }
+  }
+}
+```
+
+`resource` is one of `applications`, `app_roles`, `webhooks`, or `seats`. These are the same keys [`GET /v1/tenants/{id}/usage`](../billing/#get-v1tenantsidusage) reports under `limits`, so the error and the usage screen always agree on names. See [Pricing → Enforcement](../../pricing/#enforcement) for what each one counts.
+
 ## Idempotency
 
-Any `POST` that creates or transitions an Entitlement- or Order-linked record accepts:
+Any `POST` that creates or transitions an Entitlement accepts:
 
 ```
 Idempotency-Key: <client-generated string, 1–255 characters; a UUID v4 is recommended>

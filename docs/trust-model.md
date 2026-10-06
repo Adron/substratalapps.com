@@ -36,7 +36,7 @@ Whenever a user enters an Application, the Application holds a signed **app toke
   "iss": "https://api.substratalapps.com",
   "aud": "app_timetrack",
   "sub": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
-  "sid": "ses_01JAG8K4Q9R0S1T2U3V4W5X6Y8",
+  "sid": "ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8",
   "org_id": null,
   "email": "jordan@example.com",
   "email_verified": true,

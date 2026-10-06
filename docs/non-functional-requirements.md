@@ -50,11 +50,11 @@ Any write described as "also creates" or "also assigns" elsewhere in this spec �
 
 ## Audit
 
-Every state change listed in the [Action catalog](../domain-model/orders-and-audit/#action-catalog) produces an immutable [Audit Event](../domain-model/orders-and-audit/), written in the same transaction as the change: actor (user, API key, or system), action, target, before/after snapshot, request id, and timestamp. Audit events are never deleted or edited, including when the record they describe is later deleted.
+Every state change listed in the [Action catalog](../domain-model/orders-and-audit/#action-catalog) produces an immutable [Audit Event](../domain-model/orders-and-audit/), written in the same transaction as the change: actor (user, API key, or system), action, target, before/after snapshot, request id, and timestamp. Audit events are never deleted or edited through the API, including when the record they describe is later deleted. Two scheduled jobs are the only writers after insert, and both only reduce an event to its shape: the archival job ([Audit log lifecycle](#audit-log-lifecycle)) and step 4 of the [Hard-delete cascade](#hard-delete-cascade), which redacts `before`/`after`. Both run as a separate database role that holds `UPDATE`/`DELETE` on `audit_events`; the API's own role never does.
 
 ## Idempotency & retries
 
-Billing webhooks retry. Admin tooling double-clicks. Any mutating endpoint that creates or transitions an Entitlement or Order-linked record **must** accept an `Idempotency-Key` header and return the original result on a repeated key rather than creating a duplicate. See [Conventions](../api-reference/conventions/#idempotency).
+Billing webhooks retry. Admin tooling double-clicks. Any mutating endpoint that creates or transitions an Entitlement **must** accept an `Idempotency-Key` header and return the original result on a repeated key rather than creating a duplicate. See [Conventions](../api-reference/conventions/#idempotency).
 
 ## Rate limiting
 
@@ -134,13 +134,13 @@ Triggered by `POST /v1/users/{id}/erasure-requests` (see [Users](../api-referenc
 2. Delete the User's [Profile](../domain-model/profiles/) row outright, and every `sessions`, `refresh_tokens`, and `auth_tokens` row (sessions hold IP addresses and user agents).
 3. For every [AppProfile](../domain-model/profiles/#appprofile) the User holds, set `display_handle` to `null` and `custom` to `{}`. AppProfile is identity data, so all of it is treated as personal. For every [AppSettings](../domain-model/settings/#appsettings) row, remove only the keys the Application's `settings_schema` marks `x-pii: true` (see [`settings_schema` rules](../domain-model/settings/#settings_schema-rules)), and keep structural preferences such as `week_start`. The rows themselves are retained, since an Application may have a legitimate reason to know an entitlement-shaped record existed.
 4. Redact `before`/`after` snapshot values (not the whole row) on every [Audit Event](../domain-model/orders-and-audit/#audit-event) where this User is `target_user_id`. That preserves `action`/`timestamp`/`actor` (the *shape* of what happened) while removing the one place a deleted field's value could otherwise still be read back.
-5. On `users`: set `email` to `erased+<id>@invalid.substratal`, null `pending_email`, and keep `status: deleted`. The row must survive as the foreign-key target of the history in step 6.
+5. Remove the User from every Organization: delete their `organization_memberships` rows (`pending` or `active`), and remove their id from every org-wide Entitlement's `member_overrides`. A plain soft-delete leaves both in place, so a restored User comes back exactly as they were. If this removes an Organization's last active `org_admin`, its longest-standing active member is promoted, so the Organization is never left unmanageable (the `last_org_admin` guard can't apply to a cascade that has to complete). On `users`: set `email` to `erased+<id>@invalid.substratal`, null `pending_email`, and keep `status: deleted`. The row must survive as the foreign-key target of the history in step 6.
 6. Leave [Entitlement](../domain-model/entitlements/) rows (and their opaque `order_id`) in place, pseudonymized by the steps above having removed the identifying data they'd otherwise join against. They're retained under a legitimate-interest basis (financial/business records) distinct from, and not overridden by, the erasure right.
 7. Mark the `erasure_requests` row `completed` and write `user.erased` (actor `system`).
 
 Each step is idempotent, so a failed run resumes safely from the start.
 
-`GET /v1/users/{id}/export` (see [API Reference → Users](../api-reference/users/)) reads from the same tables this cascade writes to — the two are deliberately symmetric: export answers "what do you have on me," erasure answers "stop having it," and both need to agree on what "it" actually comprises.
+`GET /v1/users/{id}/export` (see [API Reference → Users](../api-reference/users/)) reads every table this cascade writes to, plus one it deliberately doesn't: global [Settings](../domain-model/settings/). Export answers "what do you have on me," so it includes everything keyed to the User. Erasure answers "stop having anything that identifies you," and global Settings (`locale`, `timezone`, `theme`, `notifications`) identifies no one once the User's email, Profile, and credentials are gone, so the row stays as a pseudonymous preference record. Every other table is symmetric: if export shows it, the cascade clears it.
 
 ## Availability expectations on the trust model
 

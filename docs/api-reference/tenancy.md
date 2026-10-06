@@ -40,10 +40,10 @@ Tenants are never created or deleted directly. One is created automatically the 
 
 ```json
 {
-  "id": "tnt_01JAGC3D4E5F6G7H8J9K0L1M2N",
+  "id": "tnt_01JAGC3D4E5F6G7H8J9K011M2N",
   "owner_type": "organization",
   "owner_user_id": null,
-  "owner_organization_id": "org_01JAFZ8Y7X6W5V4U3T2S1R0Q9P",
+  "owner_organization_id": "org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P",
   "tier": "isolated",
   "plan": "enterprise",
   "region": "us-east-1",
@@ -83,8 +83,8 @@ The `dedicated_region` allow-list is `us-east-1`, `us-west-2`, `ca-central-1`, `
 ```json
 // Response — 201
 {
-  "id": "tcr_01JAGE5F6G7H8J9K0L1M2N3O4P",
-  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K0L1M2N",
+  "id": "tcr_01JAGE5F6G7H8J9K011M2N304P",
+  "tenant_id": "tnt_01JAGC3D4E5F6G7H8J9K011M2N",
   "from_tier": "isolated",
   "from_region": "us-east-1",
   "requested_tier": "dedicated_region",
@@ -93,7 +93,7 @@ The `dedicated_region` allow-list is `us-east-1`, `us-west-2`, `ca-central-1`, `
   "reason": "Customer requires EU data residency; contract ref ENT-2026-014.",
   "scheduled_for": null,
   "notes": null,
-  "requested_by": "usr_01JAG9SUPPORT0000000000000",
+  "requested_by": "usr_01JAG9STAFF000000000000000",
   "created_at": "2026-10-04T15:00:00Z",
   "started_at": null,
   "completed_at": null

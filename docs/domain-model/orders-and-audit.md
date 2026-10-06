@@ -37,16 +37,16 @@ The **only** payment flow that runs through Substratal Apps itself is its own pl
 
 ## Audit Event
 
-An immutable record of who changed what access, when. Never edited, never deleted — including after the record it describes is itself deleted.
+An immutable record of who changed what access, when. Never edited or deleted through the API, including after the record it describes is itself deleted. Only two scheduled jobs touch an event after it's written, and both only reduce it to its shape: archival at the end of the hot window, and the erasure cascade's redaction of `before`/`after` for a deleted User (see [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit)).
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | string | `evt_` prefix. |
 | `action` | string | See [Action catalog](#action-catalog) below. |
-| `actor` | object | Who made the change: `{ "type": "user" \| "api_key" \| "system", "id": "usr_…" \| "key_…" \| "system", "via_api_key_id": null }`. A change made by a User through an MCP or agent session that used their own token is `type: user`. A change made by an API Key is `type: api_key`, with the key's id. System-initiated changes, such as a trial expiring, an erasure cascade, or a Stripe sync, are `type: system`, `id: "system"`. |
-| `target` | object | What changed: `{ "type": "user" \| "entitlement" \| "role" \| "role_assignment" \| "application" \| "organization" \| "tenant" \| "tier_change_request" \| "api_key" \| "webhook", "id": "…" }`. |
+| `actor` | object | Who made the change: `{ "type": "user" \| "api_key" \| "system", "id": "usr_…" \| "key_…" \| "system" }`. A change made by a User through an MCP or agent session that used their own token is `type: user`; the audit log doesn't distinguish which client a User's token was used from. A change made by an API Key is `type: api_key`, with the key's id. System-initiated changes, such as a trial expiring, an erasure cascade, or a Stripe sync, are `type: system`, `id: "system"`. |
+| `target` | object | What changed: `{ "type": "user" \| "entitlement" \| "role" \| "role_assignment" \| "application" \| "organization" \| "tenant" \| "tier_change_request" \| "api_key" \| "webhook", "id": "…" }`. `id` is the target's own id, with one exception: a Role assignment has no id of its own, so for `role_assignment` it's the `role_id`, and the User is in `target_user_id`. |
 | `target_user_id` | string, nullable | Whose access or data changed, when there is such a User. It's `null` for events with no user subject, such as `application.updated`, `api_key.created`, or `tenant.plan_changed`. For an org-wide Entitlement change it's also `null`. The per-member effect shows up as [`access.*` webhooks](../../api-reference/webhooks/#event-types), not as one Audit Event per member. |
-| `application_id`, `organization_id`, `tenant_id` | string, nullable | Scope, where relevant. `tenant_id` is denormalized from the Application. |
+| `application_id`, `organization_id`, `tenant_id` | string, nullable | Scope, where relevant. `tenant_id` is the Tenant the change belongs to: denormalized from the Application when there is one, set directly for `tenant.*` events, and `null` for platform-level events with neither (for example `user.created`). |
 | `before` / `after` | object, nullable | A snapshot of the changed fields only, not the whole record. Secrets and hashes never appear, even as before/after values. |
 | `request_id` | string, nullable | The `X-Request-Id` of the API call that caused it, or `null` for system events. It joins audit to request logs. |
 | `timestamp` | timestamp | The commit time of the change. |
@@ -55,14 +55,14 @@ An immutable record of who changed what access, when. Never edited, never delete
 
 ```json
 {
-  "id": "evt_01JAG7X3P8QY1L0M9N8O7P6Q5R",
+  "id": "evt_01JAG7X3P8QY110M9N807P6Q5R",
   "action": "entitlement.disabled",
-  "actor": { "type": "user", "id": "usr_01JAG9SUPPORT0000000000000", "via_api_key_id": null },
-  "target": { "type": "entitlement", "id": "ent_01JAG9F4Q1W2E3R4T5Y6U7I8O9" },
+  "actor": { "type": "user", "id": "usr_01JAG9STAFF000000000000000" },
+  "target": { "type": "entitlement", "id": "ent_01JAG9F4Q1W2E3R4T5Y6V7J809" },
   "target_user_id": "usr_01JAG3Z9X8QS3F6K2M4N5P6R7S",
   "application_id": "app_invoicer",
   "organization_id": null,
-  "tenant_id": "tnt_01JAG1SUBSTRATAL0000000000",
+  "tenant_id": "tnt_01JAG1SYSTEM00000000000000",
   "before": { "status": "active" },
   "after": { "status": "disabled", "disabled_reason": "billing_dispute" },
   "request_id": "req_7c1e9a2f4b",
@@ -77,10 +77,10 @@ Every value `action` can take. It's mirrored exactly by the `AuditAction` enum i
 | Action | Fires when | `target.type` |
 |---|---|---|
 | `user.created` | `POST /v1/users`, `POST /v1/auth/signup`, or an invite via org membership | `user` |
-| `user.updated` | `users.manage` changes a field other than status or email (for example `invited → active`) — **admin-only** | `user` |
+| `user.updated` | `users.manage` activates an `invited` User without a password (`PATCH status: active`). Suspension, reactivation, restore, email, and deletion each have their own action — **admin-only** | `user` |
 | `user.email_changed` | An email change completes (self, after verification; or admin, immediately) | `user` |
 | `user.suspended` | `POST /v1/users/{id}/suspend`, or `PATCH status: suspended` — **admin-only** | `user` |
-| `user.reactivated` | `PATCH status: active` on a suspended user — **admin-only** | `user` |
+| `user.reactivated` | `PATCH status: active` on a `suspended` User, or on a soft-deleted one (a restore) — **admin-only** | `user` |
 | `user.deleted` | `DELETE /v1/users/{id}`, or the soft-delete step of an erasure request | `user` |
 | `user.erasure_requested` | `POST /v1/users/{id}/erasure-requests` | `user` |
 | `user.erasure_cancelled` | `DELETE /v1/users/{id}/erasure-requests/current` — **admin-only** | `user` |
@@ -104,7 +104,8 @@ Every value `action` can take. It's mirrored exactly by the `AuditAction` enum i
 | `application.updated` | `PATCH /v1/applications/{id}` (configuration fields) | `application` |
 | `application.review_status_changed` | A reviewer approves, rejects, suspends, or reinstates; or a rejected app is resubmitted — see [Applications → The review lifecycle](../applications/#the-review-lifecycle) | `application` |
 | `organization.created` / `organization.updated` | `POST`/`PATCH /v1/organizations…` | `organization` |
-| `organization.member_added` / `organization.member_removed` | Membership created or removed, including leaving | `organization` |
+| `organization.member_invited` | A `pending` membership is created by email; the person hasn't accepted yet | `organization` |
+| `organization.member_added` / `organization.member_removed` | A membership becomes `active` (accepted, or added directly by `organizations.manage`), or is removed, including leaving and declining | `organization` |
 | `organization.member_role_changed` | `PATCH /v1/organizations/{id}/members/{userId}` | `organization` |
 | `tenant.plan_changed` | `plan` changes via a Stripe sync (actor `system`) | `tenant` |
 | `tenant.subscription_status_changed` | `subscription_status` or `restricted` changes via a Stripe sync (actor `system`) | `tenant` |

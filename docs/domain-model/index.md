@@ -8,7 +8,7 @@ has_children: true
 # Domain Model
 {: .no_toc }
 
-Ten core nouns, each small on purpose — the complexity in this system is in how they relate, not in any single one's field list — plus four supporting join/credential records that make the many-to-many relationships and multi-method auth actually work without a bigger table.
+Ten core nouns, each small on purpose — the complexity in this system is in how they relate, not in any single one's field list — plus nine supporting join, credential, and request records that make the many-to-many relationships, multi-method auth, and support workflows actually work without a bigger table.
 {: .fs-6 .fw-300 }
 
 ## Overview
@@ -38,14 +38,17 @@ Each of these is a join or credential record behind one of the relationships abo
 | [UserRoleAssignment](roles-and-permissions/#userroleassignment) | User ↔ Role | Which Roles a User holds, platform-wide or scoped to one Application. |
 | [Session](users-and-organizations/#session) | User ↔ login | One successful login. Every refresh token and app token minted from it carries its id (`sid`), so revoking it ends them all. |
 | [TierChangeRequest](../api-reference/tenancy/#post-v1tenantsidtier-change-requests) | Tenant ↔ migration | One support-run request to move a Tenant to a more isolated tier. |
-| [Webhook subscription](../api-reference/webhooks/) | Application ↔ endpoint | Where an Application's events are delivered, plus the delivery log. |
+| [ErasureRequest](../api-reference/users/#post-v1usersiderasure-requests) | User ↔ erasure | A scheduled right-to-erasure request: at most one per User, run 7 days after it's made. |
+| [Webhook subscription](../api-reference/webhooks/) | Application (or the platform) ↔ endpoint | Where an Application's events (or, for a `platform` subscription, every event) are delivered, plus the delivery log. |
+| [API Key](../api-reference/api-keys/) | Application (or the platform) ↔ service | A long-lived credential for a backend or agent, scoped to one Application or to the platform, with no User behind it. |
 
 ## How they relate
 
 ```mermaid
 erDiagram
     USER ||--o{ ENTITLEMENT : holds
-    ORGANIZATION ||--o{ USER : "has members (many:many)"
+    USER ||--o{ ORGANIZATION_MEMBERSHIP : "belongs via"
+    ORGANIZATION ||--o{ ORGANIZATION_MEMBERSHIP : "has members via"
     ORGANIZATION ||--o{ ENTITLEMENT : "holds (org-wide)"
     APPLICATION ||--o{ ENTITLEMENT : "granted via"
     USER ||--o{ APPLICATION : owns
@@ -65,12 +68,15 @@ erDiagram
     APP_ROLE }o--|| APPLICATION : scopes
     PLATFORM_ROLE ||--o{ PERMISSION : grants
     APP_ROLE ||--o{ PERMISSION : grants
+    USER ||--o{ AUDIT_EVENT : "is target of"
+    APPLICATION ||--o{ API_KEY : "scopes (app keys)"
+    APPLICATION ||--o{ WEBHOOK_SUBSCRIPTION : "scopes (app subscriptions)"
 ```
 
 The relationship worth internalizing before reading further: **Entitlement and Role are independent axes.** Entitlement answers "can this user reach this app at all, right now." Role answers "once inside, what can they do." See [Access Control](../access-control/) for how the two combine on every request.
 
 ## ID format
 
-Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `uid_`, `ssc_`, `ses_`, `org_`, `tnt_`, `tcr_`, `app_`, `role_`, `ent_`, `evt_`, `whk_`, `wev_`, `dlv_`, `key_`. IDs are never reused and never encode meaning beyond the type prefix (Role is a deliberate exception — see [Conventions](../api-reference/conventions/#ids)).
+Every entity has an opaque, stable `id`, prefixed by type for readability (a Stripe-style convention): `usr_`, `uid_`, `ssc_`, `ses_`, `org_`, `tnt_`, `tcr_`, `app_`, `role_`, `ent_`, `evt_`, `whk_`, `wev_`, `dlv_`, `key_`. Most are the prefix plus a ULID. IDs are never reused and never encode meaning beyond the type prefix, with two deliberate exceptions: an Application's id is `app_<slug>` and a Role's is derived from its scope and name. See [Conventions → IDs](../api-reference/conventions/#ids).
 
 Building the actual database, not just calling the API? [Database Schema](database-schema/) has the Postgres-level types, constraints, and indexes behind every entity above.
