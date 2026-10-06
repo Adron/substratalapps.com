@@ -301,3 +301,5 @@ The RDS Data API choice that keeps Tier 0 NAT-free has a real cost: it doesn't h
 The fix is to not let that choice leak into the application code in the first place: put all database access behind a small repository/data-access interface, with two implementations — one using the Data API (what Lambda runs in every real environment), one using a direct Postgres driver against a local `docker-compose` Postgres (what runs on a laptop and in CI). Business logic and request handlers talk to the interface and never know which implementation is underneath.
 
 Stripe's own test mode (plus the Stripe MCP server referenced in [Stripe Billing](#stripe-billing)) covers the equivalent problem on the billing side — no local Stripe emulator is needed, since Stripe's hosted test mode is free and already the standard way to develop against it.
+
+The full local setup (Docker Compose services, the devserver, `make` targets) and the `dev` → `main` → production deployment flow are in [README.md → Local development](README.md#local-development) and [README.md → Branches, CI, and deployment](README.md#branches-ci-and-deployment).
