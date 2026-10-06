@@ -2,6 +2,10 @@
 # scripts/docs-build.rb on main's GitHub build; each entry has a frozen
 # static copy at <version>/ on this branch, served at /versions/<version>/.
 versions:
+- version: 1.2.0
+  released: '2026-10-06'
+  commit: 8a9e6830ae72c6b8fdcbbf96991498307c4c4062
+  summary: Resolve the Domain Model and API Reference review [docs:minor]
 - version: 1.1.1
   released: '2026-10-05'
   commit: 2463e570ce66a1f618c181d6b257895dc0abc2eb

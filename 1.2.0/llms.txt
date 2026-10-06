@@ -1,0 +1,60 @@
+# Substratal Apps — Platform API
+
+> Substratal Apps is the user/organization/tenancy/settings/storage layer an
+> app developer would otherwise have to build themselves — comparable in
+> shape to Auth0, Clerk, or WorkOS, scoped around everything a multi-tenant
+> app needs: accounts, roles and permissions, per-app settings, team/tenancy
+> structure, and per-user storage, all behind one API. This site is the
+> system of record for that API: users, roles, per-app access (the "turn an
+> app on/off for a user" switch), profiles, and settings across every
+> Application built on the platform. It is API-first: no user-facing
+> interface is specified here — a dashboard for easier onboarding is
+> planned, but it is a separate, later client of this API. Billing is each
+> Application developer's own concern; this API tracks entitlement state,
+> it does not process payments.
+
+This site is the living specification. Treat it as authoritative over any
+older single-file draft found elsewhere in the repository's history.
+
+## Start here
+
+- [Home](https://adron.github.io/substratalapps.com/versions/1.2.0/): what Substratal Apps is and how this site is organized.
+- [Getting Started](https://adron.github.io/substratalapps.com/versions/1.2.0/getting-started/): the fastest path to understanding the system before writing code against it.
+- [Quickstart](https://adron.github.io/substratalapps.com/versions/1.2.0/quickstart/): a runnable curl walkthrough of the core access model.
+- [Domain Model](https://adron.github.io/substratalapps.com/versions/1.2.0/domain-model/): the entities — User, Organization, Tenant, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.
+- [Tenancy](https://adron.github.io/substratalapps.com/versions/1.2.0/domain-model/tenancy/): the infrastructure-placement/data-isolation boundary for an Application owner — shared, isolated, or dedicated-region. Distinct from Organization.
+- [Access Control](https://adron.github.io/substratalapps.com/versions/1.2.0/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request, including Organization-vs-User precedence when an org-wide grant and a User's own standing could otherwise conflict.
+- [Database Schema](https://adron.github.io/substratalapps.com/versions/1.2.0/domain-model/database-schema/): Postgres types, constraints, and indexes behind every entity — for implementers, not API callers.
+
+## API reference
+
+- [Conventions](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/conventions/): base URL, auth, pagination, idempotency, error shape, ID format.
+- [Auth](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/auth/): signup, login, MFA, sessions, password/email lifecycle, and how an Application obtains its per-app JWT.
+- [Users](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/users/)
+- [Profiles](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/profiles/)
+- [Settings](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/settings/)
+- [Applications](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/applications/)
+- [Entitlements](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/entitlements/): the on/off switch for a user's access to an app.
+- [Roles & Permissions](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/roles-and-permissions/)
+- [Organizations](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/organizations/)
+- [Tenancy](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/tenancy/): fetch a Tenant and request a tier change — support-only today, no customer self-service.
+- [Billing](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/billing/): the Application owner's own Substratal subscription — plan, usage, Stripe Checkout and Customer Portal.
+- [Audit](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/audit/)
+- [Webhooks](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/webhooks/)
+- [API Keys](https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/api-keys/): service-to-service credentials.
+- [openapi.yaml](https://adron.github.io/substratalapps.com/versions/1.2.0/openapi.yaml): the same API surface as a machine-readable OpenAPI 3.1 document.
+
+## Also useful
+
+- [Workflows](https://adron.github.io/substratalapps.com/versions/1.2.0/workflows/): purchase-to-access, admin revokes access, role changes, end to end.
+- [Trust Model](https://adron.github.io/substratalapps.com/versions/1.2.0/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.
+- [MCP Server](https://adron.github.io/substratalapps.com/versions/1.2.0/mcp-server/): a Model Context Protocol server that lets an AI agent call this API as tools, generated from openapi.yaml, using the same Bearer credential as every other caller — no new auth model.
+- [Non-Functional Requirements](https://adron.github.io/substratalapps.com/versions/1.2.0/non-functional-requirements/)
+- [Compliance & Data Protection](https://adron.github.io/substratalapps.com/versions/1.2.0/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.
+- [Roadmap](https://adron.github.io/substratalapps.com/versions/1.2.0/roadmap/): MVP through Phase 3.
+- [Pricing](https://adron.github.io/substratalapps.com/versions/1.2.0/pricing/): Starter (free), Team (per-seat), and Enterprise (with a choice of Tenant tier) — what Substratal itself charges the Application-owner developer, distinct from what that developer charges their own end users.
+- [Changelog](https://adron.github.io/substratalapps.com/versions/1.2.0/changelog/): what's changed in this spec over time.
+- [Glossary](https://adron.github.io/substratalapps.com/versions/1.2.0/glossary/)
+- [Versions](https://adron.github.io/substratalapps.com/versions/1.2.0/versions/): every released version of this spec; older versions are frozen copies under `/versions/<version>/`.
+
+Deployment/infrastructure, the build plan, and other project-planning material are intentionally not part of this API-specification site — they live as plain Markdown in the repository root at https://github.com/Adron/substratalapps.com, starting from its README.md.

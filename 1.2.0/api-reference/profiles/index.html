@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.0/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.0/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(4)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(4) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(4) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(4) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.0/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.0/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Profiles | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Profiles" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/profiles/" />
+<meta property="og:url" content="https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/profiles/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Profiles" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Profiles","url":"https://adron.github.io/substratalapps.com/versions/1.2.0/api-reference/profiles/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.0/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.0/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.0/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.0/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-06">v1.2.0 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.2.0/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Profiles</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="profiles">
+  
+  
+    <a href="#profiles" class="anchor-heading" aria-labelledby="profiles"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Profiles
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">See <a href="../../domain-model/profiles/">Domain Model → Profiles</a> for the global-vs-per-app model this resource implements.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#endpoints" id="markdown-toc-endpoints">Endpoints</a></li>
+  <li><a href="#get-v1usersidprofile" id="markdown-toc-get-v1usersidprofile"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/profile</code></a></li>
+  <li><a href="#patch-v1usersidprofile" id="markdown-toc-patch-v1usersidprofile"><code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/profile</code></a></li>
+  <li><a href="#get-v1usersidappsappidprofile" id="markdown-toc-get-v1usersidappsappidprofile"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/profile</code></a></li>
+  <li><a href="#patch-v1usersidappsappidprofile" id="markdown-toc-patch-v1usersidappsappidprofile"><code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/apps/{appId}/profile</code></a></li>
+  <li><a href="#errors-specific-to-this-resource" id="markdown-toc-errors-specific-to-this-resource">Errors specific to this resource</a></li>
+</ol><hr />
+<h2 id="endpoints">
+  
+  
+    <a href="#endpoints" class="anchor-heading" aria-labelledby="endpoints"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Endpoints
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Requires</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/profile</code></td>
+      <td>self, <code class="language-plaintext highlighter-rouge">users.list</code>, or app-confined <code class="language-plaintext highlighter-rouge">users.list</code></td>
+      <td>Fetch global Profile.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/profile</code></td>
+      <td>self or <code class="language-plaintext highlighter-rouge">users.manage</code></td>
+      <td>Update global Profile.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/apps/{appId}/profile</code></td>
+      <td>self, the app’s own key, or platform <code class="language-plaintext highlighter-rouge">users.list</code></td>
+      <td>Fetch per-app AppProfile.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/apps/{appId}/profile</code></td>
+      <td>self, the app’s own key, or <code class="language-plaintext highlighter-rouge">users.manage</code></td>
+      <td>Update per-app AppProfile.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>“The app’s own key” means an app-scoped <a href="../api-keys/">API Key</a> whose scope is <code class="language-plaintext highlighter-rouge">{appId}</code>. Any app-scoped key can read and write AppProfile for its own Application, with no extra permission, as long as the user currently has <em>active</em> access to that Application (see the access gate below). It can never reach another Application’s AppProfile (<code class="language-plaintext highlighter-rouge">404</code>).</p>
+<h2 id="get-v1usersidprofile">
+  
+  
+    <a href="#get-v1usersidprofile" class="anchor-heading" aria-labelledby="get-v1usersidprofile"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/profile</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jordan Alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"avatar_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://assets.substratalapps.com/avatars/usr_01JAG3.png"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"contact_email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"contact_phone"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"locale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en-US"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-20T14:12:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>An app-scoped key with <code class="language-plaintext highlighter-rouge">users.list</code> can read (never write) the global Profile of users who have an access path to its Application, which is how an app gets a user’s name and avatar.</p>
+<h2 id="patch-v1usersidprofile">
+  
+  
+    <a href="#patch-v1usersidprofile" class="anchor-heading" aria-labelledby="patch-v1usersidprofile"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/profile</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">only</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">fields</span><span class="w"> </span><span class="err">being</span><span class="w"> </span><span class="err">changed</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jordan A."</span><span class="p">,</span><span class="w"> </span><span class="nl">"contact_phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+13035550142"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Validation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">display_name</code></td>
+      <td>1–100 characters. Required on the record, so it can’t be set to <code class="language-plaintext highlighter-rouge">null</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">avatar_url</code></td>
+      <td><code class="language-plaintext highlighter-rouge">https</code> URL, ≤ 2,048 characters, or <code class="language-plaintext highlighter-rouge">null</code>. The API stores the URL; it doesn’t host or proxy images.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">contact_email</code></td>
+      <td>Valid email, or <code class="language-plaintext highlighter-rouge">null</code>. Not verified, and not used for login.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">contact_phone</code></td>
+      <td>E.164 (<code class="language-plaintext highlighter-rouge">+</code> and 8–15 digits), or <code class="language-plaintext highlighter-rouge">null</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">locale</code></td>
+      <td><strong>Read-only here</strong> (<code class="language-plaintext highlighter-rouge">422 read_only_field</code>). It mirrors the global Settings <code class="language-plaintext highlighter-rouge">locale</code>; change it with <a href="../settings/#patch-v1usersidsettings"><code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/settings</code></a>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">updated</span><span class="w"> </span><span class="err">Profile</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jordan A."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"avatar_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://assets.substratalapps.com/avatars/usr_01JAG3.png"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"contact_email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"contact_phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+13035550142"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"locale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en-US"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T10:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A failed validation lists every field at once:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">PATCH</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nl">"contact_phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"303-555-0142"</span><span class="p">,</span><span class="w"> </span><span class="nl">"avatar_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.com/a.png"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 fields failed validation."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"display_name"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"too_short"</span><span class="p">,</span><span class="w"> </span><span class="nl">"min"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contact_phone"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_format"</span><span class="p">,</span><span class="w"> </span><span class="nl">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"E.164"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"avatar_url"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_format"</span><span class="p">,</span><span class="w"> </span><span class="nl">"allowed"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A self-service change writes no Audit Event. A change made by an admin to someone else’s Profile writes <code class="language-plaintext highlighter-rouge">profile.updated</code> — see <a href="../../domain-model/orders-and-audit/#what-triggers-an-audit-event">Orders &amp; Audit</a>.</p>
+<h2 id="get-v1usersidappsappidprofile">
+  
+  
+    <a href="#get-v1usersidappsappidprofile" class="anchor-heading" aria-labelledby="get-v1usersidappsappidprofile"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/apps/{appId}/profile</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_handle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"j.alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"effective_display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"j.alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"custom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"department"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Engineering"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-20T14:15:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">effective_display_name</code> is read-only: <code class="language-plaintext highlighter-rouge">display_handle</code> if it’s set, otherwise the global Profile’s <code class="language-plaintext highlighter-rouge">display_name</code>. It saves every app from re-implementing that fallback.</li>
+  <li><strong>No record yet?</strong> You get the default: <code class="language-plaintext highlighter-rouge">display_handle: null</code>, <code class="language-plaintext highlighter-rouge">custom: {}</code>, and <code class="language-plaintext highlighter-rouge">updated_at: null</code>. Nothing is written on a read; the row is created by the first <code class="language-plaintext highlighter-rouge">PATCH</code>. That keeps <code class="language-plaintext highlighter-rouge">GET</code> safe, and still means no app ever has a separate “provision this user” step.</li>
+  <li><strong>Access gate.</strong> For the user themselves and for the app’s own key, the user must currently have <em>active</em> access to the Application. Otherwise the response is <code class="language-plaintext highlighter-rouge">403 entitlement_required</code>, so a disabled or never-purchased app doesn’t accumulate profile data. Support can bypass the gate for investigations: platform <code class="language-plaintext highlighter-rouge">users.list</code> (held by the <code class="language-plaintext highlighter-rouge">support</code> Role) can <strong>read</strong> regardless, and <code class="language-plaintext highlighter-rouge">users.manage</code> can read and write regardless.</li>
+</ul>
+<h2 id="patch-v1usersidappsappidprofile">
+  
+  
+    <a href="#patch-v1usersidappsappidprofile" class="anchor-heading" aria-labelledby="patch-v1usersidappsappidprofile"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/apps/{appId}/profile</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">add</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">key,</span><span class="w"> </span><span class="err">remove</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">key</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"custom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"seat_number"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="nl">"department"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">updated</span><span class="w"> </span><span class="err">object</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_handle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"j.alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"effective_display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"j.alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"custom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"seat_number"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T10:02:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">display_handle</code> is 1–64 characters, or <code class="language-plaintext highlighter-rouge">null</code> to fall back to the global name. It isn’t unique, because the API doesn’t enforce uniqueness of app-local handles. An Application that needs unique handles enforces that itself.</li>
+  <li><code class="language-plaintext highlighter-rouge">custom</code> follows <a href="../conventions/#partial-updates-patch">Conventions → Partial updates</a>: keys are merged one level deep, and a key sent as <code class="language-plaintext highlighter-rouge">null</code> is removed. The serialized size limit is 16 KB.</li>
+  <li><code class="language-plaintext highlighter-rouge">custom</code> isn’t validated against a schema, unlike <a href="../settings/">AppSettings</a>. See <a href="../../domain-model/profiles/#appprofile">AppProfile</a> for why. All of an AppProfile is treated as personal data: the erasure cascade sets <code class="language-plaintext highlighter-rouge">display_handle</code> to <code class="language-plaintext highlighter-rouge">null</code> and <code class="language-plaintext highlighter-rouge">custom</code> to <code class="language-plaintext highlighter-rouge">{}</code>.</li>
+  <li>A self-service or app-key write produces no Audit Event. A <code class="language-plaintext highlighter-rouge">users.manage</code> write to someone else’s AppProfile writes <code class="language-plaintext highlighter-rouge">profile.updated</code>.</li>
+</ul>
+<h2 id="errors-specific-to-this-resource">
+  
+  
+    <a href="#errors-specific-to-this-resource" class="anchor-heading" aria-labelledby="errors-specific-to-this-resource"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors specific to this resource
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement_required</code></td>
+      <td>403</td>
+      <td>Self or app-key access to an AppProfile for a user without active access to that Application.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{id}</code> doesn’t resolve, or isn’t visible to an app-confined caller.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{appId}</code> doesn’t resolve, or isn’t the calling app key’s own Application.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">read_only_field</code></td>
+      <td>422</td>
+      <td>A Profile <code class="language-plaintext highlighter-rouge">PATCH</code> included <code class="language-plaintext highlighter-rouge">locale</code> or <code class="language-plaintext highlighter-rouge">user_id</code>, or an AppProfile <code class="language-plaintext highlighter-rouge">PATCH</code> included <code class="language-plaintext highlighter-rouge">effective_display_name</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">validation_failed</code></td>
+      <td>422</td>
+      <td>A field breaks the rules above; see the example under <a href="#patch-v1usersidprofile"><code class="language-plaintext highlighter-rouge">PATCH /v1/users/{id}/profile</code></a>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
