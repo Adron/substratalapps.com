@@ -36,8 +36,8 @@ Before any endpoint handler exists. Maps directly to [DEPLOYMENT.md → Build ch
 - [ ] AWS account, `us-east-1`, under Organizations — [DEPLOYMENT.md → AWS account & region](DEPLOYMENT.md#aws-account--region).
 - [ ] **AWS Budgets + Cost Anomaly Detection first**, before any billable resource — [DEPLOYMENT.md → Cost guardrails](DEPLOYMENT.md#cost-guardrails). Not optional, not step 2.
 - [ ] Aurora Serverless v2 cluster, Data API enabled, Secrets Manager credential.
-- [ ] The local-dev repository/data-access interface described in [DEPLOYMENT.md → Local development](DEPLOYMENT.md#local-development), *before* the first table is written against it — retrofitting this seam after business logic exists is real rework, building it first is not.
-- [ ] CI running the [Testing strategy](https://adron.github.io/substratalapps.com/non-functional-requirements/#testing-strategy) categories (contract tests against `openapi.yaml`, unit tests on `effective_permissions`, integration tests against local Postgres) against an empty schema — so the pipeline exists before there's much to test, not retrofitted.
+- [x] The local-dev repository/data-access interface described in [DEPLOYMENT.md → Local development](DEPLOYMENT.md#local-development), *before* the first table is written against it — retrofitting this seam after business logic exists is real rework, building it first is not.
+- [x] CI running the [Testing strategy](https://adron.github.io/substratalapps.com/non-functional-requirements/#testing-strategy) categories (contract tests against `openapi.yaml`, unit tests on `effective_permissions`, integration tests against local Postgres) against an empty schema — so the pipeline exists before there's much to test, not retrofitted.
 
 **Exit criteria:** `GET /v1/health` deployed and returning `200` through the real Lambda → API Gateway → (nothing else yet) path. Proves the skeleton, not the product.
 
@@ -88,6 +88,8 @@ Not a phase — these apply from Phase 0 onward and should never be "added later
 - **[Changelog](https://adron.github.io/substratalapps.com/changelog/) and this project's [DECISIONS.md](DECISIONS.md)** stay live documents during implementation, the same way they were during spec-writing — an implementation detail that contradicts or resolves something in either belongs there immediately, not in a end-of-project cleanup pass.
 
 ## What's still open, and what it blocks
+
+**Build status (2026-10-06):** the code for every phase's API surface is implemented, including Phase 3's hosted PKCE endpoints (SSO still returns `501` until the broker integration, as specified), and the Quickstart acceptance test passes against the devserver. The Phase 0 *infrastructure* items above are written as Terraform (`infra/terraform/`) but not yet applied; see [README → One-time setup](README.md#one-time-setup-phase-0). Decisions #32–#37 record choices the implementation made where the spec was silent or self-contradictory.
 
 See [DECISIONS.md](DECISIONS.md) for the current list. Decisions #1–#30 are resolved, and each answer is written into the spec page it governs. #16–#30 were confirmed on 2026-10-05, and #29 was applied: per-user, per-Application paths use `/apps/{appId}`.
 

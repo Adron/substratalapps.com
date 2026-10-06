@@ -26,6 +26,12 @@ Status meanings:
 | # | Question | Status | Where it lives in the spec |
 |---|---|---|---|
 | 31 | [Published prices and billing options](#31-published-prices-and-billing-options) | 🟡 Open | [Pricing](https://adron.github.io/substratalapps.com/pricing/), [Pricing → Stripe catalog](https://adron.github.io/substratalapps.com/pricing/#stripe-catalog) |
+| 32 | [Organization and Tenant Row-Level Security](#32-organization-and-tenant-row-level-security) | 🟡 Proposed — confirm | [NFR → Multi-tenancy](https://adron.github.io/substratalapps.com/non-functional-requirements/#multi-tenancy) |
+| 33 | [Stripe webhook processing: inline, not SQS](#33-stripe-webhook-processing-inline-not-sqs) | 🟡 Proposed — confirm | [DEPLOYMENT.md → Webhook handling](DEPLOYMENT.md#webhook-handling) |
+| 34 | [JWKS without CloudFront at Tier 0](#34-jwks-without-cloudfront-at-tier-0) | 🟡 Proposed — confirm | [DEPLOYMENT.md → Build checklist](DEPLOYMENT.md#build-checklist), [NFR → SLOs](https://adron.github.io/substratalapps.com/non-functional-requirements/#service-level-objectives) |
+| 35 | [Seat cap on member-scope changes](#35-seat-cap-on-member-scope-changes) | 🟡 Proposed — confirm | [Pricing → Enforcement](https://adron.github.io/substratalapps.com/pricing/#enforcement) |
+| 36 | [Test mode and seats](#36-test-mode-and-seats) | 🟡 Proposed — confirm | [Pricing → What "seat" means](https://adron.github.io/substratalapps.com/pricing/#what-seat-means-here) |
+| 37 | [Audit immutability without a second database role](#37-audit-immutability-without-a-second-database-role) | 🟡 Proposed — confirm | [NFR → Audit](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit), [Database Schema → audit_events](https://adron.github.io/substratalapps.com/domain-model/database-schema/#audit_events) |
 
 ### 31. Published prices and billing options
 
@@ -37,6 +43,56 @@ Status meanings:
 - requiring a card on file for Starter
 
 **Current assumption:** prices as listed, monthly USD billing only, no trial, and no card required for Starter. None of this blocks the build: prices are configuration in Stripe, not code, and each option is additive later.
+
+### 32. Organization and Tenant Row-Level Security
+
+Surfaced by the implementation (2026-10-06).
+
+**Question:** [NFR → Multi-tenancy](https://adron.github.io/substratalapps.com/non-functional-requirements/#multi-tenancy) asks for RLS policies keyed on `app.current_org_id` and `app.current_tenant_id` that fail closed. Which org and tenant does a request set when the caller legitimately spans many: a User in several Organizations, a platform admin listing every Entitlement, a job sweeping every Tenant?
+
+**What's built:** RLS enforces **test/live isolation** (`app.current_test_mode`) on every table a test credential can write, on both database backends. Tenant and Organization scoping is enforced in queries (app-confined keys, owner checks, explicit `tenant_id`/`organization_id` filters) and covered by integration tests, not by RLS.
+
+**Proposal:** keep that for the `shared` tier, and add per-request allowed-set policies (`app.allowed_tenant_ids`, with an explicit platform bypass) only when an `isolated`/`dedicated_region` Tenant first needs a second line of defense. **Alternative:** design and add both policies now.
+
+### 33. Stripe webhook processing: inline, not SQS
+
+**Question:** [DEPLOYMENT.md → Webhook handling](DEPLOYMENT.md#webhook-handling) says to record the event, return `200`, and process from SQS.
+
+**What's built:** the handler records the event id (insert-or-skip, so duplicates return `200` at once), then processes it in the same invocation, re-fetching the Subscription from Stripe. A failure leaves `processed_at` null, and the `stripe-events` job (every 10 minutes) re-fetches and reprocesses it.
+
+**Proposal:** keep it inline; processing is one Stripe read and one transaction, well within Stripe's timeout, and the retry job gives the same durability as a queue. **Alternative:** add the SQS hop as specified.
+
+### 34. JWKS without CloudFront at Tier 0
+
+**Question:** the build checklist puts CloudFront in front of `/.well-known/jwks.json`, but JWKS lives on `api.substratalapps.com`, so caching just that path means putting CloudFront in front of the whole API, which [Scale-out](DEPLOYMENT.md#scale-out) lists as a later trigger.
+
+**What's built:** JWKS is served by the API Lambda with `Cache-Control: public, max-age=3600`, and Applications cache it as the spec already tells them to.
+
+**Proposal:** defer CloudFront to the Scale-out trigger. **Alternative:** add a CloudFront distribution for the whole domain now, to hold the 99.99% JWKS SLO through an API outage.
+
+### 35. Seat cap on member-scope changes
+
+**Question:** [Pricing → Enforcement](https://adron.github.io/substratalapps.com/pricing/#enforcement) lists "narrowing to an `allowlist` that includes new people" among writes rejected with `409 plan_limit_reached`.
+
+**What's built:** personal grants, re-enables, and new org-wide grants are rejected at the cap. A `member_scope` change is never rejected; members it would add beyond a Starter Tenant's cap get `member_decision: seat_limit` instead, the same treatment the spec gives a member who joins past the cap.
+
+**Proposal:** confirm that; it never cuts anyone off and matches the membership rule. **Alternative:** reject the scope change with `409`.
+
+### 36. Test mode and seats
+
+**Question:** seats count "non-test-mode Users". Does a Starter Tenant's seat cap gate test-mode grants?
+
+**What's built:** no. Test-mode Users never count as seats, and seat limits never apply to test-mode writes, so live usage can't block integration tests and test traffic can't consume paid seats.
+
+**Proposal:** confirm. **Alternative:** a separate test-mode cap.
+
+### 37. Audit immutability without a second database role
+
+**Question:** [NFR → Audit](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit) gives the archival and erasure jobs a separate database role holding `UPDATE`/`DELETE` on `audit_events`. With the Data API, a second role means a second cluster secret and credential path.
+
+**What's built:** a trigger rejects every `UPDATE`/`DELETE` on `audit_events` unless the transaction sets `app.audit_maintenance = 'on'`, which only those two jobs do. The guarantee is enforced by the database for every caller, including a direct SQL session.
+
+**Proposal:** confirm the trigger. **Alternative:** add the second role and secret, and give only the jobs Lambda access to it.
 
 ---
 
