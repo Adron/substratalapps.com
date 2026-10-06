@@ -1,0 +1,23 @@
+version: "2"
+linters:
+  default: standard
+  settings:
+    errcheck:
+      exclude-functions:
+        - (net/http.ResponseWriter).Write
+        - (*encoding/json.Encoder).Encode
+    staticcheck:
+      checks:
+        - all
+        # Style-only quick fixes. Explicit embedded selectors are deliberate
+        # where a row type shadows a field (x.entitlement.version).
+        - -QF1001
+        - -QF1003
+        - -QF1008
+        - -ST1000
+        - -ST1003
+        - -ST1020
+        - -ST1021
+        - -ST1022
+run:
+  timeout: 5m

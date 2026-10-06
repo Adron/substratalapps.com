@@ -1,0 +1,5182 @@
+{
+  "_generated": "by cmd/mcpgen from docs/openapi.yaml; do not edit",
+  "tools": [
+    {
+      "name": "substratal_apiKeys_create",
+      "title": "Create a key (api_keys.manage, or the Application's owner for an app-scoped key)",
+      "description": "Create a key (api_keys.manage, or the Application's owner for an app-scoped key)\n\nREST: POST /v1/api-keys",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "expires_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "intended_use": {
+                "default": "service",
+                "description": "Sets the default for restrict_destructive (true for agent, false for service).",
+                "enum": [
+                  "service",
+                  "agent"
+                ],
+                "type": "string"
+              },
+              "mode": {
+                "description": "Fixed at creation.",
+                "enum": [
+                  "live",
+                  "test"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "permissions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "restrict_destructive": {
+                "description": "When true, every operation marked x-substratal-destructive is rejected with 403 destructive_operation_restricted.",
+                "type": "boolean"
+              },
+              "scope": {
+                "description": "'platform' or an application_id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "scope",
+              "permissions",
+              "mode"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Create a key (api_keys.manage, or the Application's owner for an app-scoped key)"
+      },
+      "x_operation_id": "apiKeys.create",
+      "x_method": "POST",
+      "x_path": "/v1/api-keys",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_apiKeys_delete",
+      "title": "Revoke permanently",
+      "description": "Revoke permanently\n\nREST: DELETE /v1/api-keys/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Revoke permanently"
+      },
+      "x_operation_id": "apiKeys.delete",
+      "x_method": "DELETE",
+      "x_path": "/v1/api-keys/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_apiKeys_get",
+      "title": "Fetch one key (never the secret)",
+      "description": "Fetch one key (never the secret)\n\nREST: GET /v1/api-keys/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one key (never the secret)"
+      },
+      "x_operation_id": "apiKeys.get",
+      "x_method": "GET",
+      "x_path": "/v1/api-keys/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_apiKeys_list",
+      "title": "List keys the caller may manage",
+      "description": "List keys the caller may manage\n\nREST: GET /v1/api-keys",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "include_inactive": {
+            "default": false,
+            "description": "Include revoked and expired keys",
+            "type": "boolean"
+          },
+          "intended_use": {
+            "enum": [
+              "service",
+              "agent"
+            ],
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "live",
+              "test"
+            ],
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List keys the caller may manage"
+      },
+      "x_operation_id": "apiKeys.list",
+      "x_method": "GET",
+      "x_path": "/v1/api-keys",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "scope",
+        "mode",
+        "intended_use",
+        "include_inactive"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_apiKeys_rotate",
+      "title": "Issue a new secret, invalidating the old one immediately (no overlap)",
+      "description": "Issue a new secret, invalidating the old one immediately (no overlap)\n\nREST: POST /v1/api-keys/{id}/rotate",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Issue a new secret, invalidating the old one immediately (no overlap)"
+      },
+      "x_operation_id": "apiKeys.rotate",
+      "x_method": "POST",
+      "x_path": "/v1/api-keys/{id}/rotate",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_apiKeys_update",
+      "title": "Change name, permissions, or restrict_destructive",
+      "description": "Change name, permissions, or restrict_destructive\n\nREST: PATCH /v1/api-keys/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "name": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "permissions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "restrict_destructive": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Change name, permissions, or restrict_destructive"
+      },
+      "x_operation_id": "apiKeys.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/api-keys/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_appProfiles_get",
+      "title": "Fetch per-app AppProfile (self, the app's own key, or platform users.list; defaults if none written yet)",
+      "description": "Fetch per-app AppProfile (self, the app's own key, or platform users.list; defaults if none written yet)\n\nREST: GET /v1/users/{id}/apps/{appId}/profile",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch per-app AppProfile (self, the app's own key, or platform users.list; defaults if none written yet)"
+      },
+      "x_operation_id": "appProfiles.get",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/apps/{appId}/profile",
+      "x_path_params": [
+        "id",
+        "appId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_appProfiles_update",
+      "title": "Update per-app AppProfile (custom is merged one level; null removes a key)",
+      "description": "Update per-app AppProfile (custom is merged one level; null removes a key)\n\nREST: PATCH /v1/users/{id}/apps/{appId}/profile",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "body": {
+            "properties": {
+              "custom": {
+                "type": "object"
+              },
+              "display_handle": {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Update per-app AppProfile (custom is merged one level; null removes a key)"
+      },
+      "x_operation_id": "appProfiles.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/users/{id}/apps/{appId}/profile",
+      "x_path_params": [
+        "id",
+        "appId"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_appSettings_get",
+      "title": "Fetch fully resolved per-app settings (self, the app's own key, or platform users.list)",
+      "description": "Fetch fully resolved per-app settings (self, the app's own key, or platform users.list)\n\nREST: GET /v1/users/{id}/apps/{appId}/settings",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch fully resolved per-app settings (self, the app's own key, or platform users.list)"
+      },
+      "x_operation_id": "appSettings.get",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/apps/{appId}/settings",
+      "x_path_params": [
+        "id",
+        "appId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_appSettings_update",
+      "title": "Write per-app overrides (validated against settings_schema; null clears)",
+      "description": "Write per-app overrides (validated against settings_schema; null clears)\n\nREST: PATCH /v1/users/{id}/apps/{appId}/settings",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "body": {
+            "properties": {
+              "overrides": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "overrides"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Write per-app overrides (validated against settings_schema; null clears)"
+      },
+      "x_operation_id": "appSettings.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/users/{id}/apps/{appId}/settings",
+      "x_path_params": [
+        "id",
+        "appId"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_applications_create",
+      "title": "Register an Application (applications.manage)",
+      "description": "Register an Application (applications.manage)\n\nREST: POST /v1/applications",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "allOf": [
+              {
+                "properties": {
+                  "available_app_roles": {
+                    "items": {
+                      "pattern": "^[a-z][a-z0-9_]{1,40}$",
+                      "type": "string"
+                    },
+                    "maxItems": 20,
+                    "type": "array"
+                  },
+                  "default_app_role": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "description": {
+                    "maxLength": 2000,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "email_from_name": {
+                    "maxLength": 50,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "icon_url": {
+                    "format": "uri",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "launch_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "name": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "owner_organization_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "owner_user_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "permissions": {
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "maxLength": 255,
+                          "type": "string"
+                        },
+                        "key": {
+                          "pattern": "^app\\.[a-z0-9_-]+\\.[a-z0-9_.]{1,64}$",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 100,
+                    "type": "array"
+                  },
+                  "redirect_uris": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 10,
+                    "type": "array"
+                  },
+                  "review_notes": {
+                    "maxLength": 2000,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "review_status": {
+                    "enum": [
+                      "approved",
+                      "pending_review",
+                      "rejected",
+                      "suspended"
+                    ],
+                    "type": "string"
+                  },
+                  "settings_schema": {
+                    "description": "JSON Schema 2020-12 subset — see Domain Model → Settings → settings_schema rules",
+                    "type": "object"
+                  },
+                  "slug": {
+                    "description": "Create only; immutable. 'platform' is reserved (rejected with validation_failed, code unknown_value). The Application's id is app_\u003cslug\u003e.",
+                    "pattern": "^[a-z][a-z0-9-]{1,63}$",
+                    "type": "string"
+                  },
+                  "support_url": {
+                    "format": "uri",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "visibility": {
+                    "enum": [
+                      "public",
+                      "invite_only",
+                      "internal"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "required": [
+                  "slug",
+                  "name",
+                  "launch_url"
+                ],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Register an Application (applications.manage)"
+      },
+      "x_operation_id": "applications.create",
+      "x_method": "POST",
+      "x_path": "/v1/applications",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_applications_get",
+      "title": "Fetch one Application",
+      "description": "Fetch one Application\n\nREST: GET /v1/applications/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one Application"
+      },
+      "x_operation_id": "applications.get",
+      "x_method": "GET",
+      "x_path": "/v1/applications/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_applications_list",
+      "title": "List the catalog (filtered by visibility rules)",
+      "description": "List the catalog (filtered by visibility rules)\n\nREST: GET /v1/applications",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "owned": {
+            "type": "boolean"
+          },
+          "owner_organization_id": {
+            "type": "string"
+          },
+          "owner_user_id": {
+            "type": "string"
+          },
+          "review_status": {
+            "enum": [
+              "approved",
+              "pending_review",
+              "rejected",
+              "suspended"
+            ],
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "visibility": {
+            "enum": [
+              "public",
+              "invite_only",
+              "internal"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List the catalog (filtered by visibility rules)"
+      },
+      "x_operation_id": "applications.list",
+      "x_method": "GET",
+      "x_path": "/v1/applications",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "visibility",
+        "review_status",
+        "owned",
+        "tenant_id",
+        "owner_user_id",
+        "owner_organization_id"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_applications_update",
+      "title": "Update a catalog entry (owner — configuration; applications.manage — anything)",
+      "description": "Update a catalog entry (owner — configuration; applications.manage — anything)\n\nREST: PATCH /v1/applications/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "available_app_roles": {
+                "items": {
+                  "pattern": "^[a-z][a-z0-9_]{1,40}$",
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "default_app_role": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "maxLength": 2000,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "email_from_name": {
+                "maxLength": 50,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "icon_url": {
+                "format": "uri",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "launch_url": {
+                "format": "uri",
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "owner_organization_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "owner_user_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "permissions": {
+                "items": {
+                  "properties": {
+                    "description": {
+                      "maxLength": 255,
+                      "type": "string"
+                    },
+                    "key": {
+                      "pattern": "^app\\.[a-z0-9_-]+\\.[a-z0-9_.]{1,64}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "redirect_uris": {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              "review_notes": {
+                "maxLength": 2000,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "review_status": {
+                "enum": [
+                  "approved",
+                  "pending_review",
+                  "rejected",
+                  "suspended"
+                ],
+                "type": "string"
+              },
+              "settings_schema": {
+                "description": "JSON Schema 2020-12 subset — see Domain Model → Settings → settings_schema rules",
+                "type": "object"
+              },
+              "slug": {
+                "description": "Create only; immutable. 'platform' is reserved (rejected with validation_failed, code unknown_value). The Application's id is app_\u003cslug\u003e.",
+                "pattern": "^[a-z][a-z0-9-]{1,63}$",
+                "type": "string"
+              },
+              "support_url": {
+                "format": "uri",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "visibility": {
+                "enum": [
+                  "public",
+                  "invite_only",
+                  "internal"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Update a catalog entry (owner — configuration; applications.manage — anything)"
+      },
+      "x_operation_id": "applications.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/applications/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_audit_get",
+      "title": "Fetch one Audit Event",
+      "description": "Fetch one Audit Event\n\nREST: GET /v1/audit-events/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one Audit Event"
+      },
+      "x_operation_id": "audit.get",
+      "x_method": "GET",
+      "x_path": "/v1/audit-events/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_audit_list",
+      "title": "Query the audit log (hot window only)",
+      "description": "Query the audit log (hot window only)\n\nREST: GET /v1/audit-events",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "items": {
+              "enum": [
+                "user.created",
+                "user.updated",
+                "user.email_changed",
+                "user.suspended",
+                "user.reactivated",
+                "user.deleted",
+                "user.erasure_requested",
+                "user.erasure_cancelled",
+                "user.erased",
+                "user.password_changed",
+                "user.password_reset",
+                "user.mfa_enabled",
+                "user.mfa_disabled",
+                "user.mfa_reset",
+                "entitlement.granted",
+                "entitlement.disabled",
+                "entitlement.revoked",
+                "entitlement.expired",
+                "entitlement.updated",
+                "entitlement.member_scope_changed",
+                "entitlement.deleted",
+                "role.created",
+                "role.updated",
+                "role.deleted",
+                "role.assigned",
+                "role.removed",
+                "profile.updated",
+                "settings.updated",
+                "application.created",
+                "application.updated",
+                "application.review_status_changed",
+                "organization.created",
+                "organization.updated",
+                "organization.member_invited",
+                "organization.member_added",
+                "organization.member_removed",
+                "organization.member_role_changed",
+                "tenant.plan_changed",
+                "tenant.subscription_status_changed",
+                "tenant.tier_change_requested",
+                "tenant.tier_change_request_updated",
+                "tenant.tier_changed",
+                "api_key.created",
+                "api_key.updated",
+                "api_key.rotated",
+                "api_key.revoked",
+                "api_key.restrict_destructive_disabled",
+                "webhook.created",
+                "webhook.updated",
+                "webhook.deleted",
+                "webhook.secret_rotated"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "actor_type": {
+            "enum": [
+              "user",
+              "api_key",
+              "system"
+            ],
+            "type": "string"
+          },
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "since": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_type": {
+            "enum": [
+              "user",
+              "entitlement",
+              "role",
+              "role_assignment",
+              "application",
+              "organization",
+              "tenant",
+              "tier_change_request",
+              "api_key",
+              "webhook"
+            ],
+            "type": "string"
+          },
+          "target_user_id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "until": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Query the audit log (hot window only)"
+      },
+      "x_operation_id": "audit.list",
+      "x_method": "GET",
+      "x_path": "/v1/audit-events",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "target_user_id",
+        "target_type",
+        "target_id",
+        "actor_id",
+        "actor_type",
+        "action",
+        "application_id",
+        "organization_id",
+        "tenant_id",
+        "since",
+        "until"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_acceptInvitation",
+      "title": "Set a password on an invited account, activate it, and sign in",
+      "description": "Set a password on an invited account, activate it, and sign in\n\nREST: POST /v1/auth/invitations/accept",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "display_name": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "password": {
+                "format": "password",
+                "maxLength": 128,
+                "minLength": 12,
+                "type": "string"
+              },
+              "token": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "token",
+              "password"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Set a password on an invited account, activate it, and sign in"
+      },
+      "x_operation_id": "auth.acceptInvitation",
+      "x_method": "POST",
+      "x_path": "/v1/auth/invitations/accept",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_changePassword",
+      "title": "Change password given the current one (self only)",
+      "description": "Change password given the current one (self only)\n\nREST: POST /v1/users/{id}/password",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "current_password": {
+                "format": "password",
+                "type": "string"
+              },
+              "new_password": {
+                "format": "password",
+                "maxLength": 128,
+                "minLength": 12,
+                "type": "string"
+              }
+            },
+            "required": [
+              "current_password",
+              "new_password"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Change password given the current one (self only)"
+      },
+      "x_operation_id": "auth.changePassword",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/password",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_confirmMfaTotp",
+      "title": "Confirm TOTP enrollment with a first code; returns recovery codes once",
+      "description": "Confirm TOTP enrollment with a first code; returns recovery codes once\n\nREST: POST /v1/users/{id}/mfa/totp/confirm",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "code": {
+                "pattern": "^[0-9]{6}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Confirm TOTP enrollment with a first code; returns recovery codes once"
+      },
+      "x_operation_id": "auth.confirmMfaTotp",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/mfa/totp/confirm",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_createAppToken",
+      "title": "Mint a per-app JWT from a platform session (embedded login)",
+      "description": "Mint a per-app JWT from a platform session (embedded login)\n\nRequires a User token. Fails with 403 entitlement_required unless the user's resolved access to the Application is active, 409 application_not_available unless it's approved, and 403 tenant_suspended if its Tenant is suspended.\n\nREST: POST /v1/auth/app-tokens",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "application_id": {
+                "type": "string"
+              },
+              "organization_id": {
+                "description": "Attribute org_id to this Organization's grant.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Mint a per-app JWT from a platform session (embedded login)"
+      },
+      "x_operation_id": "auth.createAppToken",
+      "x_method": "POST",
+      "x_path": "/v1/auth/app-tokens",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_createAuthorizationCode",
+      "title": "Mint a one-time authorization code for a hosted launch (PKCE)",
+      "description": "Mint a one-time authorization code for a hosted launch (PKCE)\n\nCalled by Substratal's hosted sign-in page on the signed-in user's behalf.\n\nREST: POST /v1/auth/oauth/authorization-codes",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "application_id": {
+                "type": "string"
+              },
+              "code_challenge": {
+                "maxLength": 128,
+                "minLength": 43,
+                "type": "string"
+              },
+              "code_challenge_method": {
+                "enum": [
+                  "S256"
+                ],
+                "type": "string"
+              },
+              "redirect_uri": {
+                "type": "string"
+              },
+              "state": {
+                "maxLength": 512,
+                "type": "string"
+              }
+            },
+            "required": [
+              "application_id",
+              "redirect_uri",
+              "code_challenge",
+              "code_challenge_method"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Mint a one-time authorization code for a hosted launch (PKCE)"
+      },
+      "x_operation_id": "auth.createAuthorizationCode",
+      "x_method": "POST",
+      "x_path": "/v1/auth/oauth/authorization-codes",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_disableMfaTotp",
+      "title": "Turn TOTP off given a current code or recovery code (self only)",
+      "description": "Turn TOTP off given a current code or recovery code (self only)\n\nREST: POST /v1/users/{id}/mfa/totp/disable",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "description": "Exactly one of code or recovery_code.",
+            "properties": {
+              "code": {
+                "description": "A current TOTP code",
+                "pattern": "^[0-9]{6}$",
+                "type": "string"
+              },
+              "recovery_code": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Turn TOTP off given a current code or recovery code (self only)"
+      },
+      "x_operation_id": "auth.disableMfaTotp",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/mfa/totp/disable",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_enrollMfaTotp",
+      "title": "Begin TOTP enrollment (self only)",
+      "description": "Begin TOTP enrollment (self only)\n\nREST: POST /v1/users/{id}/mfa/totp",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Begin TOTP enrollment (self only)"
+      },
+      "x_operation_id": "auth.enrollMfaTotp",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/mfa/totp",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_exchangeOAuthToken",
+      "title": "Exchange an authorization code or app refresh token for an app token",
+      "description": "Exchange an authorization code or app refresh token for an app token\n\nPublic-client OAuth 2.0 token endpoint. Errors use the OAuth error shape ({error, error_description}), not the usual envelope.\n\nREST: POST /v1/auth/oauth/token",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "client_id": {
+                "description": "The application_id",
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "code_verifier": {
+                "type": "string"
+              },
+              "grant_type": {
+                "enum": [
+                  "authorization_code",
+                  "refresh_token"
+                ],
+                "type": "string"
+              },
+              "redirect_uri": {
+                "type": "string"
+              },
+              "refresh_token": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "grant_type",
+              "client_id"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Exchange an authorization code or app refresh token for an app token"
+      },
+      "x_operation_id": "auth.exchangeOAuthToken",
+      "x_method": "POST",
+      "x_path": "/v1/auth/oauth/token",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_forgotPassword",
+      "title": "Send a password-reset email (always 202)",
+      "description": "Send a password-reset email (always 202)\n\nREST: POST /v1/auth/password/forgot",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "test_mode": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Send a password-reset email (always 202)"
+      },
+      "x_operation_id": "auth.forgotPassword",
+      "x_method": "POST",
+      "x_path": "/v1/auth/password/forgot",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_listSessions",
+      "title": "List active sessions (self or users.manage)",
+      "description": "List active sessions (self or users.manage)\n\nREST: GET /v1/users/{id}/sessions",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List active sessions (self or users.manage)"
+      },
+      "x_operation_id": "auth.listSessions",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/sessions",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_login",
+      "title": "Exchange email and password for a session (or an MFA challenge)",
+      "description": "Exchange email and password for a session (or an MFA challenge)\n\nREST: POST /v1/auth/login",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "password": {
+                "format": "password",
+                "type": "string"
+              },
+              "test_mode": {
+                "default": false,
+                "description": "Sign in the test-mode account with this email.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "email",
+              "password"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Exchange email and password for a session (or an MFA challenge)"
+      },
+      "x_operation_id": "auth.login",
+      "x_method": "POST",
+      "x_path": "/v1/auth/login",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_logout",
+      "title": "Revoke the current session, or every session",
+      "description": "Revoke the current session, or every session\n\nREST: POST /v1/auth/logout",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "all_sessions": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Revoke the current session, or every session"
+      },
+      "x_operation_id": "auth.logout",
+      "x_method": "POST",
+      "x_path": "/v1/auth/logout",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_refreshToken",
+      "title": "Rotate a platform refresh token for a new access token",
+      "description": "Rotate a platform refresh token for a new access token\n\nREST: POST /v1/auth/token/refresh",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "refresh_token": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "refresh_token"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Rotate a platform refresh token for a new access token"
+      },
+      "x_operation_id": "auth.refreshToken",
+      "x_method": "POST",
+      "x_path": "/v1/auth/token/refresh",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_resendEmailVerification",
+      "title": "Re-send a verification email (always 202)",
+      "description": "Re-send a verification email (always 202)\n\nREST: POST /v1/auth/email/verify/resend",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "test_mode": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Re-send a verification email (always 202)"
+      },
+      "x_operation_id": "auth.resendEmailVerification",
+      "x_method": "POST",
+      "x_path": "/v1/auth/email/verify/resend",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_resetMfaTotp",
+      "title": "Support reset of a user's TOTP (requires users.manage)",
+      "description": "Support reset of a user's TOTP (requires users.manage)\n\nREST: DELETE /v1/users/{id}/mfa/totp",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Support reset of a user's TOTP (requires users.manage)"
+      },
+      "x_operation_id": "auth.resetMfaTotp",
+      "x_method": "DELETE",
+      "x_path": "/v1/users/{id}/mfa/totp",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_resetPassword",
+      "title": "Set a new password from a reset token (revokes every session)",
+      "description": "Set a new password from a reset token (revokes every session)\n\nREST: POST /v1/auth/password/reset",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "new_password": {
+                "format": "password",
+                "maxLength": 128,
+                "minLength": 12,
+                "type": "string"
+              },
+              "token": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "token",
+              "new_password"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Set a new password from a reset token (revokes every session)"
+      },
+      "x_operation_id": "auth.resetPassword",
+      "x_method": "POST",
+      "x_path": "/v1/auth/password/reset",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_revokeSession",
+      "title": "Revoke one session",
+      "description": "Revoke one session\n\nREST: DELETE /v1/users/{id}/sessions/{sessionId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sessionId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Revoke one session"
+      },
+      "x_operation_id": "auth.revokeSession",
+      "x_method": "DELETE",
+      "x_path": "/v1/users/{id}/sessions/{sessionId}",
+      "x_path_params": [
+        "id",
+        "sessionId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_signup",
+      "title": "Create an account with email and password",
+      "description": "Create an account with email and password\n\nAn email held by an invited User is rejected with 409 email_taken (details.reason invitation_pending) and the invitation is re-sent; invitations complete only through invitations/accept.\n\nREST: POST /v1/auth/signup",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "application_id": {
+                "description": "Informational: records which app the signup came from. Grants nothing.",
+                "type": "string"
+              },
+              "display_name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "password": {
+                "format": "password",
+                "maxLength": 128,
+                "minLength": 12,
+                "type": "string"
+              },
+              "test_mode": {
+                "default": false,
+                "description": "Create a test-mode User.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "email",
+              "password"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Create an account with email and password"
+      },
+      "x_operation_id": "auth.signup",
+      "x_method": "POST",
+      "x_path": "/v1/auth/signup",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_ssoCallback",
+      "title": "Complete an SSO login (reserved — 501 until the broker integration ships)",
+      "description": "Complete an SSO login (reserved — 501 until the broker integration ships)\n\nREST: POST /v1/auth/sso/{provider}/callback",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Complete an SSO login (reserved — 501 until the broker integration ships)"
+      },
+      "x_operation_id": "auth.ssoCallback",
+      "x_method": "POST",
+      "x_path": "/v1/auth/sso/{provider}/callback",
+      "x_path_params": [
+        "provider"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_verifyEmail",
+      "title": "Confirm an email address from an emailed token",
+      "description": "Confirm an email address from an emailed token\n\nREST: POST /v1/auth/email/verify",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "token": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "token"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Confirm an email address from an emailed token"
+      },
+      "x_operation_id": "auth.verifyEmail",
+      "x_method": "POST",
+      "x_path": "/v1/auth/email/verify",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_auth_verifyMfa",
+      "title": "Complete a login that returned an MFA challenge",
+      "description": "Complete a login that returned an MFA challenge\n\nREST: POST /v1/auth/mfa/verify",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "code": {
+                "pattern": "^[0-9]{6}$",
+                "type": "string"
+              },
+              "mfa_token": {
+                "type": "string"
+              },
+              "recovery_code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mfa_token"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Complete a login that returned an MFA challenge"
+      },
+      "x_operation_id": "auth.verifyMfa",
+      "x_method": "POST",
+      "x_path": "/v1/auth/mfa/verify",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_billing_createCheckoutSession",
+      "title": "Start a Stripe Checkout to subscribe to Team (owner)",
+      "description": "Start a Stripe Checkout to subscribe to Team (owner)\n\nREST: POST /v1/tenants/{id}/billing/checkout-sessions",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "cancel_url": {
+                "format": "uri",
+                "type": "string"
+              },
+              "plan": {
+                "enum": [
+                  "team"
+                ],
+                "type": "string"
+              },
+              "success_url": {
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "plan",
+              "success_url",
+              "cancel_url"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Start a Stripe Checkout to subscribe to Team (owner)"
+      },
+      "x_operation_id": "billing.createCheckoutSession",
+      "x_method": "POST",
+      "x_path": "/v1/tenants/{id}/billing/checkout-sessions",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": true,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_billing_createPortalSession",
+      "title": "Open the Stripe Customer Portal (owner or billing.manage)",
+      "description": "Open the Stripe Customer Portal (owner or billing.manage)\n\nREST: POST /v1/tenants/{id}/billing/portal-sessions",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "return_url": {
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "return_url"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Open the Stripe Customer Portal (owner or billing.manage)"
+      },
+      "x_operation_id": "billing.createPortalSession",
+      "x_method": "POST",
+      "x_path": "/v1/tenants/{id}/billing/portal-sessions",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_billing_getSubscription",
+      "title": "Current plan, subscription status, period, and seats",
+      "description": "Current plan, subscription status, period, and seats\n\nREST: GET /v1/tenants/{id}/subscription",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Current plan, subscription status, period, and seats"
+      },
+      "x_operation_id": "billing.getSubscription",
+      "x_method": "GET",
+      "x_path": "/v1/tenants/{id}/subscription",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_billing_getUsage",
+      "title": "Usage against every plan limit",
+      "description": "Usage against every plan limit\n\nREST: GET /v1/tenants/{id}/usage",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Usage against every plan limit"
+      },
+      "x_operation_id": "billing.getUsage",
+      "x_method": "GET",
+      "x_path": "/v1/tenants/{id}/usage",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_delete",
+      "title": "Hard-remove a grant made in error (no order_id, under 24 hours old)",
+      "description": "Hard-remove a grant made in error (no order_id, under 24 hours old)\n\nREST: DELETE /v1/entitlements/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Hard-remove a grant made in error (no order_id, under 24 hours old)"
+      },
+      "x_operation_id": "entitlements.delete",
+      "x_method": "DELETE",
+      "x_path": "/v1/entitlements/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_get",
+      "title": "Fetch one entitlement",
+      "description": "Fetch one entitlement\n\nREST: GET /v1/entitlements/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one entitlement"
+      },
+      "x_operation_id": "entitlements.get",
+      "x_method": "GET",
+      "x_path": "/v1/entitlements/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_grant",
+      "title": "Grant a personal Entitlement",
+      "description": "Grant a personal Entitlement\n\nRequires entitlements.manage (platform, or app-confined to the key's own Application), or the Application's owner.\n\nREST: POST /v1/users/{id}/entitlements",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "application_id": {
+                "type": "string"
+              },
+              "ends_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "order_id": {
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "enum": [
+                  "purchase",
+                  "trial",
+                  "admin_grant"
+                ],
+                "type": "string"
+              },
+              "starts_at": {
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "application_id",
+              "source"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Grant a personal Entitlement"
+      },
+      "x_operation_id": "entitlements.grant",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/entitlements",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": true,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_list",
+      "title": "List entitlements across users (entitlements.manage or the Application's owner; app keys and owners confined)",
+      "description": "List entitlements across users (entitlements.manage or the Application's owner; app keys and owners confined)\n\nREST: GET /v1/entitlements",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "ends_before": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "purchase",
+              "trial",
+              "admin_grant",
+              "org_seat"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled",
+              "expired",
+              "revoked"
+            ],
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List entitlements across users (entitlements.manage or the Application's owner; app keys and owners confined)"
+      },
+      "x_operation_id": "entitlements.list",
+      "x_method": "GET",
+      "x_path": "/v1/entitlements",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "application_id",
+        "status",
+        "user_id",
+        "organization_id",
+        "source",
+        "order_id",
+        "ends_before",
+        "include_inactive"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_listForUser",
+      "title": "A user's entitlements, personal and org-sourced",
+      "description": "A user's entitlements, personal and org-sourced\n\nREST: GET /v1/users/{id}/entitlements",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "purchase",
+              "trial",
+              "admin_grant",
+              "org_seat"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled",
+              "expired",
+              "revoked"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "A user's entitlements, personal and org-sourced"
+      },
+      "x_operation_id": "entitlements.listForUser",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/entitlements",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "application_id",
+        "status",
+        "source",
+        "include_inactive"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_entitlements_update",
+      "title": "The toggle: change status, term, source (trial→purchase), order_id, or an org grant's member scope",
+      "description": "The toggle: change status, term, source (trial→purchase), order_id, or an org grant's member scope\n\nREST: PATCH /v1/entitlements/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "disabled_reason": {
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ends_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "member_overrides": {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 1000,
+                "type": "array"
+              },
+              "member_scope": {
+                "enum": [
+                  "all_members",
+                  "allowlist",
+                  "denylist"
+                ],
+                "type": "string"
+              },
+              "order_id": {
+                "maxLength": 255,
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "purchase"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "disabled",
+                  "expired",
+                  "revoked"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "The toggle: change status, term, source (trial→purchase), order_id, or an org grant's member scope"
+      },
+      "x_operation_id": "entitlements.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/entitlements/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_health_check",
+      "title": "Health check",
+      "description": "Health check\n\nREST: GET /v1/health",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Health check"
+      },
+      "x_operation_id": "health.check",
+      "x_method": "GET",
+      "x_path": "/v1/health",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_acceptMembership",
+      "title": "Accept a pending membership (the invited User's own token)",
+      "description": "Accept a pending membership (the invited User's own token)\n\nREST: POST /v1/organizations/{id}/members/me/accept",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Accept a pending membership (the invited User's own token)"
+      },
+      "x_operation_id": "organizations.acceptMembership",
+      "x_method": "POST",
+      "x_path": "/v1/organizations/{id}/members/me/accept",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_addMember",
+      "title": "Invite a member by email (org admin), or add one directly by user_id (organizations.manage)",
+      "description": "Invite a member by email (org admin), or add one directly by user_id (organizations.manage)\n\nBy email, creates a pending membership (and an invited User if none exists) and emails an invitation; the response is identical whether or not the email already had an account. By user_id (organizations.manage only), the membership is active immediately. Never fails on a plan limit.\n\nREST: POST /v1/organizations/{id}/members",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "oneOf": [
+              {
+                "required": [
+                  "user_id"
+                ]
+              },
+              {
+                "required": [
+                  "email"
+                ]
+              }
+            ],
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "org_admin",
+                  "member"
+                ],
+                "type": "string"
+              },
+              "user_id": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Invite a member by email (org admin), or add one directly by user_id (organizations.manage)"
+      },
+      "x_operation_id": "organizations.addMember",
+      "x_method": "POST",
+      "x_path": "/v1/organizations/{id}/members",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_create",
+      "title": "Create an Organization (any active User; caller becomes org_admin)",
+      "description": "Create an Organization (any active User; caller becomes org_admin)\n\nREST: POST /v1/organizations",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Create an Organization (any active User; caller becomes org_admin)"
+      },
+      "x_operation_id": "organizations.create",
+      "x_method": "POST",
+      "x_path": "/v1/organizations",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_get",
+      "title": "Fetch one Organization",
+      "description": "Fetch one Organization\n\nREST: GET /v1/organizations/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one Organization"
+      },
+      "x_operation_id": "organizations.get",
+      "x_method": "GET",
+      "x_path": "/v1/organizations/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_grantEntitlement",
+      "title": "Grant an app to the whole Organization",
+      "description": "Grant an app to the whole Organization\n\nRequires entitlements.manage (platform, or the Application's own confined key) or the Application's owner. Never the org's own admin.\n\nREST: POST /v1/organizations/{id}/entitlements",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "application_id": {
+                "type": "string"
+              },
+              "ends_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "member_overrides": {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 1000,
+                "type": "array"
+              },
+              "member_scope": {
+                "enum": [
+                  "all_members",
+                  "allowlist",
+                  "denylist"
+                ],
+                "type": "string"
+              },
+              "order_id": {
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "starts_at": {
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Grant an app to the whole Organization"
+      },
+      "x_operation_id": "organizations.grantEntitlement",
+      "x_method": "POST",
+      "x_path": "/v1/organizations/{id}/entitlements",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": true,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_list",
+      "title": "List your Organizations (all, with organizations.manage)",
+      "description": "List your Organizations (all, with organizations.manage)\n\nREST: GET /v1/organizations",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List your Organizations (all, with organizations.manage)"
+      },
+      "x_operation_id": "organizations.list",
+      "x_method": "GET",
+      "x_path": "/v1/organizations",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "status",
+        "q"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_listEntitlements",
+      "title": "List org-wide (seat) grants",
+      "description": "List org-wide (seat) grants\n\nSame filters as GET /entitlements, scoped to this Organization.\n\nREST: GET /v1/organizations/{id}/entitlements",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "ends_before": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "include_inactive": {
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled",
+              "expired",
+              "revoked"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List org-wide (seat) grants"
+      },
+      "x_operation_id": "organizations.listEntitlements",
+      "x_method": "GET",
+      "x_path": "/v1/organizations/{id}/entitlements",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "application_id",
+        "status",
+        "order_id",
+        "ends_before",
+        "include_inactive"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_listMembers",
+      "title": "List members",
+      "description": "List members\n\nREST: GET /v1/organizations/{id}/members",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "membership_status": {
+            "enum": [
+              "pending",
+              "active"
+            ],
+            "type": "string"
+          },
+          "q": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "org_admin",
+              "member"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List members"
+      },
+      "x_operation_id": "organizations.listMembers",
+      "x_method": "GET",
+      "x_path": "/v1/organizations/{id}/members",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "role",
+        "membership_status",
+        "q"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_removeMember",
+      "title": "Remove a member or withdraw an invitation; or leave or decline (userId = me)",
+      "description": "Remove a member or withdraw an invitation; or leave or decline (userId = me)\n\nREST: DELETE /v1/organizations/{id}/members/{userId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "description": "A usr_ id, or 'me' to leave",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Remove a member or withdraw an invitation; or leave or decline (userId = me)"
+      },
+      "x_operation_id": "organizations.removeMember",
+      "x_method": "DELETE",
+      "x_path": "/v1/organizations/{id}/members/{userId}",
+      "x_path_params": [
+        "id",
+        "userId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_organizations_update",
+      "title": "Rename (org admin), or suspend/reactivate (organizations.manage)",
+      "description": "Rename (org admin), or suspend/reactivate (organizations.manage)\n\nREST: PATCH /v1/organizations/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "reason": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "suspended"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Rename (org admin), or suspend/reactivate (organizations.manage)"
+      },
+      "x_operation_id": "organizations.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/organizations/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_organizations_updateMember",
+      "title": "Change a member's role",
+      "description": "Change a member's role\n\nREST: PATCH /v1/organizations/{id}/members/{userId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "org_admin",
+                  "member"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "role"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "description": "A usr_ id, or 'me' to leave",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Change a member's role"
+      },
+      "x_operation_id": "organizations.updateMember",
+      "x_method": "PATCH",
+      "x_path": "/v1/organizations/{id}/members/{userId}",
+      "x_path_params": [
+        "id",
+        "userId"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_permissions_getEffective",
+      "title": "The live access check (always 200)",
+      "description": "The live access check (always 200)\n\nREST: GET /v1/users/{id}/apps/{appId}/effective-permissions",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "The live access check (always 200)"
+      },
+      "x_operation_id": "permissions.getEffective",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/apps/{appId}/effective-permissions",
+      "x_path_params": [
+        "id",
+        "appId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_permissions_list",
+      "title": "List every Permission key the caller can see",
+      "description": "List every Permission key the caller can see\n\nREST: GET /v1/permissions",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "scope": {
+            "description": "'platform' or an application_id",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List every Permission key the caller can see"
+      },
+      "x_operation_id": "permissions.list",
+      "x_method": "GET",
+      "x_path": "/v1/permissions",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "scope"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_profiles_get",
+      "title": "Fetch global Profile",
+      "description": "Fetch global Profile\n\nREST: GET /v1/users/{id}/profile",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch global Profile"
+      },
+      "x_operation_id": "profiles.get",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/profile",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_profiles_update",
+      "title": "Update global Profile (self or users.manage)",
+      "description": "Update global Profile (self or users.manage)\n\nREST: PATCH /v1/users/{id}/profile",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "avatar_url": {
+                "format": "uri",
+                "maxLength": 2048,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "contact_email": {
+                "format": "email",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "contact_phone": {
+                "pattern": "^\\+[1-9][0-9]{7,14}$",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "display_name": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Update global Profile (self or users.manage)"
+      },
+      "x_operation_id": "profiles.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/users/{id}/profile",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_roles_assign",
+      "title": "Assign a Role (idempotent — 200 if already held)",
+      "description": "Assign a Role (idempotent — 200 if already held)\n\nREST: POST /v1/users/{id}/roles/{roleId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "roleId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "roleId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Assign a Role (idempotent — 200 if already held)"
+      },
+      "x_operation_id": "roles.assign",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/roles/{roleId}",
+      "x_path_params": [
+        "id",
+        "roleId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_create",
+      "title": "Define a Role",
+      "description": "Define a Role\n\nREST: POST /v1/roles",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "pattern": "^[a-z][a-z0-9_]{1,40}$",
+                "type": "string"
+              },
+              "permissions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "scope": {
+                "description": "'platform' or an application_id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "scope",
+              "permissions"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Define a Role"
+      },
+      "x_operation_id": "roles.create",
+      "x_method": "POST",
+      "x_path": "/v1/roles",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_delete",
+      "title": "Delete an unassigned, non-seed Role",
+      "description": "Delete an unassigned, non-seed Role\n\nREST: DELETE /v1/roles/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Delete an unassigned, non-seed Role"
+      },
+      "x_operation_id": "roles.delete",
+      "x_method": "DELETE",
+      "x_path": "/v1/roles/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_get",
+      "title": "Fetch one Role",
+      "description": "Fetch one Role\n\nREST: GET /v1/roles/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one Role"
+      },
+      "x_operation_id": "roles.get",
+      "x_method": "GET",
+      "x_path": "/v1/roles/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_list",
+      "title": "List Roles",
+      "description": "List Roles\n\nREST: GET /v1/roles",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "scope": {
+            "description": "'platform' or an application_id",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List Roles"
+      },
+      "x_operation_id": "roles.list",
+      "x_method": "GET",
+      "x_path": "/v1/roles",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "scope"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_listForUser",
+      "title": "List a user's Role assignments (including implicit default_app_role)",
+      "description": "List a user's Role assignments (including implicit default_app_role)\n\nREST: GET /v1/users/{id}/roles",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List a user's Role assignments (including implicit default_app_role)"
+      },
+      "x_operation_id": "roles.listForUser",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/roles",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "application_id"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_remove",
+      "title": "Remove a Role assignment (idempotent)",
+      "description": "Remove a Role assignment (idempotent)\n\nREST: DELETE /v1/users/{id}/roles/{roleId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "roleId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "roleId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Remove a Role assignment (idempotent)"
+      },
+      "x_operation_id": "roles.remove",
+      "x_method": "DELETE",
+      "x_path": "/v1/users/{id}/roles/{roleId}",
+      "x_path_params": [
+        "id",
+        "roleId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_roles_update",
+      "title": "Change a Role's permissions or description",
+      "description": "Change a Role's permissions or description\n\nREST: PATCH /v1/roles/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "permissions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Change a Role's permissions or description"
+      },
+      "x_operation_id": "roles.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/roles/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_settings_get",
+      "title": "Fetch global Settings (self, or platform users.list)",
+      "description": "Fetch global Settings (self, or platform users.list)\n\nREST: GET /v1/users/{id}/settings",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch global Settings (self, or platform users.list)"
+      },
+      "x_operation_id": "settings.get",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/settings",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_settings_update",
+      "title": "Update global Settings (self or users.manage)",
+      "description": "Update global Settings (self or users.manage)\n\nREST: PATCH /v1/users/{id}/settings",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "locale": {
+                "type": "string"
+              },
+              "notifications": {
+                "additionalProperties": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "type": "object"
+              },
+              "theme": {
+                "enum": [
+                  "light",
+                  "dark",
+                  "system"
+                ],
+                "type": "string"
+              },
+              "timezone": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Update global Settings (self or users.manage)"
+      },
+      "x_operation_id": "settings.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/users/{id}/settings",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_tenants_get",
+      "title": "Fetch one Tenant",
+      "description": "Fetch one Tenant\n\nREST: GET /v1/tenants/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one Tenant"
+      },
+      "x_operation_id": "tenants.get",
+      "x_method": "GET",
+      "x_path": "/v1/tenants/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_tenants_getTierChangeRequest",
+      "title": "Fetch one tier-change request",
+      "description": "Fetch one tier-change request\n\nREST: GET /v1/tenants/{id}/tier-change-requests/{requestId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "requestId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one tier-change request"
+      },
+      "x_operation_id": "tenants.getTierChangeRequest",
+      "x_method": "GET",
+      "x_path": "/v1/tenants/{id}/tier-change-requests/{requestId}",
+      "x_path_params": [
+        "id",
+        "requestId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_tenants_list",
+      "title": "List Tenants (your own; all with tenants.manage)",
+      "description": "List Tenants (your own; all with tenants.manage)\n\nREST: GET /v1/tenants",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "owner_organization_id": {
+            "type": "string"
+          },
+          "owner_user_id": {
+            "type": "string"
+          },
+          "plan": {
+            "description": "Commercial plan, independent of tier. isolated/dedicated_region require enterprise; starter requires a user owner.",
+            "enum": [
+              "starter",
+              "team",
+              "enterprise"
+            ],
+            "type": "string"
+          },
+          "restricted": {
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "migrating",
+              "suspended"
+            ],
+            "type": "string"
+          },
+          "tier": {
+            "enum": [
+              "shared",
+              "isolated",
+              "dedicated_region"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List Tenants (your own; all with tenants.manage)"
+      },
+      "x_operation_id": "tenants.list",
+      "x_method": "GET",
+      "x_path": "/v1/tenants",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "plan",
+        "tier",
+        "status",
+        "restricted",
+        "owner_user_id",
+        "owner_organization_id"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_tenants_listTierChangeRequests",
+      "title": "List tier-change requests for a Tenant",
+      "description": "List tier-change requests for a Tenant\n\nREST: GET /v1/tenants/{id}/tier-change-requests",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List tier-change requests for a Tenant"
+      },
+      "x_operation_id": "tenants.listTierChangeRequests",
+      "x_method": "GET",
+      "x_path": "/v1/tenants/{id}/tier-change-requests",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_tenants_requestTierChange",
+      "title": "Open a tier-change request on a customer's behalf (tenants.manage)",
+      "description": "Open a tier-change request on a customer's behalf (tenants.manage)\n\nREST: POST /v1/tenants/{id}/tier-change-requests",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "reason": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "requested_region": {
+                "enum": [
+                  "us-east-1",
+                  "us-west-2",
+                  "ca-central-1",
+                  "eu-west-1",
+                  "eu-central-1",
+                  "ap-southeast-2"
+                ],
+                "type": "string"
+              },
+              "requested_tier": {
+                "enum": [
+                  "isolated",
+                  "dedicated_region"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "requested_tier",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Open a tier-change request on a customer's behalf (tenants.manage)"
+      },
+      "x_operation_id": "tenants.requestTierChange",
+      "x_method": "POST",
+      "x_path": "/v1/tenants/{id}/tier-change-requests",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_tenants_updateTierChangeRequest",
+      "title": "Schedule, start, complete, or cancel a tier-change request (tenants.manage)",
+      "description": "Schedule, start, complete, or cancel a tier-change request (tenants.manage)\n\nREST: PATCH /v1/tenants/{id}/tier-change-requests/{requestId}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "notes": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "scheduled_for": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "scheduled",
+                  "in_progress",
+                  "completed",
+                  "cancelled"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "status"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Schedule, start, complete, or cancel a tier-change request (tenants.manage)"
+      },
+      "x_operation_id": "tenants.updateTierChangeRequest",
+      "x_method": "PATCH",
+      "x_path": "/v1/tenants/{id}/tier-change-requests/{requestId}",
+      "x_path_params": [
+        "id",
+        "requestId"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_users_cancelErasure",
+      "title": "Cancel a scheduled erasure inside its 7-day window (users.manage)",
+      "description": "Cancel a scheduled erasure inside its 7-day window (users.manage)\n\nREST: DELETE /v1/users/{id}/erasure-requests/current",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Cancel a scheduled erasure inside its 7-day window (users.manage)"
+      },
+      "x_operation_id": "users.cancelErasure",
+      "x_method": "DELETE",
+      "x_path": "/v1/users/{id}/erasure-requests/current",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_create",
+      "title": "Create (invite) a user",
+      "description": "Create (invite) a user\n\nRequires users.manage. Also creates a default Profile and Settings and assigns the member platform role, in one transaction.\n\nREST: POST /v1/users",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "display_name": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "send_invitation": {
+                "default": true,
+                "type": "boolean"
+              },
+              "status": {
+                "default": "invited",
+                "enum": [
+                  "invited",
+                  "active"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Create (invite) a user"
+      },
+      "x_operation_id": "users.create",
+      "x_method": "POST",
+      "x_path": "/v1/users",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_delete",
+      "title": "Soft-delete a user (self or users.manage)",
+      "description": "Soft-delete a user (self or users.manage)\n\nREST: DELETE /v1/users/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Soft-delete a user (self or users.manage)"
+      },
+      "x_operation_id": "users.delete",
+      "x_method": "DELETE",
+      "x_path": "/v1/users/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_export",
+      "title": "Export everything this API holds about this user",
+      "description": "Export everything this API holds about this user\n\nSelf, or users.manage. GDPR Article 20 / CCPA right-to-know. Covers every table the hard-delete cascade clears, plus global Settings, which the cascade leaves in place.\n\nREST: GET /v1/users/{id}/export",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Export everything this API holds about this user"
+      },
+      "x_operation_id": "users.export",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}/export",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_get",
+      "title": "Fetch one user",
+      "description": "Fetch one user\n\nREST: GET /v1/users/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one user"
+      },
+      "x_operation_id": "users.get",
+      "x_method": "GET",
+      "x_path": "/v1/users/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_list",
+      "title": "List or search users",
+      "description": "List or search users\n\nRequires users.list. An app-scoped key with users.list is forced to application_id=\u003cits app\u003e.\n\nREST: GET /v1/users",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "created_after": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "created_before": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "email": {
+            "format": "email",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "q": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "status": {
+            "description": "deleted is allowed for users.manage only",
+            "enum": [
+              "active",
+              "invited",
+              "suspended",
+              "deleted"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List or search users"
+      },
+      "x_operation_id": "users.list",
+      "x_method": "GET",
+      "x_path": "/v1/users",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "status",
+        "email",
+        "q",
+        "application_id",
+        "organization_id",
+        "created_after",
+        "created_before"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_requestErasure",
+      "title": "Request right-to-erasure (soft-delete now, hard-delete cascade in 7 days)",
+      "description": "Request right-to-erasure (soft-delete now, hard-delete cascade in 7 days)\n\nREST: POST /v1/users/{id}/erasure-requests",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "reason": {
+                "maxLength": 2000,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Request right-to-erasure (soft-delete now, hard-delete cascade in 7 days)"
+      },
+      "x_operation_id": "users.requestErasure",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/erasure-requests",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_resendInvitation",
+      "title": "Re-send the invitation email to an invited user (users.manage)",
+      "description": "Re-send the invitation email to an invited user (users.manage)\n\nREST: POST /v1/users/{id}/invitation",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Re-send the invitation email to an invited user (users.manage)"
+      },
+      "x_operation_id": "users.resendInvitation",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/invitation",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_suspend",
+      "title": "Suspend a user (users.manage)",
+      "description": "Suspend a user (users.manage)\n\nREST: POST /v1/users/{id}/suspend",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "reason": {
+                "maxLength": 2000,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Suspend a user (users.manage)"
+      },
+      "x_operation_id": "users.suspend",
+      "x_method": "POST",
+      "x_path": "/v1/users/{id}/suspend",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_users_update",
+      "title": "Update email (self, pending verification) or status (users.manage)",
+      "description": "Update email (self, pending verification) or status (users.manage)\n\nREST: PATCH /v1/users/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "status": {
+                "description": "users.manage only. active on a deleted User restores it.",
+                "enum": [
+                  "active",
+                  "suspended"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "description": "A usr_... id, or the literal string 'me' for the calling User (not valid for API Keys).",
+            "type": "string"
+          },
+          "if_match": {
+            "description": "ETag from a prior read; a mismatch returns 409 version_conflict.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Update email (self, pending verification) or status (users.manage)"
+      },
+      "x_operation_id": "users.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/users/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": true
+    },
+    {
+      "name": "substratal_webhooks_create",
+      "title": "Subscribe a URL to event types",
+      "description": "Subscribe a URL to event types\n\nREST: POST /v1/webhooks",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "description": {
+                "maxLength": 255,
+                "type": "string"
+              },
+              "events": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "enum": [
+                        "access.granted",
+                        "access.revoked",
+                        "entitlement.granted",
+                        "entitlement.disabled",
+                        "entitlement.revoked",
+                        "entitlement.expired",
+                        "entitlement.updated",
+                        "entitlement.member_scope_changed",
+                        "entitlement.deleted",
+                        "role.assigned",
+                        "role.removed",
+                        "user.suspended",
+                        "user.reactivated",
+                        "user.deleted",
+                        "organization.member_added",
+                        "organization.member_removed",
+                        "application.review_status_changed",
+                        "webhook.test"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "const": "*",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "scope": {
+                "description": "An application_id, or 'platform' (webhooks.manage only). Required for an owner's User token or a webhooks.manage caller; optional for an app key, where it defaults to (and must equal) the key's own Application.",
+                "type": "string"
+              },
+              "url": {
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "events"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Subscribe a URL to event types"
+      },
+      "x_operation_id": "webhooks.create",
+      "x_method": "POST",
+      "x_path": "/v1/webhooks",
+      "x_path_params": null,
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_delete",
+      "title": "Unsubscribe",
+      "description": "Unsubscribe\n\nREST: DELETE /v1/webhooks/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Unsubscribe"
+      },
+      "x_operation_id": "webhooks.delete",
+      "x_method": "DELETE",
+      "x_path": "/v1/webhooks/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_get",
+      "title": "Fetch one subscription",
+      "description": "Fetch one subscription\n\nREST: GET /v1/webhooks/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Fetch one subscription"
+      },
+      "x_operation_id": "webhooks.get",
+      "x_method": "GET",
+      "x_path": "/v1/webhooks/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_list",
+      "title": "List subscriptions visible to the caller",
+      "description": "List subscriptions visible to the caller\n\nREST: GET /v1/webhooks",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "List subscriptions visible to the caller"
+      },
+      "x_operation_id": "webhooks.list",
+      "x_method": "GET",
+      "x_path": "/v1/webhooks",
+      "x_path_params": null,
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "application_id"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_listDeliveries",
+      "title": "Recent delivery attempts (30-day log)",
+      "description": "Recent delivery attempts (30-day log)\n\nREST: GET /v1/webhooks/{id}/deliveries",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "since": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": "Recent delivery attempts (30-day log)"
+      },
+      "x_operation_id": "webhooks.listDeliveries",
+      "x_method": "GET",
+      "x_path": "/v1/webhooks/{id}/deliveries",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": [
+        "limit",
+        "cursor",
+        "event_id",
+        "status",
+        "since"
+      ],
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_redeliver",
+      "title": "Re-send one past event (same event id)",
+      "description": "Re-send one past event (same event id)\n\nREST: POST /v1/webhooks/{id}/deliveries/{deliveryId}/redeliver",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "deliveryId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "deliveryId"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Re-send one past event (same event id)"
+      },
+      "x_operation_id": "webhooks.redeliver",
+      "x_method": "POST",
+      "x_path": "/v1/webhooks/{id}/deliveries/{deliveryId}/redeliver",
+      "x_path_params": [
+        "id",
+        "deliveryId"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_rotateSecret",
+      "title": "Issue a new signing secret (24-hour overlap)",
+      "description": "Issue a new signing secret (24-hour overlap)\n\nREST: POST /v1/webhooks/{id}/rotate-secret",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Issue a new signing secret (24-hour overlap)"
+      },
+      "x_operation_id": "webhooks.rotateSecret",
+      "x_method": "POST",
+      "x_path": "/v1/webhooks/{id}/rotate-secret",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_sendTest",
+      "title": "Send a webhook.test event now",
+      "description": "Send a webhook.test event now\n\nREST: POST /v1/webhooks/{id}/test",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Send a webhook.test event now"
+      },
+      "x_operation_id": "webhooks.sendTest",
+      "x_method": "POST",
+      "x_path": "/v1/webhooks/{id}/test",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": false,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    },
+    {
+      "name": "substratal_webhooks_update",
+      "title": "Change url, events, description, api_version, or re-enable",
+      "description": "Change url, events, description, api_version, or re-enable\n\nREST: PATCH /v1/webhooks/{id}",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "api_version": {
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 255,
+                "type": "string"
+              },
+              "events": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "status": {
+                "enum": [
+                  "healthy"
+                ],
+                "type": "string"
+              },
+              "url": {
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false,
+        "title": "Change url, events, description, api_version, or re-enable"
+      },
+      "x_operation_id": "webhooks.update",
+      "x_method": "PATCH",
+      "x_path": "/v1/webhooks/{id}",
+      "x_path_params": [
+        "id"
+      ],
+      "x_query_params": null,
+      "x_has_body": true,
+      "x_needs_idempotency_key": false,
+      "x_accepts_if_match": false
+    }
+  ],
+  "resources": [
+    {
+      "uri": "https://adron.github.io/substratalapps.com/llms.txt",
+      "name": "llms.txt",
+      "description": "Machine-oriented index of every page of the Substratal Apps API specification.",
+      "mimeType": "text/markdown",
+      "text": "# Substratal Apps — Platform API\n\n\u003e Substratal Apps is the user/organization/tenancy/settings/storage layer an\n\u003e app developer would otherwise have to build themselves — comparable in\n\u003e shape to Auth0, Clerk, or WorkOS, scoped around everything a multi-tenant\n\u003e app needs: accounts, roles and permissions, per-app settings, team/tenancy\n\u003e structure, and per-user storage, all behind one API. This site is the\n\u003e system of record for that API: users, roles, per-app access (the \"turn an\n\u003e app on/off for a user\" switch), profiles, and settings across every\n\u003e Application built on the platform. It is API-first: no user-facing\n\u003e interface is specified here — a dashboard for easier onboarding is\n\u003e planned, but it is a separate, later client of this API. Billing is each\n\u003e Application developer's own concern; this API tracks entitlement state,\n\u003e it does not process payments.\n\nThis site is the living specification. Treat it as authoritative over any\nolder single-file draft found elsewhere in the repository's history.\n\n## Start here\n\n- [Home](https://adron.github.io/substratalapps.com/): what Substratal Apps is and how this site is organized.\n- [Getting Started](https://adron.github.io/substratalapps.com/getting-started/): the fastest path to understanding the system before writing code against it.\n- [Quickstart](https://adron.github.io/substratalapps.com/quickstart/): a runnable curl walkthrough of the core access model.\n- [Domain Model](https://adron.github.io/substratalapps.com/domain-model/): the entities — User, Organization, Tenant, Application, Role, Permission, Entitlement, Profile, Setting, Order, Audit Event.\n- [Tenancy](https://adron.github.io/substratalapps.com/domain-model/tenancy/): the infrastructure-placement/data-isolation boundary for an Application owner — shared, isolated, or dedicated-region. Distinct from Organization.\n- [Access Control](https://adron.github.io/substratalapps.com/access-control/): how Entitlement (is the app on?) and Role (what can they do?) combine to decide every request, including Organization-vs-User precedence when an org-wide grant and a User's own standing could otherwise conflict.\n- [Database Schema](https://adron.github.io/substratalapps.com/domain-model/database-schema/): Postgres types, constraints, and indexes behind every entity — for implementers, not API callers.\n\n## API reference\n\n- [Conventions](https://adron.github.io/substratalapps.com/api-reference/conventions/): base URL, auth, pagination, idempotency, error shape, ID format.\n- [Auth](https://adron.github.io/substratalapps.com/api-reference/auth/): signup, login, MFA, sessions, password/email lifecycle, and how an Application obtains its per-app JWT.\n- [Users](https://adron.github.io/substratalapps.com/api-reference/users/)\n- [Profiles](https://adron.github.io/substratalapps.com/api-reference/profiles/)\n- [Settings](https://adron.github.io/substratalapps.com/api-reference/settings/)\n- [Applications](https://adron.github.io/substratalapps.com/api-reference/applications/)\n- [Entitlements](https://adron.github.io/substratalapps.com/api-reference/entitlements/): the on/off switch for a user's access to an app.\n- [Roles \u0026 Permissions](https://adron.github.io/substratalapps.com/api-reference/roles-and-permissions/)\n- [Organizations](https://adron.github.io/substratalapps.com/api-reference/organizations/)\n- [Tenancy](https://adron.github.io/substratalapps.com/api-reference/tenancy/): fetch a Tenant and request a tier change — support-only today, no customer self-service.\n- [Billing](https://adron.github.io/substratalapps.com/api-reference/billing/): the Application owner's own Substratal subscription — plan, usage, Stripe Checkout and Customer Portal.\n- [Audit](https://adron.github.io/substratalapps.com/api-reference/audit/)\n- [Webhooks](https://adron.github.io/substratalapps.com/api-reference/webhooks/)\n- [API Keys](https://adron.github.io/substratalapps.com/api-reference/api-keys/): service-to-service credentials.\n- [openapi.yaml](https://adron.github.io/substratalapps.com/openapi.yaml): the same API surface as a machine-readable OpenAPI 3.1 document.\n\n## Also useful\n\n- [Workflows](https://adron.github.io/substratalapps.com/workflows/): purchase-to-access, admin revokes access, role changes, end to end.\n- [Trust Model](https://adron.github.io/substratalapps.com/trust-model/): how a separately-hosted downstream app verifies a user's access against this API.\n- [MCP Server](https://adron.github.io/substratalapps.com/mcp-server/): a Model Context Protocol server that lets an AI agent call this API as tools, generated from openapi.yaml, using the same Bearer credential as every other caller — no new auth model.\n- [Non-Functional Requirements](https://adron.github.io/substratalapps.com/non-functional-requirements/)\n- [Compliance \u0026 Data Protection](https://adron.github.io/substratalapps.com/compliance/): which of SOC 2, HIPAA, GDPR, and CCPA apply, and when.\n- [Roadmap](https://adron.github.io/substratalapps.com/roadmap/): MVP through Phase 3.\n- [Pricing](https://adron.github.io/substratalapps.com/pricing/): Starter (free), Team (per-seat), and Enterprise (with a choice of Tenant tier) — what Substratal itself charges the Application-owner developer, distinct from what that developer charges their own end users.\n- [Changelog](https://adron.github.io/substratalapps.com/changelog/): what's changed in this spec over time.\n- [Glossary](https://adron.github.io/substratalapps.com/glossary/)\n- [Versions](https://adron.github.io/substratalapps.com/versions/): every released version of this spec; older versions are frozen copies under `/versions/\u003cversion\u003e/`.\n\nDeployment/infrastructure, the build plan, and other project-planning material are intentionally not part of this API-specification site — they live as plain Markdown in the repository root at https://github.com/Adron/substratalapps.com, starting from its README.md.\n"
+    },
+    {
+      "uri": "https://adron.github.io/substratalapps.com/glossary/",
+      "name": "Glossary",
+      "description": "Precise definitions for every term the API uses.",
+      "mimeType": "text/markdown",
+      "text": "# Glossary\n{: .no_toc }\n\nPrecise definitions for every term used across this site. If a page uses a capitalized term (`Entitlement`, `AppRole`) without defining it inline, it means exactly what's written here.\n{: .fs-6 .fw-300 }\n\n---\n\n#### Access path\nOne way a User reaches an Application: their own personal [Entitlement](#entitlement), or an org-wide grant from an [Organization](#organization) that includes them. Resolved access is the union of every active path. See [Access Control](../access-control/#the-algorithm).\n\n#### API Key\nA long-lived service credential (`satk_live_…`/`satk_test_…`), scoped to the platform or to one Application. An app-scoped key can only ever touch its own Application's rows. See [API Keys](../api-reference/api-keys/).\n\n#### App token\nThe short-lived (5-minute) JWT an Application verifies locally, with `aud` set to that Application. Carries `entitlement_status` and `effective_permissions`. See [Auth → The app token](../api-reference/auth/#the-app-token).\n\n#### Application\n(also \"App\") One developer's separately-hosted app (web, iOS, macOS, Windows, Linux, …) that uses Substratal Apps for its users, settings, organizations, tenancy, and storage. This is its catalog entry. See [Domain Model → Applications](../domain-model/applications/).\n\n#### AppProfile\nPer-app identity data for one user — e.g. a display handle meaningful only inside that one app. Distinct from the global [Profile](#profile).\n\n#### AppRole\nA [Role](#role) scoped to one Application, defined by that app's own catalog entry rather than by the platform. See [Domain Model → Roles \u0026 Permissions](../domain-model/roles-and-permissions/).\n\n#### AppSettings\nPer-app configuration for one user, layered over that user's global [Settings](#settings) and the Application's declared defaults. See [Workflows → Settings resolution](../workflows/#settings-resolution-in-practice).\n\n#### Audit Event\nAn immutable record of who changed what access, when. See [Domain Model → Orders \u0026 Audit](../domain-model/orders-and-audit/).\n\n#### Effective permissions\nThe resolved set of [Permissions](#permission) a user holds for a given Application — the union of the permissions on their app-scoped Roles for that app (explicit assignments plus the app's `default_app_role`), and empty unless the User and their Entitlement are both active. Only that app's own `app.\u003cslug\u003e.*` keys ever appear; platform Roles govern the hub, not apps. See [Access Control](../access-control/#step-2-effective-permissions).\n\n#### Entitlement\nThe join record between a User (or Organization) and an Application: do they own it, and is it currently switched on. The record behind \"turn an app on/off for a user.\" See [Domain Model → Entitlements](../domain-model/entitlements/).\n\n#### Hub\nShorthand used throughout this site for Substratal Apps itself — the platform this API belongs to.\n\n#### MCP\nModel Context Protocol — the standard this site's AI-agent-facing tool-call interface implements. See [MCP Server](../mcp-server/). Introduces no new authorization model of its own; see [Authentication — no new model](../mcp-server/#authentication--no-new-model).\n\n#### Order\nNot an entity of this API. It's the developer's own commerce record, in their own billing system. An [Entitlement](#entitlement) carries only an opaque `order_id` reference to it. See [Domain Model → Orders \u0026 Audit](../domain-model/orders-and-audit/#order).\n\n#### Organization\nA domain/grouping object for Users — a company, or a group within a company — used to organize shared admin standing and group-wide Application access. Decoupled from infrastructure placement; see [Tenant](#tenant) and [Tenant vs. Organization](../domain-model/tenancy/#tenant-vs-organization). Pulled into [Phase 2](../roadmap/#phase-2); see [Organizations](../domain-model/users-and-organizations/#organization).\n\n#### OrganizationMembership\nThe join record between a User and an Organization, carrying that User's standing *within* that one Organization (`org_admin` or `member`) and whether it's `pending` (invited, not yet accepted) or `active` — a User can hold this for any number of Organizations at once. See [Domain Model → Users \u0026 Organizations](../domain-model/users-and-organizations/#organizationmembership).\n\n#### Permission\nAn atomic, checkable capability, written as a dotted key (`billing.manage`, `app.timetrack.export`). Never assigned directly to a user — always granted through a [Role](#role).\n\n#### Plan\nThe commercial subscription on a [Tenant](#tenant): `starter`, `team`, or `enterprise`. Independent of [Tier](#tier). See [Pricing](../pricing/).\n\n#### PlatformRole\nA [Role](#role) that applies across the whole hub rather than one Application — `superadmin`, `support`, `billing_admin`, `member`.\n\n#### Profile\nGlobal, cross-app identity and contact data for a User — name, avatar, email, locale. Distinct from [AppProfile](#appprofile).\n\n#### Restricted\nThe state of a [Tenant](#tenant) whose subscription lapsed while its usage exceeded what it could drop to. Existing access keeps working; new usage returns `402`. See [Pricing → Subscription lapse](../pricing/#subscription-lapse--downgrades).\n\n#### Role\nA named bundle of [Permissions](#permission). Either a [PlatformRole](#platformrole) or an [AppRole](#approle).\n\n#### Seat\nA distinct User with active resolved access to at least one Application a [Tenant](#tenant) owns. The unit Team and Enterprise are billed on. See [Pricing](../pricing/#what-seat-means-here).\n\n#### Session\nOne successful login (`ses_…`). Every refresh token and app token minted from it carries its id as `sid`, and revoking it ends them all. See [Auth → Sessions](../api-reference/auth/#sessions).\n\n#### Settings\nGlobal, cross-app configuration for a User — locale, timezone, notification preferences. Distinct from [AppSettings](#appsettings).\n\n#### Tenant\nThe infrastructure-placement and data-isolation boundary for one of Substratal's own paying customers — the owner of an Application's catalog entry. `shared` (default), `isolated`, or `dedicated_region`. Not the same thing as [Organization](#organization) — see [Tenant vs. Organization](../domain-model/tenancy/#tenant-vs-organization). See [Domain Model → Tenancy](../domain-model/tenancy/).\n\n#### Tier\nWhere a [Tenant](#tenant)'s data physically lives: `shared`, `isolated`, or `dedicated_region`. Independent of [Plan](#plan), except that the non-`shared` tiers require Enterprise.\n\n#### User\nA person with an account on Substratal. One identity, used everywhere in the hub and, via the [Trust Model](../trust-model/), in every app they launch from it.\n\n#### Webhook\nA signed HTTPS POST the hub sends an Application when something changes. `access.revoked` and `role.removed` are required subscriptions. See [Webhooks](../api-reference/webhooks/).\n"
+    }
+  ]
+}

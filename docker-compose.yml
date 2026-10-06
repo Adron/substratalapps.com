@@ -1,0 +1,40 @@
+# Local services for the API (README → Local development). Host ports are
+# deliberately non-standard so they don't collide with another project's
+# Postgres or mail catcher; override any of them in .env.
+name: substratal
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Creates the non-superuser `substratal` role the API connects as.
+      # A superuser bypasses Row-Level Security, which would hide RLS bugs.
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-substratal.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  localstack:
+    image: localstack/localstack:3
+    environment:
+      SERVICES: sqs,kms,secretsmanager,s3
+    ports:
+      - "${LOCALSTACK_PORT:-4566}:4566"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_SMTP_PORT:-51025}:1025"
+      - "${MAILPIT_UI_PORT:-58025}:8025"
+
+volumes:
+  pgdata:

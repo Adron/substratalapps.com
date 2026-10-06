@@ -1,0 +1,12 @@
+# Generates the route table, path/query/header parameter binding, and the
+# ServerInterface every operation in docs/openapi.yaml must implement.
+# Request/response bodies are hand-written in internal/core instead: the
+# generated models can't express explicit JSON nulls or PATCH presence,
+# both of which Conventions requires. Contract tests validate bodies.
+package: gen
+output: gen.go
+generate:
+  models: true
+  std-http-server: true
+output-options:
+  skip-prune: true

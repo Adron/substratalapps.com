@@ -1,0 +1,131 @@
+# CI for every push to dev (and feature/*, hotfix/*) and every PR into main
+# (README → Branches, CI, and deployment → What runs on dev). Nothing here
+# touches AWS except the read-only terraform plan on PRs into main.
+name: CI
+
+on:
+  push:
+    branches: [dev, "feature/**", "hotfix/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      # The API and tests connect as a non-superuser role, as they do
+      # locally: a superuser bypasses Row-Level Security.
+      TEST_DATABASE_URL: postgres://substratal:substratal@localhost:5432/postgres?sslmode=disable
+      DATABASE_URL: postgres://substratal:substratal@localhost:5432/substratal?sslmode=disable
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Create the database role
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docker/postgres-init.sql
+
+      - name: Format and vet
+        run: make fmt-check && go vet ./...
+
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+
+      - name: Generated code is current
+        run: make gen-check
+
+      - name: Unit, integration, and contract tests
+        run: go test -count=1 -race ./...
+
+      - name: Quickstart against the devserver
+        env:
+          EMAIL_BACKEND: log
+          LISTEN_ADDR: ":8080"
+          ADMIN_EMAIL: ci-admin@example.com
+          ADMIN_PASSWORD: ci admin passphrase
+        run: |
+          go run ./cmd/migrate
+          go run ./cmd/admin bootstrap -email "$ADMIN_EMAIL"
+          go build -o /tmp/devserver ./cmd/devserver
+          /tmp/devserver > /tmp/devserver.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf localhost:8080/v1/health && break; sleep 0.5; done
+          SUBSTRATAL_API=http://localhost:8080/v1 scripts/quickstart.sh || (cat /tmp/devserver.log; exit 1)
+
+      - name: Build Lambda artifacts
+        run: make build
+
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform fmt -check -recursive infra/terraform
+      - run: make tf-validate
+
+  docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: docs
+      - run: bundle exec jekyll build
+
+  # The one thing to read before merging a release: exactly what the merge
+  # will change in AWS. Read-only role; skipped until Phase 0 setup exists.
+  plan:
+    if: github.event_name == 'pull_request' && vars.AWS_PLAN_ROLE_ARN != ''
+    needs: [test, terraform]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v4
+      - name: terraform plan
+        id: plan
+        working-directory: infra/terraform/prod
+        run: |
+          terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+          terraform plan -input=false -no-color -lock=false \
+            -var "artifact_bucket=${{ vars.ARTIFACT_BUCKET }}" -var "release=${{ github.event.pull_request.head.sha }}" \
+            -var "domain_name=${{ vars.API_DOMAIN }}" > plan.txt 2>&1 || (cat plan.txt; exit 1)
+          tail -c 60000 plan.txt > plan-short.txt
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/terraform/prod/plan-short.txt', 'utf8');
+            await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number,
+              body: "### terraform plan (production)\n\nThis is exactly what merging will change in AWS.\n\n<details><summary>Plan</summary>\n\n```\n" + plan + "\n```\n</details>" });
