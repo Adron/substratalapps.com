@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/api/gen"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/schema"
+	"github.com/CompositeCode/substratalapps.com/internal/api/gen"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/schema"
 )
 
 // UsersExport is GDPR Article 20 / CCPA right-to-know: everything keyed to

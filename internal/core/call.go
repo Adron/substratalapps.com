@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
 )
 
 // opts describe one operation's place in the pipeline.

@@ -13,8 +13,8 @@ import (
 
 	"github.com/stripe/stripe-go/v87"
 
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/platform/config"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/config"
 )
 
 // Price lookup keys from Pricing → Stripe catalog. Code resolves prices

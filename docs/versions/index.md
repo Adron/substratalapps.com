@@ -20,7 +20,7 @@ This is the version of the **documentation**. It is separate from the API's own 
 |---|---|---|
 {% assign listed = site.data.versions.archive | unshift: current -%}
 {% for v in listed -%}
-| [v{{ v.version }}]({{ v.version }}/){% if forloop.first %} **(current)**{% endif %} | {{ v.released }} | {{ v.summary | default: "" | replace: "|", "\|" }}{% if v.commit %} ([`{{ v.commit | slice: 0, 7 }}`](https://github.com/Adron/substratalapps.com/commit/{{ v.commit }})){% endif %} |
+| [v{{ v.version }}]({{ v.version }}/){% if forloop.first %} **(current)**{% endif %} | {{ v.released }} | {{ v.summary | default: "" | replace: "|", "\|" }}{% if v.commit %} ([`{{ v.commit | slice: 0, 7 }}`](https://github.com/CompositeCode/substratalapps.com/commit/{{ v.commit }})){% endif %} |
 {% endfor %}
 {% else %}
 This is a local build. Version numbers and the archive are assigned only when the site is built and published on GitHub.

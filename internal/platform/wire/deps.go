@@ -13,14 +13,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/billing"
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/email"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/platform/config"
-	"github.com/Adron/substratalapps.com/internal/webhooks"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/billing"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/email"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/config"
+	"github.com/CompositeCode/substratalapps.com/internal/webhooks"
 )
 
 // Logger returns the process's structured JSON logger.

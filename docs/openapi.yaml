@@ -8,7 +8,7 @@ info:
     for applications built on Substratal Apps. Target contract for an API
     that is not yet implemented; the prose specification is authoritative.
   description: >-
-    Full documentation: https://adron.github.io/substratalapps.com/ — read
+    Full documentation: https://compositecode.github.io/substratalapps.com/ — read
     /api-reference/conventions/ first (IDs, pagination, PATCH semantics,
     ETag/If-Match, idempotency, error shape).
 
@@ -25,7 +25,7 @@ info:
     name: Unlicensed draft — internal specification, not yet released
 externalDocs:
   description: Substratal Apps Platform API documentation
-  url: https://adron.github.io/substratalapps.com/
+  url: https://compositecode.github.io/substratalapps.com/
 servers:
   - url: https://api.substratalapps.com/v1
     description: Production

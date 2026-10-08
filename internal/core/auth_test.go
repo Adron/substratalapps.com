@@ -12,8 +12,8 @@ import (
 
 	"crypto/rsa"
 
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 func TestSignupLoginRefreshLogout(t *testing.T) {

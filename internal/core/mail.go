@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/email"
-	"github.com/Adron/substratalapps.com/internal/ids"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/email"
+	"github.com/CompositeCode/substratalapps.com/internal/ids"
 )
 
 // mail queues a transactional email to send after the transaction commits.

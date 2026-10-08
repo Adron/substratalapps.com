@@ -8,7 +8,7 @@ nav_order: 8
 # Database Schema
 {: .no_toc }
 
-The entity pages describe *what* each field means to an API caller. This page is for an implementer: concrete Postgres types, constraints, and the indexes the documented query patterns actually need. See [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for why Postgres (Aurora Serverless v2) is the chosen engine.
+The entity pages describe *what* each field means to an API caller. This page is for an implementer: concrete Postgres types, constraints, and the indexes the documented query patterns actually need. See [Deployment Architecture](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) for why Postgres (Aurora Serverless v2) is the chosen engine.
 {: .fs-6 .fw-300 }
 
 1. TOC
@@ -20,7 +20,7 @@ The entity pages describe *what* each field means to an API caller. This page is
 
 - Every table's primary key is the entity's own prefixed id (`usr_…`, `ent_…`, …) stored as `text`, not a surrogate `bigint` — the prefix convention in [Conventions → IDs](../../api-reference/conventions/#ids) *is* the primary key, not a display layer on top of one.
 - Every end-user-scoped table carries `organization_id text null references organizations(id)`, per [Non-Functional Requirements → Multi-tenancy](../../non-functional-requirements/#multi-tenancy), with a Row-Level Security policy — not repeated per-table below. This is **team/seat grouping**, not infrastructure placement.
-- Every table scoped to one Application also carries `tenant_id text not null references tenants(id)`, denormalized from `applications.tenant_id` at write time — a **second, independent** RLS dimension used to route a row to the right physical cluster (see [Tenancy](../tenancy/) and [Deployment Architecture → Tenancy tiers](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)). Don't conflate this with `organization_id` above — a row can carry both, either, or neither.
+- Every table scoped to one Application also carries `tenant_id text not null references tenants(id)`, denormalized from `applications.tenant_id` at write time — a **second, independent** RLS dimension used to route a row to the right physical cluster (see [Tenancy](../tenancy/) and [Deployment Architecture → Tenancy tiers](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)). Don't conflate this with `organization_id` above — a row can carry both, either, or neither.
 - Every table carries `created_at timestamptz not null default now()` (the two pure join tables name it for what it means: `organization_memberships.invited_at` and `user_role_assignments.assigned_at`); tables with mutable fields also carry `updated_at timestamptz not null default now()`, maintained by a trigger, not application code (so it's correct even for a direct `UPDATE` run by a migration or a support script).
 - Soft-deletable tables carry `deleted_at timestamptz null` rather than a boolean — `null` means active, a timestamp means both *that* it's deleted and *when*, which a boolean throws away.
 - Every table with a `PATCH` endpoint carries `version integer not null default 1`, incremented by the same `updated_at` trigger. It's the source of the `ETag` (`W/"<version>"`) and the `If-Match` comparison. See [Conventions → Concurrency](../../api-reference/conventions/#concurrency-etag--if-match).
@@ -379,7 +379,7 @@ This only applies to fields an Application has declared. An arbitrary, undeclare
 | `test_mode` | `boolean` | not null, default `false` — copied from the change that produced it, so test traffic never shows in a live audit query |
 | `timestamp` | `timestamptz` | not null, default `now()` |
 
-No `updated_at`, no soft-delete column — this table is append-only by design (see [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit)); revoke `UPDATE`/`DELETE` grants on this table for the application's own database role, so an application-layer bug can't violate the "never edited" guarantee even accidentally. The one exception to "never deleted" is the scheduled archival job (see [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle) and [root `DEPLOYMENT.md` → Audit log archival](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#audit-log-archival)), which runs as a separate, elevated role specifically for that one job — rows it has already archived shape-only to cold storage are deleted from this table, nothing else ever is. **Indexes:** `(target_user_id, timestamp desc)`, `(application_id, timestamp desc)`, `(actor_id, timestamp desc)`, `(target_type, target_id, timestamp desc)`, `(organization_id, timestamp desc)`, `(tenant_id, timestamp desc)` — one per documented filter in [API Reference → Audit](../../api-reference/audit/), the last one being what a tier-change migration (and the archival job itself) uses to pull "every event for this Tenant" without scanning the whole table.
+No `updated_at`, no soft-delete column — this table is append-only by design (see [Non-Functional Requirements → Audit](../../non-functional-requirements/#audit)); revoke `UPDATE`/`DELETE` grants on this table for the application's own database role, so an application-layer bug can't violate the "never edited" guarantee even accidentally. The one exception to "never deleted" is the scheduled archival job (see [Non-Functional Requirements → Audit log lifecycle](../../non-functional-requirements/#audit-log-lifecycle) and [root `DEPLOYMENT.md` → Audit log archival](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md#audit-log-archival)), which runs as a separate, elevated role specifically for that one job — rows it has already archived shape-only to cold storage are deleted from this table, nothing else ever is. **Indexes:** `(target_user_id, timestamp desc)`, `(application_id, timestamp desc)`, `(actor_id, timestamp desc)`, `(target_type, target_id, timestamp desc)`, `(organization_id, timestamp desc)`, `(tenant_id, timestamp desc)` — one per documented filter in [API Reference → Audit](../../api-reference/audit/), the last one being what a tier-change migration (and the archival job itself) uses to pull "every event for this Tenant" without scanning the whole table.
 
 ## api_keys
 
@@ -452,7 +452,7 @@ webhook_deliveries (
 );
 ```
 
-A `webhook_events` row is inserted **in the same transaction** as the change it describes. A dispatcher (SQS-fed, see [DEPLOYMENT.md](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) fans it out to matching subscriptions. That makes "every committed change produces its event" structural rather than best-effort. Events and deliveries are deleted after 30 days. **Indexes:** `(dispatched_at) where dispatched_at is null`; `(subscription_id, created_at desc)` and `(next_retry_at) where status = 'pending'` on deliveries.
+A `webhook_events` row is inserted **in the same transaction** as the change it describes. A dispatcher (SQS-fed, see [DEPLOYMENT.md](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)) fans it out to matching subscriptions. That makes "every committed change produces its event" structural rather than best-effort. Events and deliveries are deleted after 30 days. **Indexes:** `(dispatched_at) where dispatched_at is null`; `(subscription_id, created_at desc)` and `(next_retry_at) where status = 'pending'` on deliveries.
 
 ## tier_change_requests, erasure_requests
 
@@ -499,7 +499,7 @@ stripe_events (
 );
 ```
 
-Kept 90 days. See [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
+Kept 90 days. See [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
 
 ## idempotency_keys
 
@@ -516,4 +516,4 @@ idempotency_keys (
 );
 ```
 
-Per [Conventions → Idempotency](../../api-reference/conventions/#idempotency)'s implementation note — a scheduled job (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) deletes expired rows rather than relying on unbounded table growth.
+Per [Conventions → Idempotency](../../api-reference/conventions/#idempotency)'s implementation note — a scheduled job (see [Deployment Architecture](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)) deletes expired rows rather than relying on unbounded table growth.

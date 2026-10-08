@@ -16,7 +16,7 @@ Three subscription tiers for what Substratal Apps itself charges — the platfor
 ---
 
 {: .decision }
-Illustrative, proposed numbers — grounded in the real infrastructure costs already established in [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) and [Tenancy](../domain-model/tenancy/), not a published price list. The tiers, their structure, and how they're charged are settled; the dollar amounts are still awaiting confirmation ([DECISIONS.md #31](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)).
+Illustrative, proposed numbers — grounded in the real infrastructure costs already established in [Deployment Architecture](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) and [Tenancy](../domain-model/tenancy/), not a published price list. The tiers, their structure, and how they're charged are settled; the dollar amounts are still awaiting confirmation ([DECISIONS.md #31](https://github.com/CompositeCode/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)).
 
 ## Who pays whom, again
 
@@ -89,11 +89,11 @@ The Products and Prices configured in Stripe. Lookup keys are what the code refe
 | Dedicated-region tenancy add-on | `addon_dedicated_region_monthly_usd` | $1,500.00 | Enterprise only. Replaces the isolated add-on. |
 
 - **Starter has no Stripe Subscription.** The Tenant has a Customer, and `plan: starter` is the absence of a paid subscription. That avoids $0 subscriptions that would need cancelling and replacing on upgrade.
-- **Monthly, USD, tax-exclusive** (Stripe Tax enabled) at launch. Annual plans, a Team trial, and whether Starter requires a card on file are open questions ([DECISIONS.md #31](https://github.com/Adron/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)). They don't block the build.
+- **Monthly, USD, tax-exclusive** (Stripe Tax enabled) at launch. Annual plans, a Team trial, and whether Starter requires a card on file are open questions ([DECISIONS.md #31](https://github.com/CompositeCode/substratalapps.com/blob/main/DECISIONS.md#31-published-prices-and-billing-options)). They don't block the build.
 - **Seat quantity** is written to the `team_seats_monthly_usd` item by a daily job (00:15 UTC) with `proration_behavior: none`. Each invoice charges for the seat count on the day before it's issued, with no mid-period proration.
 - Every Stripe object carries `metadata.tenant_id`. Every Product carries `metadata.substratal_plan` (`team`/`enterprise`) or `metadata.substratal_addon`, which is how the webhook handler maps a subscription back to `plan`.
 
-The API for all of this is [API Reference → Billing](../api-reference/billing/). The webhook handling is in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
+The API for all of this is [API Reference → Billing](../api-reference/billing/). The webhook handling is in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
 
 ## Enterprise tenancy tier options
 
@@ -102,7 +102,7 @@ This is the pricing dimension that maps directly onto [Tenant.tier](../domain-mo
 | Tier | What it is | Price | Why this number |
 |---|---|---|---|
 | `shared` | Included in the Enterprise base price | $0 extra | Same infrastructure as every other tenant, logically isolated by Row-Level Security — see [Tenancy → Tiers](../domain-model/tenancy/#tiers). Most Enterprise customers start here; it's the volume/SLA terms that justify the Enterprise price, not the infrastructure. |
-| `isolated` | A dedicated Aurora Serverless v2 cluster, same region | **+$750/month** | The raw infrastructure add-on is ~$45–55/month (see [Deployment Architecture](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)) — the rest of this price is the value of real blast-radius isolation and the operational overhead of running and monitoring a dedicated cluster, not a cost pass-through. |
+| `isolated` | A dedicated Aurora Serverless v2 cluster, same region | **+$750/month** | The raw infrastructure add-on is ~$45–55/month (see [Deployment Architecture](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)) — the rest of this price is the value of real blast-radius isolation and the operational overhead of running and monitoring a dedicated cluster, not a cost pass-through. |
 | `dedicated_region` | A dedicated cluster in the customer's chosen AWS region | **+$1,500/month** | Roughly double `isolated`'s surcharge, matching [Tenancy → Tiers](../domain-model/tenancy/#tiers): "the `isolated` floor again, in a second region" — plus the compliance value of a genuine data-residency guarantee, the kind [Compliance → GDPR](../compliance/#gdpr-and-ccpa--build-for-it-now) data residency conversations actually ask for. |
 
 A tier change still goes through the exact process in [Tenancy → How a tier change happens today](../domain-model/tenancy/#how-a-tier-change-happens-today) — support-run, scheduled maintenance window, `tenants.manage`-gated. Pricing doesn't change that; choosing `isolated` on this page is the commercial side of the same support conversation, not a self-service toggle.
@@ -111,8 +111,8 @@ A tier change still goes through the exact process in [Tenancy → How a tier ch
 
 Three tiers is deliberately the whole menu:
 
-- **Starter is free, not just cheap.** [Growth trajectory](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)'s first horizon — dozens of users, a handful of Applications — sits entirely inside Starter's limits, and the shared-tier infrastructure cost of serving that is near-zero against the floor already being paid regardless (see [Deployment Architecture → Illustrative Tier 0 floor cost](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md)). Charging for it would tax exactly the adoption this product needs most right now.
-- **Team's per-seat price is value-based, not cost-plus.** The marginal infrastructure cost of one more seat on shared `Tier 0` is effectively zero until a [Scale-out](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) trigger fires — $6/seat is priced against what Team replaces (weeks of building user/org/settings/tenancy infrastructure, per [Home](../#what-substratal-apps-actually-is)), not against AWS's bill for that seat.
+- **Starter is free, not just cheap.** [Growth trajectory](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)'s first horizon — dozens of users, a handful of Applications — sits entirely inside Starter's limits, and the shared-tier infrastructure cost of serving that is near-zero against the floor already being paid regardless (see [Deployment Architecture → Illustrative Tier 0 floor cost](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md)). Charging for it would tax exactly the adoption this product needs most right now.
+- **Team's per-seat price is value-based, not cost-plus.** The marginal infrastructure cost of one more seat on shared `Tier 0` is effectively zero until a [Scale-out](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) trigger fires — $6/seat is priced against what Team replaces (weeks of building user/org/settings/tenancy infrastructure, per [Home](../#what-substratal-apps-actually-is)), not against AWS's bill for that seat.
 - **Enterprise is the only tier where infrastructure choice is a pricing lever**, because it's the only tier where a customer's own requirement (compliance, data residency) drives a real, named infrastructure cost — see [Enterprise tenancy tier options](#enterprise-tenancy-tier-options) above. Below Enterprise, that choice isn't offered at all, which is itself a deliberate simplification: a Starter or Team customer who needs `isolated`/`dedicated_region` has outgrown those tiers by definition.
 
 ## How the subscription is charged
@@ -121,13 +121,13 @@ The platform subscription is processed through **Stripe Billing**. This is stric
 
 Stripe was chosen because adopting it changes nothing else in this spec. PCI scope stays minimal by design: card data never touches this API, and Stripe is PCI-DSS Level 1 (see [Compliance](../compliance/#what-this-doesnt-cover)). A subscription-billing product used only for Substratal's own customers is also a far smaller integration than the marketplace payment-processor role this API explicitly doesn't take on. Stripe is one of the platform's two sub-processors, alongside AWS (see [Compliance → GDPR (and CCPA)](../compliance/#gdpr-and-ccpa--build-for-it-now)).
 
-The implementation (object mapping, the `tenants` schema additions, webhook event handling) is specified in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing), not here. It's a build/ops concern, not part of the API that Applications and their developers call.
+The implementation (object mapping, the `tenants` schema additions, webhook event handling) is specified in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing), not here. It's a build/ops concern, not part of the API that Applications and their developers call.
 
 ## Keeping these numbers honest
 
 The MCP servers researched alongside this pricing work are the ones that keep it grounded in reality rather than going stale:
 
-- **AWS Pricing MCP Server** — verify the per-component cost assumptions in [Deployment Architecture's floor cost table](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) against live AWS pricing before this page's infrastructure-derived numbers (the `isolated`/`dedicated_region` surcharges above) are treated as current.
+- **AWS Pricing MCP Server** — verify the per-component cost assumptions in [Deployment Architecture's floor cost table](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) against live AWS pricing before this page's infrastructure-derived numbers (the `isolated`/`dedicated_region` surcharges above) are treated as current.
 - **AWS Billing and Cost Management MCP Server** — once Tier 0 is live, pull actual spend and compare it against the floor-cost assumptions this page's margins are built on; its Cost Anomaly Detection integration is also the fastest way to notice an Enterprise `isolated` Tenant's real cost has drifted from the ~$45–55/month this page assumes.
 - **AWS Labs Postgres MCP Server** — per-cluster health/usage data for `isolated` and `dedicated_region` Tenants specifically, informing whether a given Enterprise account's actual resource consumption still matches the tier (and price) it's on.
 - **Stripe's official MCP server** — now that these prices actually flow through [Stripe Billing](#how-the-subscription-is-charged), it's the direct source for whether the Products/Prices configured in Stripe still match what this page states — the two are meant to be kept in sync by hand, the same relationship [Conventions → Machine-readable](../api-reference/conventions/#machine-readable) already describes between this site's prose and `openapi.yaml`.

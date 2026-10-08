@@ -10,8 +10,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/mcp"
-	"github.com/Adron/substratalapps.com/internal/platform/lambdahttp"
+	"github.com/CompositeCode/substratalapps.com/internal/mcp"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/lambdahttp"
 )
 
 func main() {

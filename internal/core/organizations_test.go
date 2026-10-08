@@ -3,7 +3,7 @@ package core_test
 import (
 	"testing"
 
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 func accessEventsFor(e *testenv.Env, typ, userID, appID string) int {

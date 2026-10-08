@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/ids"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/ids"
 )
 
 // BootstrapSuperadmin creates (or promotes) the first superadmin directly

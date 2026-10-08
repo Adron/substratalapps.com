@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/Adron/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
 )
 
 // DB is a pgx connection pool.

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/schema"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/schema"
 )
 
 // system runs fn as the platform itself (actor "system") in one

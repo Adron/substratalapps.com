@@ -11,10 +11,10 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/rdsdata"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/db/dataapi"
-	"github.com/Adron/substratalapps.com/internal/db/pg"
-	"github.com/Adron/substratalapps.com/internal/platform/config"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db/dataapi"
+	"github.com/CompositeCode/substratalapps.com/internal/db/pg"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/config"
 )
 
 // AWS loads the default AWS SDK config. AWS_ENDPOINT_URL (LocalStack) is

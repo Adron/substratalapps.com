@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/billing"
-	"github.com/Adron/substratalapps.com/internal/jobs"
-	"github.com/Adron/substratalapps.com/internal/mcp"
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
-	"github.com/Adron/substratalapps.com/internal/webhooks"
+	"github.com/CompositeCode/substratalapps.com/internal/billing"
+	"github.com/CompositeCode/substratalapps.com/internal/jobs"
+	"github.com/CompositeCode/substratalapps.com/internal/mcp"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/internal/webhooks"
 )
 
 func main() {

@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/access"
-	"github.com/Adron/substratalapps.com/internal/api/gen"
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/ids"
+	"github.com/CompositeCode/substratalapps.com/internal/access"
+	"github.com/CompositeCode/substratalapps.com/internal/api/gen"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/ids"
 )
 
 // ── App tokens (Auth → Getting an app token) ───────────────────────────

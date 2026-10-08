@@ -108,7 +108,7 @@ jobs:
 
           - `manifest.yml`: every version, newest first.
           - `<version>/`: that version's frozen static build, served at
-            https://adron.github.io/substratalapps.com/versions/<version>/
+            https://compositecode.github.io/substratalapps.com/versions/<version>/
           EOF
           fi
           git config user.name "github-actions[bot]"

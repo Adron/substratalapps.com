@@ -1,6 +1,6 @@
 # Deployment Architecture
 
-Where the platform API actually runs, and how it's billed. This is a deployment/operations document, not part of the [API specification](https://adron.github.io/substratalapps.com/) — it lives here, in the project root, rather than on the docs site, because a prospective API consumer (a developer, or their AI agent) never needs to know how this is hosted to build against it. See [README.md](README.md) for why the project draws that line here.
+Where the platform API actually runs, and how it's billed. This is a deployment/operations document, not part of the [API specification](https://compositecode.github.io/substratalapps.com/) — it lives here, in the project root, rather than on the docs site, because a prospective API consumer (a developer, or their AI agent) never needs to know how this is hosted to build against it. See [README.md](README.md) for why the project draws that line here.
 
 Chosen and configured around one constraint above all others: **predictable, capped cost, with no surprises.**
 
@@ -59,10 +59,10 @@ flowchart LR
 | MCP compute | A **second, dedicated Lambda** behind the same **API Gateway**, at `/mcp` | Kept as its own function (not folded into the API handlers' Lambda) specifically so its concurrency, cold-start profile, and any future upgrade (see [MCP server](#mcp-server)) can be tuned independently without touching the REST path — same reasoning as the webhook worker already being split out below. |
 | Stripe webhook compute | A **third, dedicated Lambda**, at `/internal/stripe/webhook` | Isolated from the API handlers' Lambda for the same reason the MCP Lambda is — plus a real security reason: it's the one route whose caller isn't an API-key/Bearer-token holder at all, verified instead by Stripe's own signature scheme (see [Stripe Billing](#stripe-billing)), so keeping it a separate function keeps that distinct trust boundary legible in the IAM/routing layer, not just in code. |
 | Database | **Aurora Serverless v2 (PostgreSQL)**, accessed via the **RDS Data API** | The domain model is relational (joins, foreign keys, the Audit log) — Postgres fits it directly. Data API means Lambda calls the database over signed HTTPS with **no VPC attachment** — which is what avoids a NAT Gateway entirely (see below), not a minor detail. |
-| Webhook delivery | **SQS** queue + a dedicated worker **Lambda** | Matches the retry/backoff schedule in the [Webhooks](https://adron.github.io/substratalapps.com/api-reference/webhooks/) spec — SQS visibility timeouts drive the delay between attempts for free, no extra scheduler needed for that part. |
+| Webhook delivery | **SQS** queue + a dedicated worker **Lambda** | Matches the retry/backoff schedule in the [Webhooks](https://compositecode.github.io/substratalapps.com/api-reference/webhooks/) spec — SQS visibility timeouts drive the delay between attempts for free, no extra scheduler needed for that part. |
 | Scheduled jobs | **EventBridge Scheduler** → **Lambda** | Trial-expiry checks, idempotency-key cleanup — pay-per-invocation, no cron server to run. |
 | Secrets | **Secrets Manager** — the Aurora master credential and the Stripe secret/webhook-signing keys | Everything else non-secret goes in Lambda environment variables rather than paying per-secret for config that isn't sensitive. |
-| DNS / TLS | **Route 53** + **ACM** (free) + API Gateway custom domain | Backs the `api.substratalapps.com` base URL from the [API spec's Conventions](https://adron.github.io/substratalapps.com/api-reference/conventions/#base-url). |
+| DNS / TLS | **Route 53** + **ACM** (free) + API Gateway custom domain | Backs the `api.substratalapps.com` base URL from the [API spec's Conventions](https://compositecode.github.io/substratalapps.com/api-reference/conventions/#base-url). |
 | Static assets (avatars, etc.) | **S3** + **CloudFront** | Pay-per-use; negligible at Tier 0 volume. |
 | Logs | **CloudWatch Logs**, retention capped at 30 days | Explicit retention is the fix for the single most common "why is my CloudWatch bill growing every month" surprise — logs left at *never expire* by default. |
 | Cost guardrail | **AWS Budgets** (two thresholds) + **Cost Anomaly Detection** | See [Cost guardrails](#cost-guardrails) — this exists before the first Lambda does. |
@@ -98,7 +98,7 @@ Resolved: a **dedicated AWS account**, in **`us-east-1`**.
 
 - **Service availability.** New AWS features — including, historically, Aurora Serverless v2 capability updates — land in `us-east-1` first and most reliably. For a Tier 0 build that wants to stay current with the cheapest/newest options as they ship, that matters more than it would for a mature, stable workload.
 - **Pricing.** `us-east-1` is at or near the lowest-cost tier for every service in the [Tier 0 component table](#first-deployment-tier-0) above (Lambda, Aurora Serverless v2, API Gateway, S3) — a handful of regions tie it, none meaningfully undercut it for this stack.
-- **No data-residency constraint pulling the other way.** Nothing in the [Compliance](https://adron.github.io/substratalapps.com/compliance/) posture or the current customer base requires EU or other non-US placement for the *shared* tier specifically — that requirement, when it exists, is what the `dedicated_region` [tenancy tier](#tenancy-tiers--where-they-run) is *for*, scoped to the one customer who needs it rather than forcing a region choice for everyone.
+- **No data-residency constraint pulling the other way.** Nothing in the [Compliance](https://compositecode.github.io/substratalapps.com/compliance/) posture or the current customer base requires EU or other non-US placement for the *shared* tier specifically — that requirement, when it exists, is what the `dedicated_region` [tenancy tier](#tenancy-tiers--where-they-run) is *for*, scoped to the one customer who needs it rather than forcing a region choice for everyone.
 
 This is a Tier 0 default, not a permanent commitment — nothing above prevents a `dedicated_region` Tenant from landing anywhere else, and nothing prevents revisiting the *shared* region later if a majority of the customer base ends up needing otherwise. Revisit if that happens; don't pre-build for it.
 
@@ -139,12 +139,12 @@ The stated plan: dozens of users and a handful of Applications in the first 6–
 
 ## Tenancy tiers & where they run
 
-[Tenancy](https://adron.github.io/substratalapps.com/domain-model/tenancy/) is a second, independent scale-out axis — triggered by one customer's requirement, not by aggregate volume, and can happen on day one for a single large customer well before the traffic-driven triggers above are anywhere close.
+[Tenancy](https://compositecode.github.io/substratalapps.com/domain-model/tenancy/) is a second, independent scale-out axis — triggered by one customer's requirement, not by aggregate volume, and can happen on day one for a single large customer well before the traffic-driven triggers above are anywhere close.
 
 | Tier | Infrastructure | Relationship to Tier 0 above |
 |---|---|---|
 | `shared` | Exactly [Tier 0](#first-deployment-tier-0) as specified — the same Aurora cluster every other `shared`-tier Tenant uses, isolated by the `tenant_id` Row-Level Security policy. | Is Tier 0. No separate infrastructure exists for this tier. |
-| `isolated` | A second (third, fourth, …) Aurora Serverless v2 cluster, its own Secrets Manager secret, same AWS account and region as Tier 0. The API Lambda's Data API calls are routed to the right cluster via a small `tenants` lookup table kept in the primary/shared cluster — no new Lambda functions, no code fork. | One extra Aurora floor (~$45–55/month) per `isolated` Tenant — priced per [Pricing](https://adron.github.io/substratalapps.com/pricing/#enterprise-tenancy-tier-options). |
+| `isolated` | A second (third, fourth, …) Aurora Serverless v2 cluster, its own Secrets Manager secret, same AWS account and region as Tier 0. The API Lambda's Data API calls are routed to the right cluster via a small `tenants` lookup table kept in the primary/shared cluster — no new Lambda functions, no code fork. | One extra Aurora floor (~$45–55/month) per `isolated` Tenant — priced per [Pricing](https://compositecode.github.io/substratalapps.com/pricing/#enterprise-tenancy-tier-options). |
 | `dedicated_region` | Like `isolated`, but the dedicated cluster — and, if latency to that region matters, a regional API Gateway + Lambda deployment in front of it — sits in the customer's chosen AWS region. | The `isolated` floor again, in a second region. |
 
 ### Migration mechanics
@@ -161,7 +161,7 @@ Because Entitlement, AppProfile, and AppSettings rows all denormalize `tenant_id
 
 ## MCP server
 
-See the [API spec's MCP Server page](https://adron.github.io/substratalapps.com/mcp-server/) for what this component is and why it exists; this section is the build-out and cost side of it specifically.
+See the [API spec's MCP Server page](https://compositecode.github.io/substratalapps.com/mcp-server/) for what this component is and why it exists; this section is the build-out and cost side of it specifically.
 
 ### Tier 0
 
@@ -184,13 +184,13 @@ This Lambda never talks to Aurora, Secrets Manager, or SQS directly — it only 
 
 ## Stripe Billing
 
-[Pricing](https://adron.github.io/substratalapps.com/pricing/) specifies the plans and the [Stripe catalog](https://adron.github.io/substratalapps.com/pricing/#stripe-catalog). [API Reference → Billing](https://adron.github.io/substratalapps.com/api-reference/billing/) specifies the endpoints. This section is how the integration is built and run. It's strictly about **Substratal's own platform subscription** (the Application owner paying for Starter/Team/Enterprise), never about a developer's own end-user billing, which [stays entirely outside this API](https://adron.github.io/substratalapps.com/domain-model/orders-and-audit/#billing-system-of-record).
+[Pricing](https://compositecode.github.io/substratalapps.com/pricing/) specifies the plans and the [Stripe catalog](https://compositecode.github.io/substratalapps.com/pricing/#stripe-catalog). [API Reference → Billing](https://compositecode.github.io/substratalapps.com/api-reference/billing/) specifies the endpoints. This section is how the integration is built and run. It's strictly about **Substratal's own platform subscription** (the Application owner paying for Starter/Team/Enterprise), never about a developer's own end-user billing, which [stays entirely outside this API](https://compositecode.github.io/substratalapps.com/domain-model/orders-and-audit/#billing-system-of-record).
 
 ### Objects and mapping
 
 | Stripe object | Maps to |
 |---|---|
-| Customer | One per [Tenant](https://adron.github.io/substratalapps.com/domain-model/tenancy/). Created right after the Tenant row commits (`metadata.tenant_id`). If the Stripe call fails, a retry job fills `stripe_customer_id`. |
+| Customer | One per [Tenant](https://compositecode.github.io/substratalapps.com/domain-model/tenancy/). Created right after the Tenant row commits (`metadata.tenant_id`). If the Stripe call fails, a retry job fills `stripe_customer_id`. |
 | Subscription | **None on Starter.** One per Team or Enterprise Tenant. Team has two items, `team_base_monthly_usd` (qty 1) and `team_seats_monthly_usd` (qty = seats, graduated tiers, first 25 at $0). Enterprise has contract prices, plus the tenancy add-on item when applicable. |
 | Product / Price | Created once per Stripe mode by an idempotent setup script (`scripts/stripe-sync-catalog`) from the catalog table on the Pricing page, keyed by `lookup_key`. Code always resolves prices by `lookup_key`, never by hard-coded price id. |
 | Checkout Session | `mode: subscription`, `customer` = the Tenant's Customer, `client_reference_id` = `tenant_id`, `subscription_data.metadata.tenant_id`, `automatic_tax: {enabled: true}`, `billing_address_collection: required`. |
@@ -201,7 +201,7 @@ Secrets: `STRIPE_SECRET_KEY` (restricted key: Customers, Subscriptions, Checkout
 
 ### `tenants` schema additions
 
-Specified in full in [Database Schema → tenants](https://adron.github.io/substratalapps.com/domain-model/database-schema/#tenants): `stripe_customer_id`, `stripe_subscription_id`, `subscription_status` (`none` and Stripe's own values), `current_period_end`, `cancel_at_period_end`, `restricted`, and `seat_count_synced`. `plan` remains the source of truth the rest of the API reads. The Stripe sync is the only writer of `plan` after a Tenant is created.
+Specified in full in [Database Schema → tenants](https://compositecode.github.io/substratalapps.com/domain-model/database-schema/#tenants): `stripe_customer_id`, `stripe_subscription_id`, `subscription_status` (`none` and Stripe's own values), `current_period_end`, `cancel_at_period_end`, `restricted`, and `seat_count_synced`. `plan` remains the source of truth the rest of the API reads. The Stripe sync is the only writer of `plan` after a Tenant is created.
 
 ### Webhook handling
 
@@ -209,7 +209,7 @@ Specified in full in [Database Schema → tenants](https://adron.github.io/subst
 POST /internal/stripe/webhook
 ```
 
-Not under `/v1`, the same reasoning as the MCP server's `/mcp` route: it isn't a REST resource a caller invokes, it's an inbound event sink with its own Stripe-defined contract and versioning. It's not Bearer-authenticated either. It verifies the `Stripe-Signature` header against the raw body with `STRIPE_WEBHOOK_SECRET` (a 5-minute tolerance), the same shape as this API's own outbound [webhook signatures](https://adron.github.io/substratalapps.com/api-reference/webhooks/#verifying-the-signature).
+Not under `/v1`, the same reasoning as the MCP server's `/mcp` route: it isn't a REST resource a caller invokes, it's an inbound event sink with its own Stripe-defined contract and versioning. It's not Bearer-authenticated either. It verifies the `Stripe-Signature` header against the raw body with `STRIPE_WEBHOOK_SECRET` (a 5-minute tolerance), the same shape as this API's own outbound [webhook signatures](https://compositecode.github.io/substratalapps.com/api-reference/webhooks/#verifying-the-signature).
 
 **Processing model:** insert the Stripe event id into `stripe_events` (on conflict do nothing, so a duplicate returns `200` immediately), return `200`, and process asynchronously from SQS (as built, processing runs inline in the same invocation, with a retry job for failures; see [DECISIONS.md #33](DECISIONS.md#33-stripe-webhook-processing-inline-not-sqs)). Each handler **re-fetches the Subscription from Stripe** rather than trusting the event payload, which makes out-of-order delivery harmless: whatever arrives last, the Tenant ends up matching Stripe's current state.
 
@@ -217,7 +217,7 @@ Not under `/v1`, the same reasoning as the MCP server's `/mcp` route: it isn't a
 |---|---|
 | `checkout.session.completed` | Link `stripe_subscription_id` to the Tenant from `client_reference_id`, then run the subscription sync below. |
 | `customer.subscription.created` / `.updated` | **Subscription sync:** derive `plan` from the subscription items' `product.metadata.substratal_plan`, and set `subscription_status`, `current_period_end`, and `cancel_at_period_end`. If the status is `active`/`trialing`/`past_due`, clear `restricted`. Write `tenant.plan_changed` / `tenant.subscription_status_changed` Audit Events on change. |
-| `customer.subscription.deleted`, or status becoming `unpaid`/`incomplete_expired`/`paused` | **Lapse.** A user-owned Tenant whose usage fits Starter gets `plan = 'starter'`, `stripe_subscription_id = null`, `subscription_status = 'canceled'`. Otherwise, including every Organization-owned Tenant, which can't be Starter, `plan` is unchanged and `restricted = true`. No hard deletion, and **no end user loses access**. See [Pricing → Subscription lapse](https://adron.github.io/substratalapps.com/pricing/#subscription-lapse--downgrades). |
+| `customer.subscription.deleted`, or status becoming `unpaid`/`incomplete_expired`/`paused` | **Lapse.** A user-owned Tenant whose usage fits Starter gets `plan = 'starter'`, `stripe_subscription_id = null`, `subscription_status = 'canceled'`. Otherwise, including every Organization-owned Tenant, which can't be Starter, `plan` is unchanged and `restricted = true`. No hard deletion, and **no end user loses access**. See [Pricing → Subscription lapse](https://compositecode.github.io/substratalapps.com/pricing/#subscription-lapse--downgrades). |
 | `invoice.payment_failed` | `subscription_status = 'past_due'` (via the sync). No restriction. Stripe Smart Retries (about 3 weeks) runs, and only a subsequent lapse triggers the transition above. |
 | `invoice.paid` | Sync, which clears `past_due`. |
 
@@ -247,19 +247,19 @@ Native auth sends email: verification, password reset, invitations, MFA and pass
 
 ## Webhook dispatch
 
-Outbound webhooks use a **transactional outbox**. Every state-changing transaction inserts its `webhook_events` rows in the same commit (see [Database Schema](https://adron.github.io/substratalapps.com/domain-model/database-schema/#webhook_subscriptions-webhook_events-webhook_deliveries)). A dispatcher Lambda, triggered every few seconds by an EventBridge Scheduler rule and also invoked directly after commit as a fast path, fans each event out to matching subscriptions as SQS messages. Delivery workers POST with a 5-second timeout, and failed attempts are re-enqueued with SQS delay (up to 15 minutes) or EventBridge Scheduler one-shot schedules for the 2-hour and 12-hour retries. No always-on component, consistent with the [cost principles](#cost-principles).
+Outbound webhooks use a **transactional outbox**. Every state-changing transaction inserts its `webhook_events` rows in the same commit (see [Database Schema](https://compositecode.github.io/substratalapps.com/domain-model/database-schema/#webhook_subscriptions-webhook_events-webhook_deliveries)). A dispatcher Lambda, triggered every few seconds by an EventBridge Scheduler rule and also invoked directly after commit as a fast path, fans each event out to matching subscriptions as SQS messages. Delivery workers POST with a 5-second timeout, and failed attempts are re-enqueued with SQS delay (up to 15 minutes) or EventBridge Scheduler one-shot schedules for the 2-hour and 12-hour retries. No always-on component, consistent with the [cost principles](#cost-principles).
 
 ## Audit log archival
 
-[Non-Functional Requirements → Audit log lifecycle](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle) specifies the hot/cold split that keeps "retained indefinitely" true without every [Pricing](https://adron.github.io/substratalapps.com/pricing/) tier paying for the same amount of fast storage. The mechanical side of that, on top of the [Tier 0](#first-deployment-tier-0) stack above:
+[Non-Functional Requirements → Audit log lifecycle](https://compositecode.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle) specifies the hot/cold split that keeps "retained indefinitely" true without every [Pricing](https://compositecode.github.io/substratalapps.com/pricing/) tier paying for the same amount of fast storage. The mechanical side of that, on top of the [Tier 0](#first-deployment-tier-0) stack above:
 
 | Step | Mechanism |
 |---|---|
 | Trigger | A daily **EventBridge Scheduler** rule, the same pattern already used for trial-expiry/idempotency-key cleanup — invokes a dedicated Lambda. |
-| Select | Query `audit_events` for rows older than the owning Tenant's plan-tiered hot window (30 days / 1 year / negotiated — see [Pricing](https://adron.github.io/substratalapps.com/pricing/#enforcement)), batched by `tenant_id` using the existing `(tenant_id, timestamp desc)` index (see [Database Schema → audit_events](https://adron.github.io/substratalapps.com/domain-model/database-schema/#audit_events)). |
+| Select | Query `audit_events` for rows older than the owning Tenant's plan-tiered hot window (30 days / 1 year / negotiated — see [Pricing](https://compositecode.github.io/substratalapps.com/pricing/#enforcement)), batched by `tenant_id` using the existing `(tenant_id, timestamp desc)` index (see [Database Schema → audit_events](https://compositecode.github.io/substratalapps.com/domain-model/database-schema/#audit_events)). |
 | Archive | Write the shape-only fields (`id`, `action`, `actor_type`, `actor_id`, `target_type`, `target_id`, `target_user_id`, `application_id`, `organization_id`, `tenant_id`, `request_id`, `timestamp`) — **never** `before`/`after` — as newline-delimited JSON to **S3**, under a lifecycle rule that transitions objects straight to **S3 Glacier Deep Archive** on arrival. This is the one-way redaction step: the snapshot values are dropped here, not carried into cold storage and redacted later. |
 | Prune | Delete the archived rows from the hot `audit_events` table once the S3 write is confirmed — keeps Aurora storage cost bounded by the hot window, not by all-time event volume. |
-| Retrieve | A Glacier Deep Archive restore job (support-initiated, ~12-hour retrieval SLA) for the rare dispute/investigation that needs an archived event's shape — there is no live API path to cold storage, deliberately; see [Non-Functional Requirements → Audit log lifecycle](https://adron.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle). |
+| Retrieve | A Glacier Deep Archive restore job (support-initiated, ~12-hour retrieval SLA) for the rare dispute/investigation that needs an archived event's shape — there is no live API path to cold storage, deliberately; see [Non-Functional Requirements → Audit log lifecycle](https://compositecode.github.io/substratalapps.com/non-functional-requirements/#audit-log-lifecycle). |
 
 Cost is negligible at Tier 0 volume (Glacier Deep Archive is priced for exactly this shape of rarely-read, kept-forever data) — this is about bounding Aurora's hot-table size and honoring the redaction-on-age guarantee, not about saving money on S3 itself.
 
@@ -288,7 +288,7 @@ The order this gets stood up in, once API implementation begins:
 2. Route 53 hosted zone + ACM certificate for the chosen API domain. SES domain identity for `mail.substratalapps.com` (DKIM/SPF/DMARC) and an SES production-access request, which takes about a day, so start it here.
 3. KMS keys: one asymmetric RSA-2048 signing key for JWTs (JWKS is published from its public half), and one symmetric key for encrypting TOTP and webhook secrets. Secrets Manager secrets: the Aurora master credential, and Stripe's secret key + webhook-signing secret (test-mode keys first — see [Stripe Billing](#stripe-billing)). Aurora Serverless v2 cluster with Data API enabled, minimum 0.5 / maximum capacity set deliberately.
 4. IAM: one execution role per Lambda function (API handlers, MCP server, Stripe webhook handler, webhook worker, scheduled-jobs), each scoped to only the resources it actually needs — no shared mega-role.
-5. API Gateway HTTP API + custom domain mapping; Lambda handlers deployed behind it, implementing the [API Reference](https://adron.github.io/substratalapps.com/api-reference/) / [openapi.yaml](https://adron.github.io/substratalapps.com/openapi.yaml) contract.
+5. API Gateway HTTP API + custom domain mapping; Lambda handlers deployed behind it, implementing the [API Reference](https://compositecode.github.io/substratalapps.com/api-reference/) / [openapi.yaml](https://compositecode.github.io/substratalapps.com/openapi.yaml) contract.
 6. SQS queues (webhook fan-out/delivery, email, Stripe events) and their worker Lambdas; EventBridge Scheduler rules for the entitlement-expiry sweep (every 5 minutes), the webhook outbox dispatcher, the erasure cascade (hourly), the seat sync (daily 00:15 UTC), test-mode purge, expired-token and idempotency-key cleanup (nightly), and [audit log archival](#audit-log-archival). CloudFront in front of `/.well-known/jwks.json` (1-hour cache; deferred, see [DECISIONS.md #34](DECISIONS.md#34-jwks-without-cloudfront-at-tier-0)).
 7. Stripe account: run the catalog sync script (test mode first), configure the Customer Portal (no plan switching), enable Stripe Tax, register the `/internal/stripe/webhook` endpoint for the events in [Webhook handling](#webhook-handling).
 8. CloudWatch Logs with explicit retention on every log group; a small set of alarms (error rate, Lambda throttling, Aurora ACU near max) in addition to the billing guardrails from step 1.

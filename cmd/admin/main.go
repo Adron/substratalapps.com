@@ -14,7 +14,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
 )
 
 func main() {

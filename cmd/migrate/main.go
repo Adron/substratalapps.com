@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db/migrate"
-	"github.com/Adron/substratalapps.com/internal/platform/config"
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
-	"github.com/Adron/substratalapps.com/migrations"
+	"github.com/CompositeCode/substratalapps.com/internal/db/migrate"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/config"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/migrations"
 )
 
 func main() {

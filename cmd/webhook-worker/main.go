@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
 )
 
 func main() {
