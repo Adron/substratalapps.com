@@ -215,7 +215,7 @@ func inline(v any, depth int) any {
 }
 
 func resources() []Resource {
-	base := "https://adron.github.io/substratalapps.com"
+	base := "https://compositecode.github.io/substratalapps.com"
 	llms, err := os.ReadFile("docs/llms.txt")
 	if err != nil {
 		log.Fatal(err)

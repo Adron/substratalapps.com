@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
 )
 
 // limit is one rate-limit rule (NFR → Rate limiting).

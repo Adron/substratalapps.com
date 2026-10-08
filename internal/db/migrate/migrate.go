@@ -18,7 +18,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Adron/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
 )
 
 var fileName = regexp.MustCompile(`^(\d{4})_[a-z0-9_]+\.sql$`)

@@ -34,9 +34,9 @@ This is a new **surface**, not a new **capability**. Every tool call ultimately 
 POST https://api.substratalapps.com/mcp
 ```
 
-Implements MCP's **Streamable HTTP** transport: a single endpoint, JSON-RPC 2.0 request/response bodies, with the client's `Mcp-Session-Id` header (issued on `initialize`) tying together the calls in one session. Deliberately on the existing `api.substratalapps.com` domain rather than a new `mcp.` subdomain — no new Route 53 zone or ACM certificate needed, consistent with [Deployment Architecture → Cost principles](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md). Deliberately **outside** `/v1` — this endpoint isn't a REST resource, and MCP has its own protocol-version negotiation (a date-based version string exchanged during `initialize`) that's independent of this API's own `/v1` URL versioning — the same "versioned independently" pattern [Non-Functional Requirements → Versioning](../non-functional-requirements/#versioning) already applies to webhook payloads.
+Implements MCP's **Streamable HTTP** transport: a single endpoint, JSON-RPC 2.0 request/response bodies, with the client's `Mcp-Session-Id` header (issued on `initialize`) tying together the calls in one session. Deliberately on the existing `api.substratalapps.com` domain rather than a new `mcp.` subdomain — no new Route 53 zone or ACM certificate needed, consistent with [Deployment Architecture → Cost principles](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md). Deliberately **outside** `/v1` — this endpoint isn't a REST resource, and MCP has its own protocol-version negotiation (a date-based version string exchanged during `initialize`) that's independent of this API's own `/v1` URL versioning — the same "versioned independently" pattern [Non-Functional Requirements → Versioning](../non-functional-requirements/#versioning) already applies to webhook payloads.
 
-Tier 0's implementation is deliberately the simplest conforming option: every tool call returns one buffered JSON response, no server-initiated push, no mid-call progress notifications. See [Deployment Architecture → MCP server](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for why that's also the cheapest option, and what upgrading past it looks like.
+Tier 0's implementation is deliberately the simplest conforming option: every tool call returns one buffered JSON response, no server-initiated push, no mid-call progress notifications. See [Deployment Architecture → MCP server](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) for why that's also the cheapest option, and what upgrading past it looks like.
 
 ## Authentication — no new model
 
@@ -96,7 +96,7 @@ The same classification now has a second, server-side consumer, not just this cl
 
 ## Statelessness
 
-An MCP session's state (negotiated protocol version, declared client capabilities) is kept entirely in the `Mcp-Session-Id` the server hands back on `initialize` — a short-lived, signed, self-contained token, not a database row. Tier 0 needs **no new table and no new database** for this: every individual tool call is a single stateless Lambda invocation that decodes the session token, forwards the caller's own Bearer credential to the matching REST call, and returns the result. See [Deployment Architecture → MCP server](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md) for when (and why) this stops being enough.
+An MCP session's state (negotiated protocol version, declared client capabilities) is kept entirely in the `Mcp-Session-Id` the server hands back on `initialize` — a short-lived, signed, self-contained token, not a database row. Tier 0 needs **no new table and no new database** for this: every individual tool call is a single stateless Lambda invocation that decodes the session token, forwards the caller's own Bearer credential to the matching REST call, and returns the result. See [Deployment Architecture → MCP server](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md) for when (and why) this stops being enough.
 
 ## Resources
 
@@ -104,4 +104,4 @@ Alongside tools, the server exposes a small, fixed set of MCP **Resources** — 
 
 ## Where this runs
 
-Build-out and AWS deployment — Tier 0 cost, and what triggers an upgrade — is specified alongside the rest of the platform's infrastructure, not duplicated here: see [Deployment Architecture → MCP server](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md).
+Build-out and AWS deployment — Tier 0 cost, and what triggers an upgrade — is specified alongside the rest of the platform's infrastructure, not duplicated here: see [Deployment Architecture → MCP server](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md).

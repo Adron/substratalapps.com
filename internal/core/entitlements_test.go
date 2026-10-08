@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 const system = "usr_01JAG0SYSTEM00000000000000"

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/mcp"
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/mcp"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 func TestMain(m *testing.M) {
@@ -87,7 +87,7 @@ func TestMCPEndToEnd(t *testing.T) {
 	if n := len(tools["result"].(map[string]any)["tools"].([]any)); n < 90 {
 		t.Fatalf("tools = %d", n)
 	}
-	res, _ := c.rpc("resources/read", map[string]any{"uri": "https://adron.github.io/substratalapps.com/llms.txt"})
+	res, _ := c.rpc("resources/read", map[string]any{"uri": "https://compositecode.github.io/substratalapps.com/llms.txt"})
 	if !strings.Contains(res["result"].(map[string]any)["contents"].([]any)[0].(map[string]any)["text"].(string), "Substratal") {
 		t.Fatal("llms.txt resource")
 	}

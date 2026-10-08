@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/rdsdata/types"
 
-	"github.com/Adron/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
 )
 
 func TestParameters(t *testing.T) {

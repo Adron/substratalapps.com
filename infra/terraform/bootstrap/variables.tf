@@ -6,7 +6,7 @@ variable "region" {
 variable "github_repository" {
   description = "owner/name of the repository allowed to assume the CI roles"
   type        = string
-  default     = "Adron/substratalapps.com"
+  default     = "CompositeCode/substratalapps.com"
 }
 
 variable "billing_email" {

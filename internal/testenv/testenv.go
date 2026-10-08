@@ -35,15 +35,15 @@ import (
 	validator "github.com/pb33f/libopenapi-validator"
 	validatorerrors "github.com/pb33f/libopenapi-validator/errors"
 
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/db/migrate"
-	"github.com/Adron/substratalapps.com/internal/db/pg"
-	"github.com/Adron/substratalapps.com/internal/email"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/webhooks"
-	"github.com/Adron/substratalapps.com/migrations"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db/migrate"
+	"github.com/CompositeCode/substratalapps.com/internal/db/pg"
+	"github.com/CompositeCode/substratalapps.com/internal/email"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/webhooks"
+	"github.com/CompositeCode/substratalapps.com/migrations"
 )
 
 // AdminPassword is the bootstrap superadmin's password in tests.

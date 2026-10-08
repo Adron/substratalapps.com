@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/api/gen"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/api/gen"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
 )
 
 type auditEvent struct {

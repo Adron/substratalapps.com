@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 func TestMain(m *testing.M) {

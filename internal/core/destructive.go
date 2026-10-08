@@ -1,6 +1,6 @@
 package core
 
-import "github.com/Adron/substratalapps.com/internal/httpx"
+import "github.com/CompositeCode/substratalapps.com/internal/httpx"
 
 // Destructive is the single classification of destructive operations
 // (API Keys → Agent keys & restrict_destructive; Database Schema → api_keys

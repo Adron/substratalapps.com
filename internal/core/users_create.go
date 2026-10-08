@@ -4,9 +4,9 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/httpx"
-	"github.com/Adron/substratalapps.com/internal/ids"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/httpx"
+	"github.com/CompositeCode/substratalapps.com/internal/ids"
 )
 
 // newUser is everything createUser needs. Signup, POST /v1/users, and an

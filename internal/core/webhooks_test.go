@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/testenv"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/testenv"
 )
 
 type receiver struct {

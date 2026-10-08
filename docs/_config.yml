@@ -7,7 +7,7 @@ description: >-
 # Project page on the default github.io URL. If a custom domain is added
 # later (see docs/README or repo Settings > Pages), update both of these
 # and add a CNAME file.
-url: "https://adron.github.io"
+url: "https://compositecode.github.io"
 baseurl: "/substratalapps.com"
 
 permalink: pretty

@@ -25,11 +25,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/auth"
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/db"
-	"github.com/Adron/substratalapps.com/internal/email"
-	"github.com/Adron/substratalapps.com/internal/ids"
+	"github.com/CompositeCode/substratalapps.com/internal/auth"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/email"
+	"github.com/CompositeCode/substratalapps.com/internal/ids"
 )
 
 // RetrySchedule is the delay before attempts 2 through 6.

@@ -17,9 +17,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 
-	"github.com/Adron/substratalapps.com/internal/billing"
-	"github.com/Adron/substratalapps.com/internal/core"
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/internal/billing"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
 )
 
 // Runner holds what the jobs need.

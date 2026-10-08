@@ -136,7 +136,7 @@ Creating a request doesn't start a migration. It's the record and the queue entr
 | `pending`/`scheduled → cancelled` | No Tenant change. `notes` is required. |
 | `in_progress → cancelled` | A rollback: the Tenant's `status` returns to `active` on its *original* tier/region. `notes` is required. |
 
-Any other transition returns `409 invalid_request_transition`. Every change writes `tenant.tier_change_request_updated`. The physical migration steps are ops runbook work. See [root `DEPLOYMENT.md` → Migration mechanics](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md). This endpoint records and gates those steps; it doesn't perform them.
+Any other transition returns `409 invalid_request_transition`. Every change writes `tenant.tier_change_request_updated`. The physical migration steps are ops runbook work. See [root `DEPLOYMENT.md` → Migration mechanics](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md). This endpoint records and gates those steps; it doesn't perform them.
 
 ## Errors specific to this resource
 

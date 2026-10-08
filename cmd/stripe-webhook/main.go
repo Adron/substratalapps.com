@@ -7,9 +7,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Adron/substratalapps.com/internal/billing"
-	"github.com/Adron/substratalapps.com/internal/platform/lambdahttp"
-	"github.com/Adron/substratalapps.com/internal/platform/wire"
+	"github.com/CompositeCode/substratalapps.com/internal/billing"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/lambdahttp"
+	"github.com/CompositeCode/substratalapps.com/internal/platform/wire"
 )
 
 func main() {

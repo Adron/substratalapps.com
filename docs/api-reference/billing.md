@@ -24,7 +24,7 @@ The Application owner's **platform subscription**: what Substratal charges the d
 - **Payment methods, invoices, and cancellation** are handled in the Stripe Customer Portal, again through a URL from this API.
 - **Enterprise** is sales-led. Staff create the subscription in Stripe, usually from a Quote, and it syncs in.
 
-Stripe tells this API about every change through its webhook. This API never takes card data, and the Tenant's `plan` and `subscription_status` only change in response to Stripe events. The handler is documented in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/Adron/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
+Stripe tells this API about every change through its webhook. This API never takes card data, and the Tenant's `plan` and `subscription_status` only change in response to Stripe events. The handler is documented in [root `DEPLOYMENT.md` → Stripe Billing](https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md#stripe-billing).
 
 ## Endpoints
 

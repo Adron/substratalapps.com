@@ -1,4 +1,4 @@
-module github.com/Adron/substratalapps.com
+module github.com/CompositeCode/substratalapps.com
 
 go 1.26.0
 

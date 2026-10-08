@@ -5,8 +5,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/Adron/substratalapps.com/internal/access"
-	"github.com/Adron/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/access"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
 )
 
 // pair is one (user, application) access question.

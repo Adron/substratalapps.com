@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rdsdata"
 	"github.com/aws/aws-sdk-go-v2/service/rdsdata/types"
 
-	"github.com/Adron/substratalapps.com/internal/db"
+	"github.com/CompositeCode/substratalapps.com/internal/db"
 )
 
 // DB is a Data API client bound to one cluster, secret, and database.

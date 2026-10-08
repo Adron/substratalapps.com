@@ -11,7 +11,7 @@ import (
 	"github.com/stripe/stripe-go/v87"
 	"github.com/stripe/stripe-go/v87/webhook"
 
-	"github.com/Adron/substratalapps.com/internal/core"
+	"github.com/CompositeCode/substratalapps.com/internal/core"
 )
 
 // Webhook is POST /internal/stripe/webhook (DEPLOYMENT.md → Webhook
