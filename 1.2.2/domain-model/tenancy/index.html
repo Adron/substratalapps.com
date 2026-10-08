@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(9)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(9) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(4) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(9) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list > li.nav-list-item:nth-child(9) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.2/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.2/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Tenancy | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Tenancy" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/tenancy/" />
+<meta property="og:url" content="https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/tenancy/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Tenancy" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Tenancy","url":"https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/tenancy/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.2/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-08">v1.2.2 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/">Domain Model</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Tenancy</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="tenancy">
+  
+  
+    <a href="#tenancy" class="anchor-heading" aria-labelledby="tenancy"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Tenancy
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">Where one customer’s data physically lives, and how isolated it is from everyone else’s. Distinct from — and often confused with — <a href="../users-and-organizations/#organization">Organization</a>, which is about grouping people, not placing infrastructure.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#what-it-represents" id="markdown-toc-what-it-represents">What it represents</a></li>
+  <li><a href="#fields" id="markdown-toc-fields">Fields</a>    <ol>
+      <li><a href="#example" id="markdown-toc-example">Example</a></li>
+    </ol>
+  </li>
+  <li><a href="#tiers" id="markdown-toc-tiers">Tiers</a></li>
+  <li><a href="#how-a-tier-change-happens-today" id="markdown-toc-how-a-tier-change-happens-today">How a tier change happens today</a></li>
+  <li><a href="#what-this-does--and-doesnt--isolate" id="markdown-toc-what-this-does--and-doesnt--isolate">What this does — and doesn’t — isolate</a></li>
+  <li><a href="#tenant-vs-organization" id="markdown-toc-tenant-vs-organization">Tenant vs. Organization</a></li>
+  <li><a href="#relationship-to-everything-else" id="markdown-toc-relationship-to-everything-else">Relationship to everything else</a></li>
+</ol><hr />
+
+<p>This entity formalizes “tenancy,” named in the product pitch alongside user/settings/organization/storage (see <a href="../../#what-substratal-apps-actually-is">Home</a>). It’s a separate concept from <a href="../users-and-organizations/#organization">Organization</a>; see <a href="#tenant-vs-organization">Tenant vs. Organization</a>.</p>
+<h2 id="what-it-represents">
+  
+  
+    <a href="#what-it-represents" class="anchor-heading" aria-labelledby="what-it-represents"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What it represents
+  
+  
+</h2>
+    
+
+<p>A <strong>Tenant</strong> is the infrastructure-placement and data-isolation boundary for one of Substratal’s own paying customers — concretely, whoever owns an <a href="../applications/">Application</a>’s catalog entry (<code class="language-plaintext highlighter-rouge">owner_user_id</code> or <code class="language-plaintext highlighter-rouge">owner_organization_id</code>). It answers one question only: <em>where does this customer’s data live, and how separated is it from every other customer’s?</em> It has nothing to do with who can log in or what they can do — that’s <a href="../entitlements/">Entitlement</a> and <a href="../roles-and-permissions/">Role</a>.</p>
+
+<p>Every Application owner gets a Tenant automatically, the moment they register their first Application — defaulting to the cheapest tier, <code class="language-plaintext highlighter-rouge">shared</code>, and to <code class="language-plaintext highlighter-rouge">plan: starter</code> when the owner is a User or <code class="language-plaintext highlighter-rouge">plan: team</code> when the owner is an <a href="../users-and-organizations/#organization">Organization</a> (never <code class="language-plaintext highlighter-rouge">starter</code> for an Organization-owned Tenant — see <a href="../../pricing/#enforcement">Pricing → Enforcement</a> for why). This is deliberate: “even a customer who signs up for the service as-is” already has their own protected, logically-isolated slice of data, with no action required and no cost — see <a href="#tiers">Tiers</a> below. Upgrading to a more isolated tier is an explicit, paid, support-arranged step, not a different starting state.</p>
+
+<p class="note"><strong>Most Users never touch this entity at all.</strong> A Tenant belongs to whoever <em>owns an Application’s catalog entry</em> — a comparatively small set of developers — not to every person with an account. The overwhelming common case on this platform, per <a href="../../pricing/">Pricing</a>’s own framing, is someone who signs up (often directly through one of the Applications’ own signup flow) purely to <em>use</em> an app via an <a href="../entitlements/">Entitlement</a> — that User never creates, owns, or references a Tenant, because <code class="language-plaintext highlighter-rouge">tenant_id</code> lives on the Application and the records scoped to it, never on <code class="language-plaintext highlighter-rouge">User</code> itself.</p>
+<h2 id="fields">
+  
+  
+    <a href="#fields" class="anchor-heading" aria-labelledby="fields"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Fields
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">id</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">tnt_</code> prefix.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">owner_type</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code> | <code class="language-plaintext highlighter-rouge">organization</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">owner_user_id</code></td>
+      <td>string, nullable</td>
+      <td>Set iff <code class="language-plaintext highlighter-rouge">owner_type: user</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">owner_organization_id</code></td>
+      <td>string, nullable</td>
+      <td>Set iff <code class="language-plaintext highlighter-rouge">owner_type: organization</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tier</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">shared</code> (default) | <code class="language-plaintext highlighter-rouge">isolated</code> | <code class="language-plaintext highlighter-rouge">dedicated_region</code>. See <a href="#tiers">Tiers</a>. <strong>Infrastructure placement</strong> — where the data lives.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plan</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">starter</code> (default) | <code class="language-plaintext highlighter-rouge">team</code> | <code class="language-plaintext highlighter-rouge">enterprise</code>. See <a href="../../pricing/">Pricing</a>. <strong>Commercial subscription tier</strong> — what’s being paid for. Independent of <code class="language-plaintext highlighter-rouge">tier</code>, except that <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code> are only offered on <code class="language-plaintext highlighter-rouge">enterprise</code> — see <a href="../../pricing/#enterprise-tenancy-tier-options">Pricing → Enterprise tenancy tier options</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">region</code></td>
+      <td>string</td>
+      <td>The AWS region the data lives in, always set: <code class="language-plaintext highlighter-rouge">us-east-1</code> for <code class="language-plaintext highlighter-rouge">shared</code> and <code class="language-plaintext highlighter-rouge">isolated</code> (same region as <a href="https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md">Tier 0</a>, with <code class="language-plaintext highlighter-rouge">isolated</code> just a dedicated cluster within it), and the chosen region for <code class="language-plaintext highlighter-rouge">dedicated_region</code>. Supported regions: <code class="language-plaintext highlighter-rouge">us-east-1</code>, <code class="language-plaintext highlighter-rouge">us-west-2</code>, <code class="language-plaintext highlighter-rouge">ca-central-1</code>, <code class="language-plaintext highlighter-rouge">eu-west-1</code>, <code class="language-plaintext highlighter-rouge">eu-central-1</code>, <code class="language-plaintext highlighter-rouge">ap-southeast-2</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">subscription_status</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">none</code> (Starter, no Stripe subscription) | <code class="language-plaintext highlighter-rouge">active</code> | <code class="language-plaintext highlighter-rouge">trialing</code> | <code class="language-plaintext highlighter-rouge">past_due</code> | <code class="language-plaintext highlighter-rouge">canceled</code> | <code class="language-plaintext highlighter-rouge">unpaid</code> | <code class="language-plaintext highlighter-rouge">incomplete</code> | <code class="language-plaintext highlighter-rouge">incomplete_expired</code> | <code class="language-plaintext highlighter-rouge">paused</code>. Mirrors Stripe and is read-only. See <a href="../../api-reference/billing/">API Reference → Billing</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">restricted</code></td>
+      <td>boolean</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code> after a lapsed subscription when usage exceeds what the Tenant can drop to. Blocks new usage, never existing access. See <a href="../../pricing/#subscription-lapse--downgrades">Pricing → Subscription lapse</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">status</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">active</code> | <code class="language-plaintext highlighter-rouge">migrating</code> | <code class="language-plaintext highlighter-rouge">suspended</code>. <code class="language-plaintext highlighter-rouge">migrating</code> is the transitional state during a tier-change maintenance window — see <a href="https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Tenancy tiers</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_count</code></td>
+      <td>integer, read-only</td>
+      <td>Computed: how many Applications this Tenant owns.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">created_at</code>, <code class="language-plaintext highlighter-rouge">updated_at</code></td>
+      <td>timestamp</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>The billing-period fields (<code class="language-plaintext highlighter-rouge">current_period_start</code>, <code class="language-plaintext highlighter-rouge">current_period_end</code>, <code class="language-plaintext highlighter-rouge">cancel_at_period_end</code>, seat counts) aren’t part of the Tenant resource; they’re on <a href="../../api-reference/billing/#get-v1tenantsidsubscription"><code class="language-plaintext highlighter-rouge">GET /v1/tenants/{id}/subscription</code></a>. The database row holds them along with the Stripe ids (<code class="language-plaintext highlighter-rouge">stripe_customer_id</code>, <code class="language-plaintext highlighter-rouge">stripe_subscription_id</code>), which are internal and never returned by the API. See <a href="../database-schema/#tenants">Database Schema → tenants</a>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">suspended</code> is a platform action, taken only for abuse or legal reasons, never for billing. It blocks every write to the Tenant’s data <em>and</em> every app-token issuance for the Tenant’s Applications, both with <code class="language-plaintext highlighter-rouge">403 tenant_suspended</code>. Reads keep working. It’s set directly by <code class="language-plaintext highlighter-rouge">tenants.manage</code> through ops tooling, and isn’t exposed as an API transition today.</p>
+
+<p><strong>Constraint:</strong> exactly one of <code class="language-plaintext highlighter-rouge">owner_user_id</code> / <code class="language-plaintext highlighter-rouge">owner_organization_id</code> is set — the same mutual-exclusivity pattern already used by <a href="../entitlements/#fields">Entitlement</a> (<code class="language-plaintext highlighter-rouge">user_id</code>/<code class="language-plaintext highlighter-rouge">organization_id</code>) and <a href="../applications/#fields">Application</a> (<code class="language-plaintext highlighter-rouge">owner_user_id</code>/<code class="language-plaintext highlighter-rouge">owner_organization_id</code>).</p>
+<h3 id="example">
+  
+  
+    <a href="#example" class="anchor-heading" aria-labelledby="example"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Example
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tnt_01JAGC3D4E5F6G7H8J9K011M2N"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"organization"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_user_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"owner_organization_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org_01JAFZ8Y7X6W5V4V3T2S1R0Q9P"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"isolated"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"plan"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enterprise"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"us-east-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"restricted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-02T10:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-14T03:12:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<h2 id="tiers">
+  
+  
+    <a href="#tiers" class="anchor-heading" aria-labelledby="tiers"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Tiers
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Tier</th>
+      <th>What changes physically</th>
+      <th>Cost</th>
+      <th>Who it’s for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">shared</code></td>
+      <td>Rows live in the shared Aurora Serverless v2 cluster from <a href="https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md">Tier 0</a>, logically isolated by a Postgres Row-Level Security policy keyed on <code class="language-plaintext highlighter-rouge">tenant_id</code>.</td>
+      <td>$0 incremental — the default.</td>
+      <td>Every customer, from day one, with no action taken.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">isolated</code></td>
+      <td>A dedicated Aurora Serverless v2 cluster (own Secrets Manager secret), same AWS account and region as Tier 0 — stronger blast-radius and noisy-neighbor separation, same Lambda codebase routed by a tenant→cluster lookup.</td>
+      <td>A full extra Aurora floor (~$45–55/month, see <a href="https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture</a>) — a paid add-on, priced to at least cover it.</td>
+      <td>A customer with a real compliance or isolation requirement, not just a preference.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dedicated_region</code></td>
+      <td>Like <code class="language-plaintext highlighter-rouge">isolated</code>, but the dedicated cluster sits in the customer’s chosen AWS region instead of the default one.</td>
+      <td>The <code class="language-plaintext highlighter-rouge">isolated</code> floor again, in a second region — the most expensive tier.</td>
+      <td>A customer with a genuine data-residency requirement (e.g. “our EU users’ data must stay in the EU”).</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>This is a strict ladder — <code class="language-plaintext highlighter-rouge">dedicated_region</code> implies everything <code class="language-plaintext highlighter-rouge">isolated</code> provides, plus region choice; there’s no “dedicated region, still logically shared” combination.</p>
+<h2 id="how-a-tier-change-happens-today">
+  
+  
+    <a href="#how-a-tier-change-happens-today" class="anchor-heading" aria-labelledby="how-a-tier-change-happens-today"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> How a tier change happens today
+  
+  
+</h2>
+    
+
+<p>There is no self-service API for this. <code class="language-plaintext highlighter-rouge">tenants.manage</code> (support/superadmin only) is required even to <em>request</em> a tier change, and no public API lets a customer trigger their own migration. The flow:</p>
+
+<ol>
+  <li>A customer asks (support is the intake, not a self-serve button) for a tier upgrade.</li>
+  <li>Support calls <code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code> (see <a href="../../api-reference/tenancy/">API Reference → Tenancy</a>), then moves the request through <code class="language-plaintext highlighter-rouge">pending → scheduled → in_progress → completed</code> (or <code class="language-plaintext highlighter-rouge">cancelled</code>) with <code class="language-plaintext highlighter-rouge">PATCH</code> as the work happens.</li>
+  <li>Support schedules a brief maintenance window, flips <code class="language-plaintext highlighter-rouge">status</code> to <code class="language-plaintext highlighter-rouge">migrating</code>, and runs the snapshot/restore cutover into the new infrastructure (new cluster, and for <code class="language-plaintext highlighter-rouge">dedicated_region</code>, a new region) described in <a href="https://github.com/CompositeCode/substratalapps.com/blob/main/DEPLOYMENT.md">Deployment Architecture → Tenancy tiers</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">tier</code>, <code class="language-plaintext highlighter-rouge">region</code>, and <code class="language-plaintext highlighter-rouge">status</code> are updated back to <code class="language-plaintext highlighter-rouge">active</code>; an <a href="../orders-and-audit/#audit-event">Audit Event</a> (<code class="language-plaintext highlighter-rouge">tenant.tier_changed</code>) records the change.</li>
+</ol>
+
+<p>A brief, scheduled downtime window during step 3 is an accepted tradeoff. Tier changes are support-run and infrequent at current scale, so a snapshot/restore cutover is enough. Zero-downtime migration (logical replication) is a legitimate future upgrade once tier changes are self-serve and frequent, not a day-one requirement.</p>
+
+<p>Automating this into a customer-triggered flow is deliberately deferred, and it’s gated by revenue, not by a roadmap phase number. It means accepting real migration risk (a failed cutover, a narrower support safety net) that a human currently absorbs step by step. That trade only makes sense once the volume of tier-change requests justifies the engineering investment. See <a href="../../roadmap/">Roadmap</a>.</p>
+<h2 id="what-this-does--and-doesnt--isolate">
+  
+  
+    <a href="#what-this-does--and-doesnt--isolate" class="anchor-heading" aria-labelledby="what-this-does--and-doesnt--isolate"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What this does — and doesn’t — isolate
+  
+  
+</h2>
+    
+
+<p><strong>Does:</strong> an Application’s catalog entry and everything scoped to it — <a href="../entitlements/">Entitlement</a>, <a href="../profiles/#appprofile">AppProfile</a>, <a href="../settings/#appsettings">AppSettings</a>, its app-scoped <a href="../../api-reference/webhooks/">webhook subscriptions</a>, and the slice of the <a href="../orders-and-audit/#audit-event">Audit Event</a> log with that <code class="language-plaintext highlighter-rouge">tenant_id</code> set. These rows denormalize <code class="language-plaintext highlighter-rouge">tenant_id</code> from the owning Application specifically so a Postgres RLS policy (and, for <code class="language-plaintext highlighter-rouge">isolated</code>/<code class="language-plaintext highlighter-rouge">dedicated_region</code>, the physical cluster-routing lookup) can enforce it without a join on every request — see <a href="../database-schema/#tenants">Database Schema</a>.</p>
+
+<p><strong>Doesn’t:</strong> a User’s own global <a href="../profiles/">Profile</a> or <a href="../settings/">Settings</a> — those remain platform-wide, “one identity, used everywhere,” regardless of which Tenant(s) the Applications they use happen to live in. It also doesn’t reach any Application’s <em>own</em>, separately-hosted infrastructure (see <a href="../../trust-model/#applications-are-separately-hosted">Trust Model → Applications are separately hosted</a>). Tenancy governs where <em>this API’s own</em> data lives, never where an Application runs.</p>
+
+<p>An Application’s <code class="language-plaintext highlighter-rouge">tenant_id</code>/<code class="language-plaintext highlighter-rouge">tier</code>/<code class="language-plaintext highlighter-rouge">region</code> are exposed as static metadata on the Tenant and <a href="../applications/">Application</a> resources, for the owning developer’s benefit. They are deliberately <strong>not</strong> a live JWT claim on every request: placement is set once per Application, not computed per end user per request the way <code class="language-plaintext highlighter-rouge">effective_permissions</code> is (see <a href="../../trust-model/#1-short-lived-jwt-at-launch">Trust Model</a>).</p>
+
+<p class="note">This entity is scoped to <strong>Substratal’s own customers</strong> — Application owners — not to a developer’s own end customers (e.g. one big end-user Organization wanting its own carve-out inside a shared Application). Nothing here precludes extending <code class="language-plaintext highlighter-rouge">Tenant.owner_*</code> to an Entitlement-holder later; it just isn’t built, because it isn’t the problem this round of the spec was asked to solve. Flagging it here rather than guessing its shape speculatively.</p>
+<h2 id="tenant-vs-organization">
+  
+  
+    <a href="#tenant-vs-organization" class="anchor-heading" aria-labelledby="tenant-vs-organization"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Tenant vs. Organization
+  
+  
+</h2>
+    
+
+<p>They’re separate concepts, tied to different things:</p>
+
+<ul>
+  <li><strong><a href="../users-and-organizations/#organization">Organization</a></strong> is a domain/grouping object: a company, or a group within one. It organizes which Users share admin standing and which Applications a group is granted as a whole. It carries no infrastructure meaning.</li>
+  <li><strong>Tenant</strong> is the infrastructure-placement and data-isolation boundary, tied to <strong>the subscription</strong>. Concretely, it belongs to whoever owns an Application’s catalog entry (<code class="language-plaintext highlighter-rouge">owner_user_id</code> or <code class="language-plaintext highlighter-rouge">owner_organization_id</code>), because that’s the only subscription relationship Substratal has directly. A developer’s billing of their own end users is their concern, not this API’s (see <a href="../orders-and-audit/#billing-system-of-record">Orders &amp; Audit → Billing system of record</a>).</li>
+</ul>
+
+<p>In practice, a User can belong to many Organizations, even across multiple Tenants: someone building one app might also use a seat on someone else’s app. But exactly one Tenant governs where a given Application’s data physically lives. The two axes are also two separate columns and two separate RLS policies: <code class="language-plaintext highlighter-rouge">organization_id</code> and <code class="language-plaintext highlighter-rouge">tenant_id</code> (see <a href="../../non-functional-requirements/#multi-tenancy">Non-Functional Requirements → Multi-tenancy</a>). How Organization-level access decisions interact with individual Users is a related but orthogonal question; see <a href="../../access-control/#organization-vs-user-precedence">Access Control → Organization vs. User precedence</a>.</p>
+<h2 id="relationship-to-everything-else">
+  
+  
+    <a href="#relationship-to-everything-else" class="anchor-heading" aria-labelledby="relationship-to-everything-else"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Relationship to everything else
+  
+  
+</h2>
+    
+
+<p>An <a href="../applications/">Application</a>’s <code class="language-plaintext highlighter-rouge">tenant_id</code> is set once, at creation, from its owner’s Tenant (creating one with <code class="language-plaintext highlighter-rouge">tier: shared</code> if the owner doesn’t have one yet). <a href="../users-and-organizations/">Organization</a> is unrelated to this entity except as a possible <em>owner</em> of one — see <a href="#tenant-vs-organization">Tenant vs. Organization</a>.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

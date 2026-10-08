@@ -1,0 +1,1445 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(2)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(2) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(2) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(2) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.2/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.2/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Auth | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Auth" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/auth/" />
+<meta property="og:url" content="https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/auth/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Auth" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Auth","url":"https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/auth/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.2/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-08">v1.2.2 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Auth</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="auth">
+  
+  
+    <a href="#auth" class="anchor-heading" aria-labelledby="auth"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Auth
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">Signup, login, MFA, sessions, password and email lifecycle, and how an Application gets the per-app JWT it trusts. See <a href="../../trust-model/">Trust Model</a> for what an Application does with that token once it has one.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#native-auth-and-per-organization-sso" id="markdown-toc-native-auth-and-per-organization-sso">Native auth and per-Organization SSO</a></li>
+  <li><a href="#token-types-at-a-glance" id="markdown-toc-token-types-at-a-glance">Token types at a glance</a></li>
+  <li><a href="#endpoints" id="markdown-toc-endpoints">Endpoints</a></li>
+  <li><a href="#the-authsession-response" id="markdown-toc-the-authsession-response">The <code class="language-plaintext highlighter-rouge">AuthSession</code> response</a></li>
+  <li><a href="#post-v1authsignup" id="markdown-toc-post-v1authsignup"><code class="language-plaintext highlighter-rouge">POST /v1/auth/signup</code></a></li>
+  <li><a href="#post-v1authlogin" id="markdown-toc-post-v1authlogin"><code class="language-plaintext highlighter-rouge">POST /v1/auth/login</code></a></li>
+  <li><a href="#test-mode-users" id="markdown-toc-test-mode-users">Test-mode Users</a></li>
+  <li><a href="#post-v1authmfaverify" id="markdown-toc-post-v1authmfaverify"><code class="language-plaintext highlighter-rouge">POST /v1/auth/mfa/verify</code></a></li>
+  <li><a href="#post-v1authtokenrefresh" id="markdown-toc-post-v1authtokenrefresh"><code class="language-plaintext highlighter-rouge">POST /v1/auth/token/refresh</code></a></li>
+  <li><a href="#post-v1authlogout" id="markdown-toc-post-v1authlogout"><code class="language-plaintext highlighter-rouge">POST /v1/auth/logout</code></a></li>
+  <li><a href="#getting-an-app-token" id="markdown-toc-getting-an-app-token">Getting an app token</a>    <ol>
+      <li><a href="#the-app-token" id="markdown-toc-the-app-token">The app token</a></li>
+      <li><a href="#post-v1authapp-tokens" id="markdown-toc-post-v1authapp-tokens"><code class="language-plaintext highlighter-rouge">POST /v1/auth/app-tokens</code></a></li>
+      <li><a href="#the-authorization-endpoint" id="markdown-toc-the-authorization-endpoint">The authorization endpoint</a></li>
+      <li><a href="#post-v1authoauthauthorization-codes" id="markdown-toc-post-v1authoauthauthorization-codes"><code class="language-plaintext highlighter-rouge">POST /v1/auth/oauth/authorization-codes</code></a></li>
+      <li><a href="#post-v1authoauthtoken" id="markdown-toc-post-v1authoauthtoken"><code class="language-plaintext highlighter-rouge">POST /v1/auth/oauth/token</code></a></li>
+    </ol>
+  </li>
+  <li><a href="#email-verification" id="markdown-toc-email-verification">Email verification</a>    <ol>
+      <li><a href="#post-v1authemailverify" id="markdown-toc-post-v1authemailverify"><code class="language-plaintext highlighter-rouge">POST /v1/auth/email/verify</code></a></li>
+      <li><a href="#post-v1authemailverifyresend" id="markdown-toc-post-v1authemailverifyresend"><code class="language-plaintext highlighter-rouge">POST /v1/auth/email/verify/resend</code></a></li>
+    </ol>
+  </li>
+  <li><a href="#password-lifecycle" id="markdown-toc-password-lifecycle">Password lifecycle</a>    <ol>
+      <li><a href="#post-v1authpasswordforgot" id="markdown-toc-post-v1authpasswordforgot"><code class="language-plaintext highlighter-rouge">POST /v1/auth/password/forgot</code></a></li>
+      <li><a href="#post-v1authpasswordreset" id="markdown-toc-post-v1authpasswordreset"><code class="language-plaintext highlighter-rouge">POST /v1/auth/password/reset</code></a></li>
+      <li><a href="#post-v1usersidpassword" id="markdown-toc-post-v1usersidpassword"><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/password</code></a></li>
+    </ol>
+  </li>
+  <li><a href="#invitations" id="markdown-toc-invitations">Invitations</a>    <ol>
+      <li><a href="#post-v1authinvitationsaccept" id="markdown-toc-post-v1authinvitationsaccept"><code class="language-plaintext highlighter-rouge">POST /v1/auth/invitations/accept</code></a></li>
+    </ol>
+  </li>
+  <li><a href="#mfa-totp" id="markdown-toc-mfa-totp">MFA (TOTP)</a>    <ol>
+      <li><a href="#post-v1usersidmfatotp--begin-enrollment" id="markdown-toc-post-v1usersidmfatotp--begin-enrollment"><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp</code> — begin enrollment</a></li>
+      <li><a href="#post-v1usersidmfatotpconfirm" id="markdown-toc-post-v1usersidmfatotpconfirm"><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp/confirm</code></a></li>
+      <li><a href="#post-v1usersidmfatotpdisable" id="markdown-toc-post-v1usersidmfatotpdisable"><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp/disable</code></a></li>
+      <li><a href="#delete-v1usersidmfatotp--support-reset" id="markdown-toc-delete-v1usersidmfatotp--support-reset"><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/mfa/totp</code> — support reset</a></li>
+    </ol>
+  </li>
+  <li><a href="#sessions" id="markdown-toc-sessions">Sessions</a>    <ol>
+      <li><a href="#get-v1usersidsessions" id="markdown-toc-get-v1usersidsessions"><code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/sessions</code></a></li>
+      <li><a href="#delete-v1usersidsessionssessionid" id="markdown-toc-delete-v1usersidsessionssessionid"><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/sessions/{sessionId}</code></a></li>
+    </ol>
+  </li>
+  <li><a href="#post-v1authssoprovidercallback" id="markdown-toc-post-v1authssoprovidercallback"><code class="language-plaintext highlighter-rouge">POST /v1/auth/sso/{provider}/callback</code></a></li>
+  <li><a href="#signing-keys-jwks" id="markdown-toc-signing-keys-jwks">Signing keys (JWKS)</a></li>
+  <li><a href="#errors-specific-to-this-resource" id="markdown-toc-errors-specific-to-this-resource">Errors specific to this resource</a></li>
+</ol><hr />
+<h2 id="native-auth-and-per-organization-sso">
+  
+  
+    <a href="#native-auth-and-per-organization-sso" class="anchor-heading" aria-labelledby="native-auth-and-per-organization-sso"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Native auth and per-Organization SSO
+  
+  
+</h2>
+    
+
+<p>Both, not either/or: native in-house auth, architected from the start for pluggable, per-Organization SSO.</p>
+
+<ul>
+  <li><strong>Native email/password is owned here</strong>, not delegated. It’s a real <code class="language-plaintext highlighter-rouge">password_hash</code> and real sessions, live from Phase 1, with zero external integration needed: no Auth0/WorkOS/Cognito account, no third-party API key, nothing to configure. A single developer standing up their first Application has a fully working login system the moment Phase 1 ships.</li>
+  <li><strong>SSO is a per-Organization bridge</strong>, not a platform-wide or per-Application choice. An Organization admin connects their own company’s identity provider (Okta, Azure AD, Google Workspace, …) through a federation broker (leaning WorkOS, for exactly this “bring your own enterprise IdP” case), and it becomes available to every member of that Organization. See <a href="../../domain-model/users-and-organizations/#ssoconnection">Domain Model → SSOConnection</a>.</li>
+  <li><strong>A User can hold both at once</strong>, a <code class="language-plaintext highlighter-rouge">password</code> identity and an <code class="language-plaintext highlighter-rouge">sso</code> identity, and choose either at login. See <a href="../../domain-model/users-and-organizations/#useridentity">Domain Model → UserIdentity</a>.</li>
+  <li><strong>MFA (TOTP) is optional and user-enabled</strong> for native accounts, through <a href="#mfa-totp">self-service enrollment</a>. It isn’t built for SSO identities, whose MFA policy belongs to the member’s own IdP.</li>
+  <li><strong>Sequencing:</strong> the <code class="language-plaintext highlighter-rouge">UserIdentity</code>/<code class="language-plaintext highlighter-rouge">SSOConnection</code> schema and the auth endpoints are built in this shape now, so adding a real SSO broker later is additive, not a breaking migration. The broker integration itself is explicitly <strong>not</strong> being built yet. <a href="#post-v1authssoprovidercallback"><code class="language-plaintext highlighter-rouge">POST /v1/auth/sso/{provider}/callback</code></a> exists as a route and returns <code class="language-plaintext highlighter-rouge">501 not_implemented</code> until it is.</li>
+</ul>
+
+<p>How an Application obtains its per-app JWT is covered under <a href="#getting-an-app-token">Getting an app token</a>: embedded login now, hosted authorization code + PKCE once Substratal’s hosted sign-in page exists. That hosted page is required before any third-party Application goes live.</p>
+<h2 id="token-types-at-a-glance">
+  
+  
+    <a href="#token-types-at-a-glance" class="anchor-heading" aria-labelledby="token-types-at-a-glance"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Token types at a glance
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Format</th>
+      <th>TTL</th>
+      <th>Issued by</th>
+      <th>Used for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Platform access token</strong></td>
+      <td>JWT (RS256)</td>
+      <td>15 minutes</td>
+      <td><code class="language-plaintext highlighter-rouge">login</code>, <code class="language-plaintext highlighter-rouge">mfa/verify</code>, <code class="language-plaintext highlighter-rouge">token/refresh</code>, <code class="language-plaintext highlighter-rouge">signup</code>, <code class="language-plaintext highlighter-rouge">invitations/accept</code></td>
+      <td>Calling this API as a User (<code class="language-plaintext highlighter-rouge">Authorization: Bearer …</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Refresh token</strong></td>
+      <td>Opaque, <code class="language-plaintext highlighter-rouge">rtk_…</code></td>
+      <td>30 days idle, 90 days absolute</td>
+      <td>Same as above</td>
+      <td>Getting a new platform access token. Single-use, rotating.</td>
+    </tr>
+    <tr>
+      <td><strong>App token</strong></td>
+      <td>JWT (RS256), <code class="language-plaintext highlighter-rouge">aud</code> = one <code class="language-plaintext highlighter-rouge">application_id</code></td>
+      <td>5 minutes</td>
+      <td><code class="language-plaintext highlighter-rouge">app-tokens</code>, <code class="language-plaintext highlighter-rouge">oauth/token</code></td>
+      <td>Presented by a User to one Application, verified locally by that Application. See <a href="../../trust-model/#1-short-lived-jwt-at-launch">Trust Model</a>.</td>
+    </tr>
+    <tr>
+      <td><strong>App refresh token</strong></td>
+      <td>Opaque, <code class="language-plaintext highlighter-rouge">rtk_…</code>, bound to one Application</td>
+      <td>30 days idle, 90 days absolute</td>
+      <td><code class="language-plaintext highlighter-rouge">oauth/token</code></td>
+      <td>Getting a new app token without the Application ever holding a platform token (hosted flow only). It belongs to the session the User signed in with on the hosted page, so ending that session ends it too. Re-checks access every time.</td>
+    </tr>
+    <tr>
+      <td><strong>API Key secret</strong></td>
+      <td>Opaque, <code class="language-plaintext highlighter-rouge">satk_live_…</code> / <code class="language-plaintext highlighter-rouge">satk_test_…</code></td>
+      <td>Until revoked</td>
+      <td><a href="../api-keys/">API Keys</a></td>
+      <td>Service-to-service calls. Not a User session.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Every platform access token and app token is signed with a key published at <code class="language-plaintext highlighter-rouge">https://api.substratalapps.com/.well-known/jwks.json</code> (see <a href="#signing-keys-jwks">Signing keys</a>). Every login creates a <strong>session</strong> (<code class="language-plaintext highlighter-rouge">ses_…</code>); refresh tokens and app refresh tokens belong to exactly one session, and revoking the session revokes all of them at once.</p>
+<h2 id="endpoints">
+  
+  
+    <a href="#endpoints" class="anchor-heading" aria-labelledby="endpoints"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Endpoints
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Auth</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/signup</code></td>
+      <td>none</td>
+      <td>Self-service account creation with email + password.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/login</code></td>
+      <td>none</td>
+      <td>Exchange email + password for a session (or an MFA challenge).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/mfa/verify</code></td>
+      <td>none (<code class="language-plaintext highlighter-rouge">mfa_token</code>)</td>
+      <td>Complete a login that returned an MFA challenge.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/token/refresh</code></td>
+      <td>none (<code class="language-plaintext highlighter-rouge">refresh_token</code>)</td>
+      <td>Rotate a platform refresh token for a new access token.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/logout</code></td>
+      <td>Bearer (user)</td>
+      <td>Revoke the current session, or every session.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/app-tokens</code></td>
+      <td>Bearer (user)</td>
+      <td>Mint a per-app JWT from a platform session (embedded login).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/oauth/authorization-codes</code></td>
+      <td>Bearer (user)</td>
+      <td>Mint a one-time authorization code for a hosted launch (PKCE).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/oauth/token</code></td>
+      <td>none (code / refresh token)</td>
+      <td>Exchange an authorization code or app refresh token for an app token.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/email/verify</code></td>
+      <td>none (token)</td>
+      <td>Confirm an email address from the link in a verification email.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/email/verify/resend</code></td>
+      <td>none</td>
+      <td>Re-send a verification email. Always <code class="language-plaintext highlighter-rouge">202</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/password/forgot</code></td>
+      <td>none</td>
+      <td>Send a password-reset email. Always <code class="language-plaintext highlighter-rouge">202</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/password/reset</code></td>
+      <td>none (token)</td>
+      <td>Set a new password from a reset token.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/invitations/accept</code></td>
+      <td>none (token)</td>
+      <td>Set a password on an <code class="language-plaintext highlighter-rouge">invited</code> account and activate it.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/auth/sso/{provider}/callback</code></td>
+      <td>none</td>
+      <td>Complete an SSO login. <code class="language-plaintext highlighter-rouge">501</code> until the broker integration ships.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/password</code></td>
+      <td>Bearer (self)</td>
+      <td>Change password, given the current one.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/mfa/totp</code></td>
+      <td>Bearer (self)</td>
+      <td>Begin TOTP enrollment.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/mfa/totp/confirm</code></td>
+      <td>Bearer (self)</td>
+      <td>Confirm enrollment with a first code; returns recovery codes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/mfa/totp/disable</code></td>
+      <td>Bearer (self)</td>
+      <td>Turn TOTP off, given a current code or recovery code.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/mfa/totp</code></td>
+      <td>Bearer (<code class="language-plaintext highlighter-rouge">users.manage</code>)</td>
+      <td>Support reset for a user who lost their device.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/sessions</code></td>
+      <td>Bearer (self or <code class="language-plaintext highlighter-rouge">users.manage</code>)</td>
+      <td>List active sessions.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/users/{id}/sessions/{sessionId}</code></td>
+      <td>Bearer (self or <code class="language-plaintext highlighter-rouge">users.manage</code>)</td>
+      <td>Revoke one session.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/.well-known/jwks.json</code></td>
+      <td>none</td>
+      <td>Public signing keys. Outside <code class="language-plaintext highlighter-rouge">/v1</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/.well-known/openid-configuration</code></td>
+      <td>none</td>
+      <td>Issuer metadata (issuer, JWKS URI, token endpoint). Outside <code class="language-plaintext highlighter-rouge">/v1</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>All unauthenticated <code class="language-plaintext highlighter-rouge">POST /v1/auth/*</code> endpoints are rate-limited per IP address as well as per account — see <a href="../../non-functional-requirements/#rate-limiting">Non-Functional Requirements → Rate limiting</a>.</p>
+<h2 id="the-authsession-response">
+  
+  
+    <a href="#the-authsession-response" class="anchor-heading" aria-labelledby="the-authsession-response"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The <code class="language-plaintext highlighter-rouge">AuthSession</code> response
+  
+  
+</h2>
+    
+
+<p>Every endpoint that establishes or refreshes a platform session returns this shape:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJSUzI1NiIsImtpZCI6InNrXzIwMjYxMCJ9..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rtk_01JAG8K4Q9R0S1T2U3V4W5X6Y7"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">2592000</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email_verified"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The platform access token’s claims:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.substratalapps.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"substratal-platform"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"amr"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"pwd"</span><span class="p">,</span><span class="w"> </span><span class="s2">"otp"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"email_verified"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"test_mode"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1730649600</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1730650500</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"atk_01JAG8K5A1B2C3D4E5F6G7H8J9"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">amr</code> lists the authentication methods used (<code class="language-plaintext highlighter-rouge">pwd</code>, <code class="language-plaintext highlighter-rouge">otp</code>, <code class="language-plaintext highlighter-rouge">recovery_code</code>, <code class="language-plaintext highlighter-rouge">sso</code>). The platform access token carries <strong>no permissions</strong> — the API resolves the caller’s Roles fresh on every request, so a Role change takes effect on the very next call, not at the next refresh.</p>
+<h2 id="post-v1authsignup">
+  
+  
+    <a href="#post-v1authsignup" class="anchor-heading" aria-labelledby="post-v1authsignup"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/signup</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"correct horse battery staple"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jordan Alvarez"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="err">,</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">AuthSession</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJSUzI1NiIs..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rtk_01JAG8K4Q9R0S1T2U3V4W5X6Y7"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">2592000</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email_verified"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li>Creates the User (<code class="language-plaintext highlighter-rouge">status: active</code>, <code class="language-plaintext highlighter-rouge">email_verified: false</code>), a <code class="language-plaintext highlighter-rouge">password</code> <a href="../../domain-model/users-and-organizations/#useridentity">UserIdentity</a>, a default Profile (with <code class="language-plaintext highlighter-rouge">display_name</code> if given) and Settings, and the <code class="language-plaintext highlighter-rouge">member</code> platform Role — one transaction, same as <code class="language-plaintext highlighter-rouge">POST /v1/users</code>.</li>
+  <li>Sends a verification email (token TTL 24 hours). An unverified User <strong>can</strong> log in; <code class="language-plaintext highlighter-rouge">email_verified</code> is carried in every token so an Application can decide for itself whether to gate anything on it.</li>
+  <li><code class="language-plaintext highlighter-rouge">application_id</code> is optional and <strong>grants nothing</strong> — it records which Application the signup came from (<code class="language-plaintext highlighter-rouge">signup_application_id</code> on the User, used to brand the verification email with that app’s <code class="language-plaintext highlighter-rouge">email_from_name</code>) and is otherwise informational. Access to an Application still requires an <a href="../entitlements/">Entitlement</a>, which the developer’s own backend grants (see <a href="../../workflows/#purchase--access">Workflows → Purchase → access</a>).</li>
+  <li>If the email belongs to an <code class="language-plaintext highlighter-rouge">invited</code> User, signup is <strong>rejected</strong> with <code class="language-plaintext highlighter-rouge">409 email_taken</code> (<code class="language-plaintext highlighter-rouge">details.reason: "invitation_pending"</code>), and a fresh invitation email is sent to that address (this counts against the same 3-per-email-per-hour limit as <code class="language-plaintext highlighter-rouge">email/verify/resend</code>). An invitation can only be completed with its <code class="language-plaintext highlighter-rouge">inv_</code> token, through <a href="#post-v1authinvitationsaccept"><code class="language-plaintext highlighter-rouge">invitations/accept</code></a>, because whatever was already attached to the invited account (Entitlements, Roles, Organization memberships) must only go to someone who controls the mailbox. Completing it by signup would hand all of that to anyone who knew the address.</li>
+  <li><code class="language-plaintext highlighter-rouge">test_mode</code> (optional, default <code class="language-plaintext highlighter-rouge">false</code>): <code class="language-plaintext highlighter-rouge">true</code> creates a test-mode User instead. See <a href="#test-mode-users">Test-mode Users</a>.</li>
+  <li><strong>Password policy:</strong> 12–128 characters; rejected if it appears in the bundled breached-password list (top 100,000) or equals the email address. No composition rules. Stored as Argon2id (<code class="language-plaintext highlighter-rouge">m=19456 KiB, t=2, p=1</code>).</li>
+</ul>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Error</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">email_taken</code></td>
+      <td>409</td>
+      <td>An <code class="language-plaintext highlighter-rouge">active</code>, <code class="language-plaintext highlighter-rouge">suspended</code>, or <code class="language-plaintext highlighter-rouge">invited</code> User already has this email in the same mode. For an <code class="language-plaintext highlighter-rouge">invited</code> User, <code class="language-plaintext highlighter-rouge">details.reason</code> is <code class="language-plaintext highlighter-rouge">invitation_pending</code> and the invitation is re-sent.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">weak_password</code></td>
+      <td>422</td>
+      <td>Fails the password policy; <code class="language-plaintext highlighter-rouge">details.reason</code> is <code class="language-plaintext highlighter-rouge">too_short</code>, <code class="language-plaintext highlighter-rouge">too_long</code>, <code class="language-plaintext highlighter-rouge">breached</code>, or <code class="language-plaintext highlighter-rouge">matches_email</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">validation_failed</code></td>
+      <td>422</td>
+      <td>Malformed email, unknown <code class="language-plaintext highlighter-rouge">application_id</code>, etc.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="post-v1authlogin">
+  
+  
+    <a href="#post-v1authlogin" class="anchor-heading" aria-labelledby="post-v1authlogin"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/login</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w"> </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"correct horse battery staple"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">MFA</span><span class="w"> </span><span class="err">enrolled:</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">AuthSession</span><span class="w"> </span><span class="err">(see</span><span class="w"> </span><span class="err">above)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">MFA</span><span class="w"> </span><span class="err">enrolled:</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">challenge</span><span class="w"> </span><span class="err">instead</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">session</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"mfa_required"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"mfa_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mfa_01JAG8M2N3P4Q5R6S7T8U9V0W1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"totp"</span><span class="p">,</span><span class="w"> </span><span class="s2">"recovery_code"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Clients must branch on <code class="language-plaintext highlighter-rouge">mfa_required</code> before reading <code class="language-plaintext highlighter-rouge">access_token</code>. Add <code class="language-plaintext highlighter-rouge">"test_mode": true</code> to sign in a test-mode User; see <a href="#test-mode-users">Test-mode Users</a>.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Error</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_credentials</code></td>
+      <td>401</td>
+      <td>Unknown email, wrong password, an <code class="language-plaintext highlighter-rouge">invited</code> User with no password yet, or an SSO-only User (no <code class="language-plaintext highlighter-rouge">password</code> identity). Deliberately one code for all four — no account enumeration.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">account_suspended</code></td>
+      <td>403</td>
+      <td>Correct credentials, but <code class="language-plaintext highlighter-rouge">status: suspended</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">too_many_attempts</code></td>
+      <td>429</td>
+      <td>5 failed attempts against this account’s <code class="language-plaintext highlighter-rouge">password</code> identity in 15 minutes locks that identity for 15 minutes; <code class="language-plaintext highlighter-rouge">Retry-After</code> is set. Successful login resets the counter. (The counter lives on the <a href="../../domain-model/users-and-organizations/#useridentity">UserIdentity</a>, so a lockout never blocks the same User’s SSO login.)</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Updates <code class="language-plaintext highlighter-rouge">last_login_at</code> on the User and <code class="language-plaintext highlighter-rouge">last_used_at</code> on the matching UserIdentity, when the session is actually issued (for an MFA login, at <code class="language-plaintext highlighter-rouge">mfa/verify</code>).</p>
+<h2 id="test-mode-users">
+  
+  
+    <a href="#test-mode-users" class="anchor-heading" aria-labelledby="test-mode-users"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Test-mode Users
+  
+  
+</h2>
+    
+
+<p>A User created by a test-mode API Key (or by signup with <code class="language-plaintext highlighter-rouge">"test_mode": true</code>) is a separate account from any live User with the same email, since uniqueness is per mode. The auth endpoints that look an account up by <strong>email</strong> therefore take an optional <code class="language-plaintext highlighter-rouge">test_mode</code> boolean, default <code class="language-plaintext highlighter-rouge">false</code>, and only ever match accounts in that mode:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Endpoint</th>
+      <th>Field</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/auth/signup</code></td>
+      <td><code class="language-plaintext highlighter-rouge">test_mode</code> creates the User in that mode.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/auth/login</code></td>
+      <td><code class="language-plaintext highlighter-rouge">test_mode</code> picks which account the email refers to.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/auth/password/forgot</code>, <code class="language-plaintext highlighter-rouge">POST /v1/auth/email/verify/resend</code></td>
+      <td><code class="language-plaintext highlighter-rouge">test_mode</code> picks which account to email.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Endpoints that take a token (<code class="language-plaintext highlighter-rouge">mfa/verify</code>, <code class="language-plaintext highlighter-rouge">token/refresh</code>, <code class="language-plaintext highlighter-rouge">password/reset</code>, <code class="language-plaintext highlighter-rouge">email/verify</code>, <code class="language-plaintext highlighter-rouge">invitations/accept</code>, <code class="language-plaintext highlighter-rouge">oauth/token</code>) don’t need it, because the token already belongs to exactly one account. Every token issued to a test-mode User carries <code class="language-plaintext highlighter-rouge">"test_mode": true</code>, and the API confines that token to test-mode rows exactly as it does a <code class="language-plaintext highlighter-rouge">satk_test_</code> key. Applications themselves are shared catalog rows, visible in both modes, so a test-mode User gets app tokens for the same Applications a live one does, as long as they hold a (test-mode) Entitlement to it.</p>
+<h2 id="post-v1authmfaverify">
+  
+  
+    <a href="#post-v1authmfaverify" class="anchor-heading" aria-labelledby="post-v1authmfaverify"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/mfa/verify</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">TOTP</span><span class="w"> </span><span class="err">code</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"mfa_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mfa_01JAG8M2N3P4Q5R6S7T8U9V0W1"</span><span class="p">,</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"492039"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">recovery</span><span class="w"> </span><span class="err">code</span><span class="w"> </span><span class="err">instead</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"mfa_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mfa_01JAG8M2N3P4Q5R6S7T8U9V0W1"</span><span class="p">,</span><span class="w"> </span><span class="nl">"recovery_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7hq2-kx9m-a4vd"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">AuthSession</span><span class="w">
+</span></code></pre></div></div>
+
+<p>TOTP is RFC 6238, SHA-1, 6 digits, 30-second step, accepting ±1 step of clock drift; a code can’t be reused within its window. A recovery code is single-use. The <code class="language-plaintext highlighter-rouge">mfa_token</code> is single-use and valid 5 minutes; 5 wrong codes invalidate it.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Error</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_mfa_code</code></td>
+      <td>401</td>
+      <td>Wrong or reused code.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mfa_token_invalid</code></td>
+      <td>401</td>
+      <td>Expired, already used, or exhausted. Start over at <code class="language-plaintext highlighter-rouge">login</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="post-v1authtokenrefresh">
+  
+  
+    <a href="#post-v1authtokenrefresh" class="anchor-heading" aria-labelledby="post-v1authtokenrefresh"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/token/refresh</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rtk_01JAG8K4Q9R0S1T2U3V4W5X6Y7"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">AuthSession</span><span class="w"> </span><span class="err">with</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">access_token</span><span class="w"> </span><span class="err">AND</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">refresh_token</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Refresh tokens are single-use. Presenting one that has <strong>already been rotated</strong> is treated as theft: the whole session is revoked, and every token in it stops working (<code class="language-plaintext highlighter-rouge">401 refresh_token_reused</code>). Refresh fails with <code class="language-plaintext highlighter-rouge">401 session_revoked</code> after logout, password reset, suspension, or deletion.</p>
+<h2 id="post-v1authlogout">
+  
+  
+    <a href="#post-v1authlogout" class="anchor-heading" aria-labelledby="post-v1authlogout"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/logout</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">this</span><span class="w"> </span><span class="err">session</span><span class="w"> </span><span class="err">only</span><span class="w"> </span><span class="err">(default)</span><span class="w">
+</span><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">every</span><span class="w"> </span><span class="err">session</span><span class="w"> </span><span class="err">this</span><span class="w"> </span><span class="err">User</span><span class="w"> </span><span class="err">has,</span><span class="w"> </span><span class="err">on</span><span class="w"> </span><span class="err">every</span><span class="w"> </span><span class="err">device</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"all_sessions"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Revokes the session(s): the refresh token and any app refresh tokens in them stop working immediately, and the platform access token is rejected from then on — the API checks <code class="language-plaintext highlighter-rouge">sid</code> against the session table on every request, so logout is immediate, not “at access-token expiry”. Already-issued <strong>app tokens</strong> are not recalled (they’re verified locally by Applications, by design); they expire within 5 minutes. Logout does not by itself fire <code class="language-plaintext highlighter-rouge">access.revoked</code> — the User still <em>has</em> access; they’ve just signed out.</p>
+<h2 id="getting-an-app-token">
+  
+  
+    <a href="#getting-an-app-token" class="anchor-heading" aria-labelledby="getting-an-app-token"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Getting an app token
+  
+  
+</h2>
+    
+
+<p>Embedded login is allowed today because every Application is first-party, so no third party ever handles a Substratal password. It’s blocked for any Application not owned by Substratal once self-service registration ships, and the hosted sign-in page must exist before any third-party Application goes live. Requiring the hosted page from Phase 1 instead was considered and not chosen: it would make the MVP depend on a UI project.</p>
+
+<p>An <strong>app token</strong> is the per-Application JWT that <a href="../../trust-model/">Trust Model</a> describes. Two ways to get one:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>When</th>
+      <th>Calls</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Embedded</strong></td>
+      <td>The Application draws its own sign-in screen (any first-party app, native or web — the only option until the hosted page exists).</td>
+      <td><code class="language-plaintext highlighter-rouge">login</code> → <code class="language-plaintext highlighter-rouge">app-tokens</code>. Refresh the platform session with <code class="language-plaintext highlighter-rouge">token/refresh</code>, then call <code class="language-plaintext highlighter-rouge">app-tokens</code> again.</td>
+    </tr>
+    <tr>
+      <td><strong>Hosted + PKCE</strong></td>
+      <td>The Application sends the user to Substratal’s hosted sign-in page (ships with the dashboard), and never sees the password. Required for third-party Applications.</td>
+      <td>App opens the <a href="#the-authorization-endpoint">authorization endpoint</a> → hosted page calls <code class="language-plaintext highlighter-rouge">oauth/authorization-codes</code> → app calls <code class="language-plaintext highlighter-rouge">oauth/token</code>. Refresh with <code class="language-plaintext highlighter-rouge">oauth/token</code> (<code class="language-plaintext highlighter-rouge">grant_type: refresh_token</code>).</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Both paths produce the identical app token. Either way, issuance <strong>fails</strong> if the User doesn’t have active access to the Application right now:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Error</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement_required</code></td>
+      <td>403</td>
+      <td>Resolved entitlement status isn’t <code class="language-plaintext highlighter-rouge">active</code> (see <a href="../../access-control/">Access Control</a>). <code class="language-plaintext highlighter-rouge">details.entitlement_status</code> says what it is, including <code class="language-plaintext highlighter-rouge">scheduled</code> for a grant whose <code class="language-plaintext highlighter-rouge">starts_at</code> hasn’t arrived.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_not_available</code></td>
+      <td>409</td>
+      <td>The Application’s <code class="language-plaintext highlighter-rouge">review_status</code> is <code class="language-plaintext highlighter-rouge">suspended</code>/<code class="language-plaintext highlighter-rouge">rejected</code>/<code class="language-plaintext highlighter-rouge">pending_review</code> — see <a href="../../domain-model/applications/#the-review-lifecycle">Applications → review lifecycle</a>. A state conflict, not a permission failure, so it’s the same <code class="language-plaintext highlighter-rouge">409</code> wherever this code appears.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant_suspended</code></td>
+      <td>403</td>
+      <td>The Application’s Tenant is <code class="language-plaintext highlighter-rouge">suspended</code> by the platform. See <a href="../../domain-model/tenancy/#fields">Tenancy</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">account_suspended</code></td>
+      <td>403</td>
+      <td>The User is suspended.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="the-app-token">
+  
+  
+    <a href="#the-app-token" class="anchor-heading" aria-labelledby="the-app-token"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The app token
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.substratalapps.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"org_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email_verified"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"entitlement_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"effective_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">,</span><span class="w"> </span><span class="s2">"app.timetrack.manage_members"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"test_mode"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1730649600</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1730649900</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"apt_01JAG8P1Q2R3S4T5U6V7W8X9Y0"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">effective_permissions</code> contains only this Application’s own <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys — never platform permissions. See <a href="../../access-control/#step-2-effective-permissions">Access Control → Step 2</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">org_id</code> is the Organization whose org-wide grant provided access, if access came <em>only</em> through an Organization; <code class="language-plaintext highlighter-rouge">null</code> if the User has a personal Entitlement (personal wins for attribution when both exist). If multiple Organizations provide access and there’s no personal path, it’s the one whose grant was created first. Pass <code class="language-plaintext highlighter-rouge">organization_id</code> to <code class="language-plaintext highlighter-rouge">app-tokens</code> to pick a specific one explicitly.</li>
+  <li><code class="language-plaintext highlighter-rouge">sid</code> lets an Application key its own local session to the hub session, so that an <code class="language-plaintext highlighter-rouge">access.revoked</code> webhook or a logout-everywhere can be matched to the right local session.</li>
+</ul>
+<h3 id="post-v1authapp-tokens">
+  
+  
+    <a href="#post-v1authapp-tokens" class="anchor-heading" aria-labelledby="post-v1authapp-tokens"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/app-tokens</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJSUzI1NiIsImtpZCI6InNrXzIwMjYxMCJ9..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Bearer must be a <strong>platform access token</strong> (a User), not an API Key — <code class="language-plaintext highlighter-rouge">400 user_token_required</code> otherwise. Optional <code class="language-plaintext highlighter-rouge">organization_id</code> selects which Organization’s grant to attribute <code class="language-plaintext highlighter-rouge">org_id</code> to; <code class="language-plaintext highlighter-rouge">403 entitlement_required</code> if that Organization doesn’t actually include this User.</p>
+<h3 id="the-authorization-endpoint">
+  
+  
+    <a href="#the-authorization-endpoint" class="anchor-heading" aria-labelledby="the-authorization-endpoint"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> The authorization endpoint
+  
+  
+</h3>
+    
+
+<p>The hosted flow starts by sending the User’s browser (or, for a native app, the system browser) to the hosted sign-in page, a standard OAuth 2.0 authorization endpoint:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET https://auth.substratalapps.com/authorize
+  ?response_type=code
+  &amp;client_id=app_timetrack
+  &amp;redirect_uri=com.substratal.timetrack%3A%2Foauth%2Fcallback
+  &amp;code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+  &amp;code_challenge_method=S256
+  &amp;state=af0ifjsldkj
+</code></pre></div></div>
+
+<p>It’s a web page, not part of the <code class="language-plaintext highlighter-rouge">/v1</code> API, and it’s listed as <code class="language-plaintext highlighter-rouge">authorization_endpoint</code> in <a href="#signing-keys-jwks"><code class="language-plaintext highlighter-rouge">openid-configuration</code></a>, so libraries like AppAuth discover it. The page signs the User in (creating a platform session if there isn’t one), then calls <code class="language-plaintext highlighter-rouge">oauth/authorization-codes</code> below with the same parameters and redirects to <code class="language-plaintext highlighter-rouge">redirect_to</code>. If <code class="language-plaintext highlighter-rouge">client_id</code> or <code class="language-plaintext highlighter-rouge">redirect_uri</code> isn’t valid it shows an error instead of redirecting, per OAuth 2.0; any later failure (no access, User cancelled) redirects back with <code class="language-plaintext highlighter-rouge">error=access_denied</code> and the original <code class="language-plaintext highlighter-rouge">state</code>. The page ships with the dashboard; until then only embedded login is available.</p>
+<h3 id="post-v1authoauthauthorization-codes">
+  
+  
+    <a href="#post-v1authoauthauthorization-codes" class="anchor-heading" aria-labelledby="post-v1authoauthauthorization-codes"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/oauth/authorization-codes</code>
+  
+  
+</h3>
+    
+
+<p>Called by Substratal’s hosted sign-in page (or the future dashboard’s “Launch” button) on the signed-in User’s behalf — not by the Application.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"com.substratal.timetrack:/oauth/callback"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code_challenge"</span><span class="p">:</span><span class="w"> </span><span class="s2">"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code_challenge_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S256"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"af0ifjsldkj"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ac_01JAG8R4S5T6U7V8W9X0Y1Z2A3"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"redirect_to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"com.substratal.timetrack:/oauth/callback?code=ac_01JAG8R4S5T6U7V8W9X0Y1Z2A3&amp;state=af0ifjsldkj"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">redirect_uri</code> must exactly match one of the Application’s registered <code class="language-plaintext highlighter-rouge">redirect_uris</code> (<code class="language-plaintext highlighter-rouge">422 redirect_uri_not_registered</code>); <code class="language-plaintext highlighter-rouge">code_challenge_method</code> must be <code class="language-plaintext highlighter-rouge">S256</code> (<code class="language-plaintext highlighter-rouge">plain</code> is rejected, <code class="language-plaintext highlighter-rouge">422 validation_failed</code>). An unknown or invisible <code class="language-plaintext highlighter-rouge">application_id</code> returns <code class="language-plaintext highlighter-rouge">404 application_not_found</code>. The code is single-use, expires in 60 seconds, and belongs to the caller’s session: the app refresh token it’s later exchanged for is revoked whenever that session is. Access is checked here too, with the same errors as above, so a User without access is never redirected into the app holding a code.</p>
+<h3 id="post-v1authoauthtoken">
+  
+  
+    <a href="#post-v1authoauthtoken" class="anchor-heading" aria-labelledby="post-v1authoauthtoken"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/oauth/token</code>
+  
+  
+</h3>
+    
+
+<p>Called by the Application. A public-client endpoint: there’s no client secret, the PKCE verifier is the proof.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">exchange</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">authorization</span><span class="w"> </span><span class="err">code</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"authorization_code"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ac_01JAG8R4S5T6U7V8W9X0Y1Z2A3"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code_verifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"com.substratal.timetrack:/oauth/callback"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">refresh</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"refresh_token"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rtk_01JAG8S5T6U7V8W9X0Y1Z2A3B4"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJSUzI1NiIs..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rtk_01JAG8T6U7V8W9X0Y1Z2A3B4C5"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"refresh_token_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">2592000</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Accepts <code class="language-plaintext highlighter-rouge">application/json</code> and, for compatibility with standard OAuth client libraries (AppAuth, etc.), <code class="language-plaintext highlighter-rouge">application/x-www-form-urlencoded</code>. Errors on this one endpoint use the OAuth 2.0 shape (<code class="language-plaintext highlighter-rouge">{"error": "invalid_grant", "error_description": "..."}</code>) instead of this API’s usual envelope, again for library compatibility: <code class="language-plaintext highlighter-rouge">invalid_grant</code> (bad/expired/reused code or verifier mismatch), <code class="language-plaintext highlighter-rouge">invalid_client</code> (unknown <code class="language-plaintext highlighter-rouge">client_id</code>), <code class="language-plaintext highlighter-rouge">unsupported_grant_type</code>, and <code class="language-plaintext highlighter-rouge">access_denied</code> (access no longer active — <code class="language-plaintext highlighter-rouge">error_description</code> carries the <code class="language-plaintext highlighter-rouge">entitlement_required</code> detail). A refresh <strong>re-checks access every time</strong> — a refresh after revocation fails, which is what makes the hosted flow safe without a platform session.</p>
+<h2 id="email-verification">
+  
+  
+    <a href="#email-verification" class="anchor-heading" aria-labelledby="email-verification"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Email verification
+  
+  
+</h2>
+    
+
+<p>Transactional email (verification, password reset, invitations, MFA changes) is sent through <strong>Amazon SES</strong> in the same AWS account, so it adds no new sub-processor. Templates are Substratal-branded; an Application can set <code class="language-plaintext highlighter-rouge">email_from_name</code> and <code class="language-plaintext highlighter-rouge">support_url</code> so a message triggered from inside it names the app. A full per-Application custom domain and template is deferred.</p>
+<h3 id="post-v1authemailverify">
+  
+  
+    <a href="#post-v1authemailverify" class="anchor-heading" aria-labelledby="post-v1authemailverify"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/email/verify</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">token</span><span class="w"> </span><span class="err">from</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">emailed</span><span class="w"> </span><span class="err">link</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"emv_01JAG8V8W9X0Y1Z2A3B4C5D6E7"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Sets <code class="language-plaintext highlighter-rouge">email_verified: true</code> (or, for a pending email change, swaps <code class="language-plaintext highlighter-rouge">pending_email</code> into <code class="language-plaintext highlighter-rouge">email</code> — see <a href="../users/#patch-v1usersid">Users → <code class="language-plaintext highlighter-rouge">PATCH</code></a>). Token: single-use, 24-hour TTL. <code class="language-plaintext highlighter-rouge">400 token_invalid</code> if expired, used, or unknown.</p>
+<h3 id="post-v1authemailverifyresend">
+  
+  
+    <a href="#post-v1authemailverifyresend" class="anchor-heading" aria-labelledby="post-v1authemailverifyresend"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/email/verify/resend</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">202</span><span class="err">,</span><span class="w"> </span><span class="err">always,</span><span class="w"> </span><span class="err">whether</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">not</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">email</span><span class="w"> </span><span class="err">exists</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">already</span><span class="w"> </span><span class="err">verified</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Limited to 3 per email per hour.</p>
+<h2 id="password-lifecycle">
+  
+  
+    <a href="#password-lifecycle" class="anchor-heading" aria-labelledby="password-lifecycle"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Password lifecycle
+  
+  
+</h2>
+    
+<h3 id="post-v1authpasswordforgot">
+  
+  
+    <a href="#post-v1authpasswordforgot" class="anchor-heading" aria-labelledby="post-v1authpasswordforgot"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/password/forgot</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jordan@example.com"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">202</span><span class="err">,</span><span class="w"> </span><span class="err">always</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">never</span><span class="w"> </span><span class="err">reveals</span><span class="w"> </span><span class="err">whether</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">account</span><span class="w"> </span><span class="err">exists</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Sends a reset link (token <code class="language-plaintext highlighter-rouge">pwr_…</code>, single-use, 1-hour TTL) to an <code class="language-plaintext highlighter-rouge">active</code> User with a <code class="language-plaintext highlighter-rouge">password</code> identity. An SSO-only User gets an email explaining they sign in through their organization instead. Limited to 3 per email per hour.</p>
+<h3 id="post-v1authpasswordreset">
+  
+  
+    <a href="#post-v1authpasswordreset" class="anchor-heading" aria-labelledby="post-v1authpasswordreset"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/password/reset</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwr_01JAG8W9X0Y1Z2A3B4C5D6E7F8"</span><span class="p">,</span><span class="w"> </span><span class="nl">"new_password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a new long passphrase"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Sets the new password (same policy as signup), marks the email verified (the User just proved control of it), <strong>revokes every session</strong>, and emails a “your password was changed” notice. Writes Audit Event <code class="language-plaintext highlighter-rouge">user.password_reset</code>. Errors: <code class="language-plaintext highlighter-rouge">400 token_invalid</code>, <code class="language-plaintext highlighter-rouge">422 weak_password</code>.</p>
+<h3 id="post-v1usersidpassword">
+  
+  
+    <a href="#post-v1usersidpassword" class="anchor-heading" aria-labelledby="post-v1usersidpassword"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/password</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"current_password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"correct horse battery staple"</span><span class="p">,</span><span class="w"> </span><span class="nl">"new_password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a new long passphrase"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Self only (an admin cannot set a User’s password — they can only trigger <code class="language-plaintext highlighter-rouge">password/forgot</code> on the User’s behalf). Revokes every <strong>other</strong> session; the calling session survives. Errors: <code class="language-plaintext highlighter-rouge">401 invalid_credentials</code> (wrong current password), <code class="language-plaintext highlighter-rouge">422 weak_password</code>. Writes <code class="language-plaintext highlighter-rouge">user.password_changed</code>.</p>
+<h2 id="invitations">
+  
+  
+    <a href="#invitations" class="anchor-heading" aria-labelledby="invitations"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Invitations
+  
+  
+</h2>
+    
+
+<p><code class="language-plaintext highlighter-rouge">POST /v1/users</code> with <code class="language-plaintext highlighter-rouge">status: "invited"</code> (the default — see <a href="../users/#post-v1users">Users</a>) or <code class="language-plaintext highlighter-rouge">POST /v1/organizations/{id}/members</code> with an unknown email creates an <code class="language-plaintext highlighter-rouge">invited</code> User and emails an invitation link (token <code class="language-plaintext highlighter-rouge">inv_…</code>, single-use, 7-day TTL).</p>
+<h3 id="post-v1authinvitationsaccept">
+  
+  
+    <a href="#post-v1authinvitationsaccept" class="anchor-heading" aria-labelledby="post-v1authinvitationsaccept"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/invitations/accept</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"inv_01JAG8X0Y1Z2A3B4C5D6E7F8G9"</span><span class="p">,</span><span class="w"> </span><span class="nl">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"correct horse battery staple"</span><span class="p">,</span><span class="w"> </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jordan Alvarez"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">AuthSession</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Creates the <code class="language-plaintext highlighter-rouge">password</code> identity, sets <code class="language-plaintext highlighter-rouge">status: active</code> and <code class="language-plaintext highlighter-rouge">email_verified: true</code>, and signs the User in. If the invitation came from an Organization, accepting it also accepts that <code class="language-plaintext highlighter-rouge">pending</code> membership (and any other pending memberships for this User), the same as <a href="../organizations/#post-v1organizationsidmembersmeaccept"><code class="language-plaintext highlighter-rouge">…/members/me/accept</code></a>. Errors: <code class="language-plaintext highlighter-rouge">400 token_invalid</code> (expired invitations are re-sent with <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/invitation</code> — see <a href="../users/">Users</a>), <code class="language-plaintext highlighter-rouge">422 weak_password</code>.</p>
+<h2 id="mfa-totp">
+  
+  
+    <a href="#mfa-totp" class="anchor-heading" aria-labelledby="mfa-totp"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> MFA (TOTP)
+  
+  
+</h2>
+    
+
+<p>Optional and self-service for <code class="language-plaintext highlighter-rouge">password</code> identities. Meaningless for a <code class="language-plaintext highlighter-rouge">method: sso</code> identity, whose MFA policy belongs to the Organization’s own IdP (<code class="language-plaintext highlighter-rouge">409 mfa_not_applicable</code> if the User has no <code class="language-plaintext highlighter-rouge">password</code> identity).</p>
+<h3 id="post-v1usersidmfatotp--begin-enrollment">
+  
+  
+    <a href="#post-v1usersidmfatotp--begin-enrollment" class="anchor-heading" aria-labelledby="post-v1usersidmfatotp--begin-enrollment"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp</code> — begin enrollment
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JBSWY3DPEHPK3PXP"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"otpauth_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otpauth://totp/Substratal:jordan%40example.com?secret=JBSWY3DPEHPK3PXP&amp;issuer=Substratal&amp;digits=6&amp;period=30"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The client renders <code class="language-plaintext highlighter-rouge">otpauth_uri</code> as a QR code itself; the API never serves the secret through a URL. Enrollment is <em>pending</em> until confirmed; calling this again replaces a pending secret. <code class="language-plaintext highlighter-rouge">409 mfa_already_enabled</code> if already confirmed.</p>
+<h3 id="post-v1usersidmfatotpconfirm">
+  
+  
+    <a href="#post-v1usersidmfatotpconfirm" class="anchor-heading" aria-labelledby="post-v1usersidmfatotpconfirm"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp/confirm</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"492039"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"mfa_enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"recovery_codes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"7hq2-kx9m-a4vd"</span><span class="p">,</span><span class="w"> </span><span class="s2">"p3nc-8wz1-qt6r"</span><span class="p">,</span><span class="w"> </span><span class="s2">"..."</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Ten recovery codes, shown <strong>once</strong> — stored hashed. Writes <code class="language-plaintext highlighter-rouge">user.mfa_enabled</code> and emails a notice. <code class="language-plaintext highlighter-rouge">401 invalid_mfa_code</code> on a wrong code; <code class="language-plaintext highlighter-rouge">409 mfa_enrollment_expired</code> if the pending secret is older than 10 minutes.</p>
+<h3 id="post-v1usersidmfatotpdisable">
+  
+  
+    <a href="#post-v1usersidmfatotpdisable" class="anchor-heading" aria-labelledby="post-v1usersidmfatotpdisable"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/mfa/totp/disable</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">current</span><span class="w"> </span><span class="err">TOTP</span><span class="w"> </span><span class="err">code</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"492039"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">recovery</span><span class="w"> </span><span class="err">code</span><span class="w"> </span><span class="err">instead</span><span class="w"> </span><span class="err">(exactly</span><span class="w"> </span><span class="err">one</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">two)</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"recovery_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7hq2-kx9m-a4vd"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Same fields as <a href="#post-v1authmfaverify"><code class="language-plaintext highlighter-rouge">mfa/verify</code></a>. Deletes the secret and every recovery code, writes <code class="language-plaintext highlighter-rouge">user.mfa_disabled</code>, and emails a notice. Existing sessions are kept. Errors: <code class="language-plaintext highlighter-rouge">401 invalid_mfa_code</code> (wrong or reused code), <code class="language-plaintext highlighter-rouge">409 mfa_not_enabled</code> (no confirmed TOTP to disable), and <code class="language-plaintext highlighter-rouge">429 too_many_attempts</code> after 5 wrong codes in 15 minutes.</p>
+<h3 id="delete-v1usersidmfatotp--support-reset">
+  
+  
+    <a href="#delete-v1usersidmfatotp--support-reset" class="anchor-heading" aria-labelledby="delete-v1usersidmfatotp--support-reset"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/mfa/totp</code> — support reset
+  
+  
+</h3>
+    
+
+<p>Requires <code class="language-plaintext highlighter-rouge">users.manage</code>. For a User who has lost their device <em>and</em> their recovery codes; support verifies identity out of band first. Revokes every session. Writes <code class="language-plaintext highlighter-rouge">user.mfa_reset</code>. Destructive — see <a href="../../mcp-server/#tool-annotations--safety">MCP Server → Tool annotations</a>.</p>
+<h2 id="sessions">
+  
+  
+    <a href="#sessions" class="anchor-heading" aria-labelledby="sessions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Sessions
+  
+  
+</h2>
+    
+<h3 id="get-v1usersidsessions">
+  
+  
+    <a href="#get-v1usersidsessions" class="anchor-heading" aria-labelledby="get-v1usersidsessions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/users/{id}/sessions</code>
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ses_01JAG8K4Q9R0S1T2V3V4W5X6Y8"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-02T09:41:03Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"last_seen_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T08:12:44Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-04T08:12:44Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"203.0.113.24"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TimeTrack/2.4 (iOS 19.0)"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"amr"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"pwd"</span><span class="p">,</span><span class="w"> </span><span class="s2">"otp"</span><span class="p">],</span><span class="w">
+      </span><span class="nl">"current"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">expires_at</code> is when the session ends if nothing else happens: the earlier of <code class="language-plaintext highlighter-rouge">idle_expires_at</code> (30 days after the last refresh, here 2026-10-05) and <code class="language-plaintext highlighter-rouge">absolute_expires_at</code> (90 days after creation, 2026-12-31). Each refresh pushes the idle expiry forward, never past the absolute one.</p>
+<h3 id="delete-v1usersidsessionssessionid">
+  
+  
+    <a href="#delete-v1usersidsessionssessionid" class="anchor-heading" aria-labelledby="delete-v1usersidsessionssessionid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/sessions/{sessionId}</code>
+  
+  
+</h3>
+    
+
+<p><code class="language-plaintext highlighter-rouge">204</code>. Same effect as logout for that one session. <code class="language-plaintext highlighter-rouge">revoked_reason</code> is <code class="language-plaintext highlighter-rouge">logout</code> when the User revokes their own session, and <code class="language-plaintext highlighter-rouge">admin</code> when a <code class="language-plaintext highlighter-rouge">users.manage</code> caller does.</p>
+<h2 id="post-v1authssoprovidercallback">
+  
+  
+    <a href="#post-v1authssoprovidercallback" class="anchor-heading" aria-labelledby="post-v1authssoprovidercallback"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/auth/sso/{provider}/callback</code>
+  
+  
+</h2>
+    
+
+<p>Reserved. Returns <code class="language-plaintext highlighter-rouge">501 not_implemented</code> until the SSO broker integration ships (see <a href="#native-auth-and-per-organization-sso">Native auth and per-Organization SSO</a>). When live, it creates or matches a <code class="language-plaintext highlighter-rouge">method: sso</code> <a href="../../domain-model/users-and-organizations/#useridentity">UserIdentity</a> against the Organization’s <a href="../../domain-model/users-and-organizations/#ssoconnection">SSOConnection</a> and returns an <code class="language-plaintext highlighter-rouge">AuthSession</code> — SSO is a different way to obtain a session, not a different kind of session.</p>
+<h2 id="signing-keys-jwks">
+  
+  
+    <a href="#signing-keys-jwks" class="anchor-heading" aria-labelledby="signing-keys-jwks"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Signing keys (JWKS)
+  
+  
+</h2>
+    
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET https://api.substratalapps.com/.well-known/jwks.json
+</code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RSA"</span><span class="p">,</span><span class="w"> </span><span class="nl">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sk_202610"</span><span class="p">,</span><span class="w"> </span><span class="nl">"use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sig"</span><span class="p">,</span><span class="w"> </span><span class="nl">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RS256"</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0vx7agoebGcQSuu..."</span><span class="p">,</span><span class="w"> </span><span class="nl">"e"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AQAB"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<ul>
+  <li>RS256, 2048-bit keys, held in AWS KMS (the private key never leaves KMS — signing is a KMS <code class="language-plaintext highlighter-rouge">Sign</code> call).</li>
+  <li>Every token’s JWT header carries <code class="language-plaintext highlighter-rouge">kid</code>. Applications verify against the matching key and should cache the JWKS for up to 1 hour, re-fetching on an unknown <code class="language-plaintext highlighter-rouge">kid</code>.</li>
+  <li>Rotated every 90 days. A new key is published 7 days before it starts signing, and a retired key stays published for 7 days after its last use (longer than any token’s TTL), so a verifying Application never sees an unknown <code class="language-plaintext highlighter-rouge">kid</code> in normal operation.</li>
+  <li>Verification checklist for an Application: signature against JWKS, <code class="language-plaintext highlighter-rouge">iss</code> equals <code class="language-plaintext highlighter-rouge">https://api.substratalapps.com</code>, <code class="language-plaintext highlighter-rouge">aud</code> equals its own <code class="language-plaintext highlighter-rouge">application_id</code>, <code class="language-plaintext highlighter-rouge">exp</code> in the future (allow ≤60 s clock skew), <code class="language-plaintext highlighter-rouge">entitlement_status</code> is <code class="language-plaintext highlighter-rouge">active</code>.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">GET /.well-known/openid-configuration</code> returns <code class="language-plaintext highlighter-rouge">issuer</code>, <code class="language-plaintext highlighter-rouge">jwks_uri</code>, <code class="language-plaintext highlighter-rouge">authorization_endpoint</code> (<code class="language-plaintext highlighter-rouge">https://auth.substratalapps.com/authorize</code>, see <a href="#the-authorization-endpoint">The authorization endpoint</a>), <code class="language-plaintext highlighter-rouge">token_endpoint</code> (<code class="language-plaintext highlighter-rouge">/v1/auth/oauth/token</code>), <code class="language-plaintext highlighter-rouge">response_types_supported</code> (<code class="language-plaintext highlighter-rouge">code</code>), <code class="language-plaintext highlighter-rouge">grant_types_supported</code> (<code class="language-plaintext highlighter-rouge">authorization_code</code>, <code class="language-plaintext highlighter-rouge">refresh_token</code>), and <code class="language-plaintext highlighter-rouge">code_challenge_methods_supported</code> (<code class="language-plaintext highlighter-rouge">S256</code>). It is metadata for standard libraries, not a claim of full OpenID Connect conformance (there is no <code class="language-plaintext highlighter-rouge">id_token</code> or userinfo endpoint).</p>
+<h2 id="errors-specific-to-this-resource">
+  
+  
+    <a href="#errors-specific-to-this-resource" class="anchor-heading" aria-labelledby="errors-specific-to-this-resource"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors specific to this resource
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_credentials</code></td>
+      <td>401</td>
+      <td>Login or password change with a wrong password/unknown email.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">account_suspended</code></td>
+      <td>403</td>
+      <td>The User is suspended.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">too_many_attempts</code></td>
+      <td>429</td>
+      <td>Account lockout after repeated failures.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">email_taken</code></td>
+      <td>409</td>
+      <td>Signup with an email already in use.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">weak_password</code></td>
+      <td>422</td>
+      <td>Password fails the policy.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">token_invalid</code></td>
+      <td>400</td>
+      <td>Verification, reset, or invitation token is expired, used, or unknown.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invalid_mfa_code</code></td>
+      <td>401</td>
+      <td>Wrong or reused TOTP/recovery code.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mfa_token_invalid</code></td>
+      <td>401</td>
+      <td>MFA challenge expired or exhausted.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mfa_already_enabled</code> / <code class="language-plaintext highlighter-rouge">mfa_not_enabled</code> / <code class="language-plaintext highlighter-rouge">mfa_not_applicable</code> / <code class="language-plaintext highlighter-rouge">mfa_enrollment_expired</code></td>
+      <td>409</td>
+      <td>See <a href="#mfa-totp">MFA</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">refresh_token_reused</code></td>
+      <td>401</td>
+      <td>A rotated refresh token was presented again — session revoked.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">session_revoked</code></td>
+      <td>401</td>
+      <td>The session was logged out, reset, or the User suspended/deleted.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user_token_required</code></td>
+      <td>400</td>
+      <td>An endpoint that acts <em>as a User</em> was called with an API Key.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement_required</code></td>
+      <td>403</td>
+      <td>App-token issuance for a User without active access.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_not_available</code></td>
+      <td>409</td>
+      <td>App-token issuance for an Application not <code class="language-plaintext highlighter-rouge">approved</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant_suspended</code></td>
+      <td>403</td>
+      <td>App-token issuance for an Application whose Tenant is suspended.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_not_found</code></td>
+      <td>404</td>
+      <td>Unknown or invisible <code class="language-plaintext highlighter-rouge">application_id</code> on <code class="language-plaintext highlighter-rouge">app-tokens</code> or <code class="language-plaintext highlighter-rouge">oauth/authorization-codes</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">redirect_uri_not_registered</code></td>
+      <td>422</td>
+      <td>Authorization code requested for an unregistered <code class="language-plaintext highlighter-rouge">redirect_uri</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">not_implemented</code></td>
+      <td>501</td>
+      <td>SSO callback before the broker integration exists.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

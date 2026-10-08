@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(14)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(14) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(6) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(6) > ul > li:nth-child(14) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(6) > ul.nav-list > li.nav-list-item:nth-child(14) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.2/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.2/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>API Keys | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="API Keys" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/api-keys/" />
+<meta property="og:url" content="https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/api-keys/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="API Keys" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"API Keys","url":"https://compositecode.github.io/substratalapps.com/versions/1.2.2/api-reference/api-keys/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.2/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-08">v1.2.2 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/">API Reference</a></li>
+    <li class="breadcrumb-nav-list-item"><span>API Keys</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="api-keys">
+  
+  
+    <a href="#api-keys" class="anchor-heading" aria-labelledby="api-keys"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> API Keys
+  
+  
+</h1>
+    
+
+<p class="fs-6 fw-300">How a service — billing, an Application’s own backend, an internal tool — authenticates to this API without a user behind it. See <a href="../conventions/#authentication">Conventions → Authentication</a> for how an API key’s bearer token differs from a user access token.</p>
+
+<ol id="markdown-toc">
+  <li><a href="#what-an-api-key-is" id="markdown-toc-what-an-api-key-is">What an API Key is</a></li>
+  <li><a href="#endpoints" id="markdown-toc-endpoints">Endpoints</a></li>
+  <li><a href="#post-v1api-keys" id="markdown-toc-post-v1api-keys"><code class="language-plaintext highlighter-rouge">POST /v1/api-keys</code></a></li>
+  <li><a href="#agent-keys--restrict_destructive" id="markdown-toc-agent-keys--restrict_destructive">Agent keys &amp; <code class="language-plaintext highlighter-rouge">restrict_destructive</code></a></li>
+  <li><a href="#test-vs-live" id="markdown-toc-test-vs-live">Test vs. live</a>    <ol>
+      <li><a href="#walkthrough-a-test-run-end-to-end" id="markdown-toc-walkthrough-a-test-run-end-to-end">Walkthrough: a test run end to end</a></li>
+    </ol>
+  </li>
+  <li><a href="#app-confined-permissions" id="markdown-toc-app-confined-permissions">App-confined permissions</a></li>
+  <li><a href="#get-v1api-keysid-patch-v1api-keysid" id="markdown-toc-get-v1api-keysid-patch-v1api-keysid"><code class="language-plaintext highlighter-rouge">GET /v1/api-keys/{id}</code>, <code class="language-plaintext highlighter-rouge">PATCH /v1/api-keys/{id}</code></a></li>
+  <li><a href="#post-v1api-keysidrotate" id="markdown-toc-post-v1api-keysidrotate"><code class="language-plaintext highlighter-rouge">POST /v1/api-keys/{id}/rotate</code></a></li>
+  <li><a href="#delete-v1api-keysid" id="markdown-toc-delete-v1api-keysid"><code class="language-plaintext highlighter-rouge">DELETE /v1/api-keys/{id}</code></a></li>
+  <li><a href="#errors-specific-to-this-resource" id="markdown-toc-errors-specific-to-this-resource">Errors specific to this resource</a></li>
+</ol><hr />
+<h2 id="what-an-api-key-is">
+  
+  
+    <a href="#what-an-api-key-is" class="anchor-heading" aria-labelledby="what-an-api-key-is"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What an API Key is
+  
+  
+</h2>
+    
+
+<p>A long-lived credential scoped to either one Application (for an app’s own backend calling back into the hub — reading its users’ effective permissions via <a href="../roles-and-permissions/">Roles &amp; Permissions</a>, writing <a href="../profiles/">AppProfile</a>/<a href="../settings/">AppSettings</a>) or the platform as a whole (for billing, internal tooling). Unlike a user access token, it doesn’t expire on a short TTL and isn’t tied to a login session — it’s rotated deliberately, not refreshed automatically.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">id</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">key_</code> prefix.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">name</code></td>
+      <td>string</td>
+      <td>Human label, e.g. <code class="language-plaintext highlighter-rouge">"billing-webhook-handler"</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scope</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">"platform"</code> or an <code class="language-plaintext highlighter-rouge">application_id</code> — same shape as <a href="../../domain-model/roles-and-permissions/#role">Role scope</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">permissions</code></td>
+      <td>array of strings</td>
+      <td>Permission keys this key carries. For an app-scoped key, limited to that Application’s own <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys plus the four <a href="#app-confined-permissions">app-confined</a> platform permissions.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mode</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">live</code> | <code class="language-plaintext highlighter-rouge">test</code> — see <a href="#test-vs-live">Test vs. live</a> below. Fixed at creation; a key can’t switch modes, only be replaced.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intended_use</code></td>
+      <td>enum</td>
+      <td><code class="language-plaintext highlighter-rouge">service</code> | <code class="language-plaintext highlighter-rouge">agent</code> — see <a href="#agent-keys--restrict_destructive">Agent keys &amp; <code class="language-plaintext highlighter-rouge">restrict_destructive</code></a> below. Metadata with one real effect: it sets the default for <code class="language-plaintext highlighter-rouge">restrict_destructive</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">restrict_destructive</code></td>
+      <td>boolean</td>
+      <td>Default follows <code class="language-plaintext highlighter-rouge">intended_use</code> (<code class="language-plaintext highlighter-rouge">true</code> for <code class="language-plaintext highlighter-rouge">agent</code>, <code class="language-plaintext highlighter-rouge">false</code> for <code class="language-plaintext highlighter-rouge">service</code>) unless set explicitly. See below.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">secret_hint</code></td>
+      <td>string</td>
+      <td>Last 4 characters of the current secret, e.g. <code class="language-plaintext highlighter-rouge">"…6c8e"</code>, so an operator can tell keys apart without the secret.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">expires_at</code></td>
+      <td>timestamp, nullable</td>
+      <td>Optional hard expiry, set at creation. After it, the key behaves as revoked (<code class="language-plaintext highlighter-rouge">401</code>).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">created_by</code></td>
+      <td>object</td>
+      <td><code class="language-plaintext highlighter-rouge">{ "type": "user", "id": "usr_…" }</code>. Always a User: an API Key can never create API Keys (see below).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">last_used_at</code></td>
+      <td>timestamp, nullable</td>
+      <td>Updated at most once a minute.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">created_at</code></td>
+      <td>timestamp</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">revoked_at</code></td>
+      <td>timestamp, nullable</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table></div>
+<h2 id="endpoints">
+  
+  
+    <a href="#endpoints" class="anchor-heading" aria-labelledby="endpoints"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Endpoints
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys</code></td>
+      <td>List keys in scope for the caller. Filter by <code class="language-plaintext highlighter-rouge">scope</code>, <code class="language-plaintext highlighter-rouge">mode</code>, <code class="language-plaintext highlighter-rouge">intended_use</code>, and <code class="language-plaintext highlighter-rouge">include_inactive</code> (include revoked and expired keys).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys</code></td>
+      <td>Create a key. Returns the secret once.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys/{id}</code></td>
+      <td>Fetch one key (never the secret).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys/{id}</code></td>
+      <td>Change <code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">permissions</code>, or <code class="language-plaintext highlighter-rouge">restrict_destructive</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys/{id}/rotate</code></td>
+      <td>Issue a new secret for the same key record, invalidating the old one.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/api-keys/{id}</code></td>
+      <td>Revoke permanently.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Who may manage which keys:</strong></p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Key’s <code class="language-plaintext highlighter-rouge">scope</code></th>
+      <th>Who can create, read, change, rotate, and revoke it</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">platform</code></td>
+      <td>Platform <code class="language-plaintext highlighter-rouge">api_keys.manage</code> only. Creating a key never grants more than the creator holds: every permission on a new platform key must be one the creator holds (<code class="language-plaintext highlighter-rouge">403 role_escalation_forbidden</code>).</td>
+    </tr>
+    <tr>
+      <td>an <code class="language-plaintext highlighter-rouge">application_id</code></td>
+      <td>Platform <code class="language-plaintext highlighter-rouge">api_keys.manage</code>, <strong>or the Application’s owner</strong> (its <code class="language-plaintext highlighter-rouge">owner_user_id</code>, or an <code class="language-plaintext highlighter-rouge">org_admin</code> of <code class="language-plaintext highlighter-rouge">owner_organization_id</code>). That’s what lets a developer onboard without Substratal staff in the loop for every key.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>An API Key can never create, change, or rotate API Keys, including itself (<code class="language-plaintext highlighter-rouge">400 user_token_required</code>). Credential management is always done by a person. Every create, change, rotate, and revoke writes an Audit Event (<code class="language-plaintext highlighter-rouge">api_key.created</code>, <code class="language-plaintext highlighter-rouge">api_key.updated</code>, <code class="language-plaintext highlighter-rouge">api_key.rotated</code>, <code class="language-plaintext highlighter-rouge">api_key.revoked</code>).</p>
+<h2 id="post-v1api-keys">
+  
+  
+    <a href="#post-v1api-keys" class="anchor-heading" aria-labelledby="post-v1api-keys"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/api-keys</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"timetrack-backend"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"live"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"intended_use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"service"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2027-10-04T00:00:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key_01JAGE5F6G7H8J9K011M2N304P"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"timetrack-backend"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_timetrack"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"app.timetrack.export"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"live"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"intended_use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"service"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"restrict_destructive"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"satk_live_9f2a1c7e4b3d8f0a2c5e7b1d9f3a6c8e"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"secret_hint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…6c8e"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2027-10-04T00:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG0SYSTEM00000000000000"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"last_used_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-04T09:30:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"revoked_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">scope</code>, and <code class="language-plaintext highlighter-rouge">permissions</code> are required. <code class="language-plaintext highlighter-rouge">mode</code> defaults to <code class="language-plaintext highlighter-rouge">live</code>, <code class="language-plaintext highlighter-rouge">intended_use</code> to <code class="language-plaintext highlighter-rouge">service</code>, and <code class="language-plaintext highlighter-rouge">restrict_destructive</code> to the <code class="language-plaintext highlighter-rouge">intended_use</code> default. <code class="language-plaintext highlighter-rouge">expires_at</code> is optional and must be in the future.</p>
+
+<p><code class="language-plaintext highlighter-rouge">secret</code> is returned <strong>only</strong> in this response — store it immediately; it’s not retrievable afterward, only rotatable. The key is used exactly like a user access token: <code class="language-plaintext highlighter-rouge">Authorization: Bearer satk_live_...</code>.</p>
+<h2 id="agent-keys--restrict_destructive">
+  
+  
+    <a href="#agent-keys--restrict_destructive" class="anchor-heading" aria-labelledby="agent-keys--restrict_destructive"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Agent keys &amp; <code class="language-plaintext highlighter-rouge">restrict_destructive</code>
+  
+  
+</h2>
+    
+
+<p>An LLM agent calling this API (directly, or through the <a href="../../mcp-server/">MCP Server</a>) has a different risk shape from deterministic service code making the same call. The platform’s enforcement is just as strong: <a href="../../access-control/">Access Control</a> doesn’t know or care whether its caller is an agent. What changes is that the <em>decision to call</em> a destructive operation at all is made by something a prompt can influence, possibly via untrusted data it has read (a <code class="language-plaintext highlighter-rouge">disabled_reason</code>, or an <code class="language-plaintext highlighter-rouge">AppProfile.custom</code> field written by someone else). A service integration’s call sites are fixed when it’s written.</p>
+
+<p>That’s addressed with two fields on the existing API Key, not a new key <em>type</em> (which would be a parallel, redundant scoping system):</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">intended_use: "service" | "agent"</code></strong>, set at creation. It’s metadata with one real effect: it sets the <em>default</em> of the field below, steering an agent-facing key toward the safer posture without forcing it.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">restrict_destructive: boolean</code></strong>, which defaults to <code class="language-plaintext highlighter-rouge">true</code> for <code class="language-plaintext highlighter-rouge">agent</code> and <code class="language-plaintext highlighter-rouge">false</code> for <code class="language-plaintext highlighter-rouge">service</code>. When <code class="language-plaintext highlighter-rouge">true</code>, any request this key authorizes that classifies as destructive is rejected server-side, whatever permissions the key otherwise carries.</li>
+</ol>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">key</span><span class="w"> </span><span class="err">meant</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">MCP/agent</span><span class="w"> </span><span class="err">integration</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support-assistant-mcp"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"entitlements.manage"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"live"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"intended_use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"agent"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">201</span><span class="err">,</span><span class="w"> </span><span class="err">restrict_destructive</span><span class="w"> </span><span class="err">defaulted</span><span class="w"> </span><span class="err">to</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">from</span><span class="w"> </span><span class="err">intended_use</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key_01JAGF6G7H8J9K011M2N304P5Q"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support-assistant-mcp"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"users.list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"entitlements.manage"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"live"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"intended_use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"agent"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"restrict_destructive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"satk_live_..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This key carries <code class="language-plaintext highlighter-rouge">entitlements.manage</code> — it <em>can</em> toggle an Entitlement off — but with <code class="language-plaintext highlighter-rouge">restrict_destructive: true</code>, a call that would set <code class="language-plaintext highlighter-rouge">status</code> to <code class="language-plaintext highlighter-rouge">disabled</code>/<code class="language-plaintext highlighter-rouge">revoked</code> on the <a href="../entitlements/">Entitlements toggle</a> is rejected before the permission check even matters:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">403</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"destructive_operation_restricted"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This API Key has restrict_destructive enabled and cannot perform this operation."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"key_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key_01JAGF6G7H8J9K011M2N304P5Q"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>“Destructive” is one rule, not a per-endpoint list maintained twice: the same classification <a href="../../mcp-server/#tool-annotations--safety">MCP Server → Tool annotations &amp; safety</a> uses to derive <code class="language-plaintext highlighter-rouge">destructiveHint</code> for a tool call. The complete list of destructive operations is maintained there once, and marked on each operation in <code class="language-plaintext highlighter-rouge">openapi.yaml</code> as <code class="language-plaintext highlighter-rouge">x-substratal-destructive</code>. Some operations are always destructive (every <code class="language-plaintext highlighter-rouge">DELETE</code>, for example). Others are destructive only for certain request bodies: <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> only when it sets <code class="language-plaintext highlighter-rouge">status</code> to <code class="language-plaintext highlighter-rouge">disabled</code> or <code class="language-plaintext highlighter-rouge">revoked</code>, so the same agent key can still extend a trial or convert one to a purchase. <code class="language-plaintext highlighter-rouge">openapi.yaml</code> marks these <code class="language-plaintext highlighter-rouge">x-substratal-destructive: conditional</code>, with the condition in <code class="language-plaintext highlighter-rouge">x-substratal-destructive-when</code>, and the server evaluates the condition against each request. A <code class="language-plaintext highlighter-rouge">restrict_destructive</code> key can still read everything its permissions allow and call every non-destructive write; it’s blocked from exactly that set, regardless of what permissions it otherwise carries — the permission check and the destructive-operation check are independent gates, both have to pass.</p>
+
+<p>Setting <code class="language-plaintext highlighter-rouge">restrict_destructive: false</code> explicitly on an <code class="language-plaintext highlighter-rouge">intended_use: "agent"</code> key — overriding the safer default — writes an <a href="../../domain-model/orders-and-audit/#audit-event">Audit Event</a> (<code class="language-plaintext highlighter-rouge">api_key.restrict_destructive_disabled</code>), since it’s the deliberate exception worth a record, not the default worth none.</p>
+
+<p>The result: an agent integration is safer by default without being less capable by default. A read-only or toggle-only assistant never needs <code class="language-plaintext highlighter-rouge">restrict_destructive: false</code>. One that genuinely does (an assistant whose whole job is disabling compromised accounts, say) sets it explicitly, and that choice is audited.</p>
+<h2 id="test-vs-live">
+  
+  
+    <a href="#test-vs-live" class="anchor-heading" aria-labelledby="test-vs-live"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Test vs. live
+  
+  
+</h2>
+    
+
+<p>Uniqueness constraints include <code class="language-plaintext highlighter-rouge">test_mode</code> (e.g. <code class="language-plaintext highlighter-rouge">unique (email, test_mode) where deleted_at is null</code>), so a test signup can’t collide with a live one. A test-mode credential sees only test-mode rows and a live credential only live rows, enforced by the same Row-Level Security mechanism as <code class="language-plaintext highlighter-rouge">tenant_id</code>. Test-mode rows older than 30 days are purged nightly.</p>
+
+<p><code class="language-plaintext highlighter-rouge">mode: "test"</code> produces a <code class="language-plaintext highlighter-rouge">satk_test_…</code> secret instead of <code class="language-plaintext highlighter-rouge">satk_live_…</code> — same permissions and scope, but every resource it creates (Users, Entitlements, anything) is tagged <code class="language-plaintext highlighter-rouge">test_mode: true</code>:</p>
+
+<ul>
+  <li>Invisible to live credentials, and vice versa: a live key or live User token never reads or writes test rows, under any parameter, and a test credential never sees live rows. There’s no flag that crosses the line.</li>
+  <li>Webhook deliveries from test-mode data only reach webhook subscriptions that were themselves created with a <code class="language-plaintext highlighter-rouge">test</code> key — a <code class="language-plaintext highlighter-rouge">live</code> integration never receives test traffic.</li>
+  <li>Subject to periodic cleanup (test data isn’t held to the same <a href="../../non-functional-requirements/#data-retention">retention</a> requirements as live data).</li>
+</ul>
+
+<p>This is how an Application’s developer integration-tests against the real API without a separate sandbox deployment or risk to live data — see <a href="../conventions/#authentication">Conventions → Authentication</a>.</p>
+<h3 id="walkthrough-a-test-run-end-to-end">
+  
+  
+    <a href="#walkthrough-a-test-run-end-to-end" class="anchor-heading" aria-labelledby="walkthrough-a-test-run-end-to-end"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Walkthrough: a test run end to end
+  
+  
+</h3>
+    
+
+<ol>
+  <li><strong>Create a test key</strong> (as the Application’s owner): <code class="language-plaintext highlighter-rouge">POST /v1/api-keys</code> with <code class="language-plaintext highlighter-rouge">"scope": "app_timetrack"</code>, <code class="language-plaintext highlighter-rouge">"mode": "test"</code>, <code class="language-plaintext highlighter-rouge">"permissions": ["entitlements.manage", "users.list"]</code>. The response’s <code class="language-plaintext highlighter-rouge">secret</code> starts <code class="language-plaintext highlighter-rouge">satk_test_</code>. Applications are shared catalog rows, visible to test and live credentials alike (an Application’s own <code class="language-plaintext highlighter-rouge">test_mode</code> flag only marks one created for testing, which is what allows <code class="language-plaintext highlighter-rouge">localhost</code> redirect URIs). Everything the test key <em>writes</em> is tagged <code class="language-plaintext highlighter-rouge">test_mode: true</code>.</li>
+  <li><strong>Create a test User</strong> with that key: <code class="language-plaintext highlighter-rouge">POST /v1/users</code> <code class="language-plaintext highlighter-rouge">{"email": "qa+1@example.com", "status": "active", "send_invitation": false}</code>. The response has <code class="language-plaintext highlighter-rouge">"test_mode": true</code>. A live User with the same email can exist alongside it without conflict.</li>
+  <li><strong>Grant access</strong>: <code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/entitlements</code> with an <code class="language-plaintext highlighter-rouge">Idempotency-Key</code> and <code class="language-plaintext highlighter-rouge">{"application_id": "app_timetrack", "source": "trial", "ends_at": "…"}</code>. The Entitlement is <code class="language-plaintext highlighter-rouge">test_mode: true</code>, and the <code class="language-plaintext highlighter-rouge">entitlement.granted</code>/<code class="language-plaintext highlighter-rouge">access.granted</code> webhooks go only to subscriptions created with a test key.</li>
+  <li><strong>Sign in as that User</strong>: set a password through <code class="language-plaintext highlighter-rouge">POST /v1/auth/password/forgot</code> <code class="language-plaintext highlighter-rouge">{"email": "qa+1@example.com", "test_mode": true}</code>, then <code class="language-plaintext highlighter-rouge">POST /v1/auth/login</code> with <code class="language-plaintext highlighter-rouge">"test_mode": true</code> (see <a href="../auth/#test-mode-users">Auth → Test-mode Users</a>). The access token and every app token carry <code class="language-plaintext highlighter-rouge">"test_mode": true</code>.</li>
+  <li><strong>Check isolation</strong>: <code class="language-plaintext highlighter-rouge">GET /v1/users?email=qa+1@example.com</code> with a <em>live</em> key returns an empty list. The test User doesn’t exist as far as live credentials are concerned.</li>
+  <li><strong>Clean up</strong>, or don’t: test rows older than 30 days are purged nightly.</li>
+</ol>
+<h2 id="app-confined-permissions">
+  
+  
+    <a href="#app-confined-permissions" class="anchor-heading" aria-labelledby="app-confined-permissions"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> App-confined permissions
+  
+  
+</h2>
+    
+
+<p>Why app-scoped keys can carry these permissions at all: a developer’s backend has to reflect its own billing outcomes into Entitlements (see <a href="../../domain-model/orders-and-audit/#billing-system-of-record">Billing system of record</a>). Without app confinement it would have no safe credential to do that with. An app-scoped key couldn’t hold <code class="language-plaintext highlighter-rouge">entitlements.manage</code>, and a platform-scoped key that could would reach every Application. Confinement keeps the safety property: a compromised app key still can’t touch a <em>different</em> Application or escalate anyone’s platform standing. A platform-run “billing bridge” for developers to post outcomes to was considered and not chosen, because it adds a component without reducing risk.</p>
+
+<p>An app-scoped key may carry its Application’s own <code class="language-plaintext highlighter-rouge">app.&lt;slug&gt;.*</code> keys, plus four platform permissions in <strong>confined</strong> form. The server automatically restricts each one to rows belonging to the key’s own Application:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>What the app key can do with it</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlements.manage</code></td>
+      <td>Grant, toggle, revoke, and delete-in-error Entitlements to <strong>its own Application</strong>, personal and org-wide. This is how a developer’s backend reflects the outcome of their own billing.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">roles.manage</code></td>
+      <td>Define its own Application’s Roles, and assign or remove them on users.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">users.list</code></td>
+      <td>List and read Users with any access path to its Application, and read their global Profile (read-only).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">audit.view</code></td>
+      <td>Read Audit Events whose <code class="language-plaintext highlighter-rouge">application_id</code> is its Application.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Without any extra permission, every app-scoped key can also read and write its own users’ <a href="../profiles/">AppProfile</a> and <a href="../settings/">AppSettings</a>, read their <a href="../roles-and-permissions/#get-v1usersidappsappideffective-permissions">effective permissions</a> for its Application, and manage its Application’s <a href="../webhooks/">webhooks</a>.</p>
+
+<p class="important">An app-scoped key can <strong>never</strong> carry <code class="language-plaintext highlighter-rouge">users.manage</code>, <code class="language-plaintext highlighter-rouge">applications.manage</code>, <code class="language-plaintext highlighter-rouge">organizations.manage</code>, <code class="language-plaintext highlighter-rouge">api_keys.manage</code>, <code class="language-plaintext highlighter-rouge">tenants.manage</code>, <code class="language-plaintext highlighter-rouge">webhooks.manage</code>, <code class="language-plaintext highlighter-rouge">billing.manage</code>, or <code class="language-plaintext highlighter-rouge">billing.refund</code>. Asking for one returns <code class="language-plaintext highlighter-rouge">422 permission_not_grantable_to_scope</code>. Any attempt to touch another Application’s rows returns <code class="language-plaintext highlighter-rouge">404</code>, as though the row didn’t exist. That’s what makes it safe for an Application’s backend, or a third party’s, to hold one: a compromised key can’t grant access to a different app, disable another app’s Entitlements, or change anyone’s platform standing.</p>
+<h2 id="get-v1api-keysid-patch-v1api-keysid">
+  
+  
+    <a href="#get-v1api-keysid-patch-v1api-keysid" class="anchor-heading" aria-labelledby="get-v1api-keysid-patch-v1api-keysid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">GET /v1/api-keys/{id}</code>, <code class="language-plaintext highlighter-rouge">PATCH /v1/api-keys/{id}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">PATCH</span><span class="w"> </span><span class="err">request</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">tighten</span><span class="w"> </span><span class="err">an</span><span class="w"> </span><span class="err">agent</span><span class="w"> </span><span class="err">key</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"users.list"</span><span class="p">],</span><span class="w"> </span><span class="nl">"restrict_destructive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="err">,</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">key</span><span class="w"> </span><span class="err">(no</span><span class="w"> </span><span class="err">secret)</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key_01JAGF6G7H8J9K011M2N304P5Q"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"support-assistant-mcp"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"platform"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"audit.view"</span><span class="p">,</span><span class="w"> </span><span class="s2">"users.list"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"live"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"intended_use"</span><span class="p">:</span><span class="w"> </span><span class="s2">"agent"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"restrict_destructive"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"secret_hint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…a41f"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG9STAFF000000000000000"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"last_used_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-05T11:58:12Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-04T09:45:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"revoked_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">scope</code>, <code class="language-plaintext highlighter-rouge">mode</code>, and <code class="language-plaintext highlighter-rouge">intended_use</code> are fixed at creation (<code class="language-plaintext highlighter-rouge">422 read_only_field</code>), so replace the key to change them. A permission change takes effect on the key’s next request.</p>
+<h2 id="post-v1api-keysidrotate">
+  
+  
+    <a href="#post-v1api-keysidrotate" class="anchor-heading" aria-labelledby="post-v1api-keysidrotate"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">POST /v1/api-keys/{id}/rotate</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Request</span><span class="w">
+</span><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">200</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"key_01JAGE5F6G7H8J9K011M2N304P"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"satk_live_2b8e4a1f9c3d7e0b5a8f1c4e9b2d7a0f"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The old secret stops working immediately — there’s no overlap window, so rotating is a coordinated action (update the caller’s stored secret in the same change), not a background migration. For a zero-downtime rotation, create a second key, cut the caller over, then revoke the first, rather than rotating in place.</p>
+<h2 id="delete-v1api-keysid">
+  
+  
+    <a href="#delete-v1api-keysid" class="anchor-heading" aria-labelledby="delete-v1api-keysid"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> <code class="language-plaintext highlighter-rouge">DELETE /v1/api-keys/{id}</code>
+  
+  
+</h2>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">//</span><span class="w"> </span><span class="err">Response</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">204</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Immediate and permanent — sets <code class="language-plaintext highlighter-rouge">revoked_at</code>, and any request bearing that secret afterward gets <code class="language-plaintext highlighter-rouge">401</code>. Does not touch Entitlements, Roles, or any data the key was used to write; it only removes the credential itself.</p>
+<h2 id="errors-specific-to-this-resource">
+  
+  
+    <a href="#errors-specific-to-this-resource" class="anchor-heading" aria-labelledby="errors-specific-to-this-resource"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Errors specific to this resource
+  
+  
+</h2>
+    
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">permission_not_grantable_to_scope</code></td>
+      <td>422</td>
+      <td><code class="language-plaintext highlighter-rouge">POST</code>/<code class="language-plaintext highlighter-rouge">PATCH</code> includes a permission the given <code class="language-plaintext highlighter-rouge">scope</code> isn’t allowed to hold (see <a href="#app-confined-permissions">App-confined permissions</a>).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">unknown_permission</code></td>
+      <td>422</td>
+      <td>A permission key that doesn’t exist, or another Application’s <code class="language-plaintext highlighter-rouge">app.*</code> key.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role_escalation_forbidden</code></td>
+      <td>403</td>
+      <td>A platform key with a permission its creator doesn’t hold.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user_token_required</code></td>
+      <td>400</td>
+      <td>An API Key tried to create, change, rotate, or revoke an API Key.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">read_only_field</code></td>
+      <td>422</td>
+      <td>A <code class="language-plaintext highlighter-rouge">PATCH</code> tried to change <code class="language-plaintext highlighter-rouge">scope</code>, <code class="language-plaintext highlighter-rouge">mode</code>, or <code class="language-plaintext highlighter-rouge">intended_use</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key_not_found</code></td>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">{id}</code> doesn’t resolve, or isn’t visible to the caller. A revoked key is still fetchable by id (with <code class="language-plaintext highlighter-rouge">revoked_at</code> set), per <a href="../conventions/#filtering">Conventions → Filtering</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key_revoked</code></td>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code>, <code class="language-plaintext highlighter-rouge">rotate</code>, or <code class="language-plaintext highlighter-rouge">DELETE</code> on a key that’s already revoked or past <code class="language-plaintext highlighter-rouge">expires_at</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">destructive_operation_restricted</code></td>
+      <td>403</td>
+      <td>A <code class="language-plaintext highlighter-rouge">restrict_destructive: true</code> key attempted an operation classified as destructive — see <a href="#agent-keys--restrict_destructive">Agent keys &amp; <code class="language-plaintext highlighter-rouge">restrict_destructive</code></a>. Not specific to key creation; this is returned by <em>any</em> endpoint the key calls.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+

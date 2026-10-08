@@ -1,0 +1,654 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-default.css">
+
+  <link rel="stylesheet" href="/substratalapps.com/versions/1.2.2/assets/css/just-the-docs-head-nav.css" id="jtd-head-nav-stylesheet">
+
+  <style id="jtd-nav-activation">
+  
+
+    .site-nav > ul.nav-list:first-child > li > a,
+    
+    .site-nav > ul.nav-list:first-child > li > ul > li:not(:nth-child(7)) > a,
+    .site-nav > ul.nav-list:first-child > li > ul > li > ul > li a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:not(:first-child) a,
+    .site-nav li.external a {
+      background-image: none;
+    }
+
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(7) > a {
+      font-weight: 600;
+      text-decoration: none;
+    }.site-nav > ul.nav-list:first-child > li:nth-child(4) > button svg,
+    .site-nav > ul.nav-list:first-child > li:nth-child(4) > ul > li:nth-child(7) > button svg {
+      transform: rotate(-90deg);
+    }.site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list,
+    .site-nav > ul.nav-list:first-child > li.nav-list-item:nth-child(4) > ul.nav-list > li.nav-list-item:nth-child(7) > ul.nav-list {
+      display: block;
+    }
+  </style>
+
+  
+
+  
+    <script src="/substratalapps.com/versions/1.2.2/assets/js/vendor/lunr.min.js"></script>
+  
+
+  <script src="/substratalapps.com/versions/1.2.2/assets/js/just-the-docs.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+
+
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Orders &amp; Audit | Substratal Apps — Platform API</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Orders &amp; Audit" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<meta property="og:description" content="The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation." />
+<link rel="canonical" href="https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" />
+<meta property="og:url" content="https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" />
+<meta property="og:site_name" content="Substratal Apps — Platform API" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Orders &amp; Audit" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The system of record for how Substratal manages users, roles, per-app access, profiles, and settings across every product in the Substratal Apps catalog. API-first specification and documentation.","headline":"Orders &amp; Audit","url":"https://compositecode.github.io/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.closest("pre") || codeEl.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+      mermaid.run();
+    }
+  });
+</script>
+
+
+</head>
+
+<body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="svg-link" viewBox="0 0 24 24">
+  <title>Link</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+</symbol>
+
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+  <title>Menu</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</symbol>
+
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+  <title>Expand</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+</symbol>
+
+  <!-- Feather. MIT License: https://github.com/feathericons/feather/blob/master/LICENSE -->
+<symbol id="svg-external-link" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link">
+  <title id="svg-external-link-title">(external link)</title>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+</symbol>
+
+  
+    <symbol id="svg-doc" viewBox="0 0 24 24">
+  <title>Document</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+</symbol>
+
+    <symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</symbol>
+
+  
+  
+    <!-- Bootstrap Icons. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-copy" viewBox="0 0 16 16">
+  <title>Copy</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </svg>
+</symbol>
+<symbol id="svg-copied" viewBox="0 0 16 16">
+  <title>Copied</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+    <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+  </svg>
+</symbol>
+
+  
+</svg>
+
+  
+    <header class="side-bar">
+  <div class="site-header">
+    <a href="/substratalapps.com/versions/1.2.2/" class="site-title lh-tight">
+  Substratal Apps — Platform API
+
+</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  <nav aria-label="Main" id="site-nav" class="site-nav">
+  
+  
+    <ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/" class="nav-list-link">Home</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/getting-started/" class="nav-list-link">Getting Started</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/quickstart/" class="nav-list-link">Quickstart</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="Domain Model submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/domain-model/" class="nav-list-link">Domain Model</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/users-and-organizations/" class="nav-list-link">Users & Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/orders-and-audit/" class="nav-list-link">Orders & Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/database-schema/" class="nav-list-link">Database Schema</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/tenancy/" class="nav-list-link">Tenancy</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/access-control/" class="nav-list-link">Access Control</a></li><li class="nav-list-item"><button class="nav-list-expander btn-reset" aria-label="API Reference submenu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use xlink:href="#svg-arrow-right"></use></svg>
+      </button><a href="/substratalapps.com/versions/1.2.2/api-reference/" class="nav-list-link">API Reference</a><ul class="nav-list"><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/conventions/" class="nav-list-link">Conventions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/auth/" class="nav-list-link">Auth</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/users/" class="nav-list-link">Users</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/profiles/" class="nav-list-link">Profiles</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/settings/" class="nav-list-link">Settings</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/applications/" class="nav-list-link">Applications</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/entitlements/" class="nav-list-link">Entitlements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/roles-and-permissions/" class="nav-list-link">Roles & Permissions</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/organizations/" class="nav-list-link">Organizations</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/tenancy/" class="nav-list-link">Tenancy</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/billing/" class="nav-list-link">Billing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/audit/" class="nav-list-link">Audit</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/webhooks/" class="nav-list-link">Webhooks</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/api-reference/api-keys/" class="nav-list-link">API Keys</a></li></ul></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/workflows/" class="nav-list-link">Workflows</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/trust-model/" class="nav-list-link">Trust Model</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/mcp-server/" class="nav-list-link">MCP Server</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/non-functional-requirements/" class="nav-list-link">Non-Functional Requirements</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/compliance/" class="nav-list-link">Compliance & Data Protection</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/roadmap/" class="nav-list-link">Roadmap</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/pricing/" class="nav-list-link">Pricing</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/changelog/" class="nav-list-link">Changelog</a></li><li class="nav-list-item"><a href="/substratalapps.com/versions/1.2.2/glossary/" class="nav-list-link">Glossary</a></li></ul>
+  
+</nav>
+
+
+<div class="d-md-block d-none site-footer">
+  
+  
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  
+  </div>
+</header>
+
+  
+  <div class="main" id="top">
+    <div id="main-header" class="main-header">
+  
+    
+
+<div class="search" role="search">
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Substratal Apps — Platform API" autocomplete="off">
+    <label for="search-input" class="search-label">
+      <span class="sr-only">Search Substratal Apps — Platform API</span>
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><use xlink:href="#svg-search"></use></svg>
+    </label>
+  </div>
+  <div id="search-results" class="search-results"></div>
+</div>
+
+  
+  <div class="docs-version docs-version--archived">
+    <span class="docs-version__badge" title="Archived snapshot, released 2026-10-08">v1.2.2 · archived</span>
+    <a class="docs-version__link" href="/substratalapps.com/">View latest →</a>
+    <a class="docs-version__link" href="/substratalapps.com/versions/">All versions</a>
+  </div>
+  
+</div>
+
+    <div class="main-content-wrap">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb-nav-list">
+    <li class="breadcrumb-nav-list-item"><a href="/substratalapps.com/versions/1.2.2/domain-model/">Domain Model</a></li>
+    <li class="breadcrumb-nav-list-item"><span>Orders & Audit</span></li>
+  </ol>
+</nav>
+
+
+      <div id="main-content" class="main-content">
+        <main>
+          
+            <h1 class="no_toc" id="orders--audit">
+  
+  
+    <a href="#orders--audit" class="anchor-heading" aria-labelledby="orders--audit"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Orders &amp; Audit
+  
+  
+</h1>
+    
+
+<ol id="markdown-toc">
+  <li><a href="#order" id="markdown-toc-order">Order</a>    <ol>
+      <li><a href="#billing-system-of-record" id="markdown-toc-billing-system-of-record">Billing system of record</a></li>
+    </ol>
+  </li>
+  <li><a href="#audit-event" id="markdown-toc-audit-event">Audit Event</a>    <ol>
+      <li><a href="#example" id="markdown-toc-example">Example</a></li>
+      <li><a href="#action-catalog" id="markdown-toc-action-catalog">Action catalog</a></li>
+      <li><a href="#what-triggers-an-audit-event" id="markdown-toc-what-triggers-an-audit-event">What triggers an Audit Event</a></li>
+    </ol>
+  </li>
+</ol><hr />
+<h2 id="order">
+  
+  
+    <a href="#order" class="anchor-heading" aria-labelledby="order"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Order
+  
+  
+</h2>
+    
+
+<p><code class="language-plaintext highlighter-rouge">order_id</code> is an opaque, developer-supplied reference (no entity, table, or endpoint), following from the <a href="#billing-system-of-record">billing system of record</a>. <code class="language-plaintext highlighter-rouge">billing.manage</code> and <code class="language-plaintext highlighter-rouge">billing.refund</code> apply to the one billing relationship Substratal actually has, platform subscriptions. <code class="language-plaintext highlighter-rouge">billing.manage</code> lets support view a Tenant’s subscription and usage and open its billing portal. <code class="language-plaintext highlighter-rouge">billing.refund</code> is reserved for Stripe credits and refunds, which are done in the Stripe dashboard today, so it has no endpoint yet.</p>
+
+<p><strong>An Order isn’t an entity in this API.</strong> There’s no <code class="language-plaintext highlighter-rouge">orders</code> table, no <code class="language-plaintext highlighter-rouge">ord_</code> resource, and no Orders endpoint. The commerce record an Entitlement traces back to lives in the <em>developer’s own</em> billing system (see <a href="#billing-system-of-record">Billing system of record</a> below). What this API stores is a <strong>reference</strong> to it:</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field (on <a href="../entitlements/#fields">Entitlement</a>)</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">order_id</code></td>
+      <td>string, nullable, ≤ 255 characters</td>
+      <td>Opaque. Typically the developer’s own Stripe subscription id (<code class="language-plaintext highlighter-rouge">sub_…</code>), invoice id, or internal order number. It isn’t validated beyond its length, never dereferenced, and never used to drive state on its own. It’s settable once, so it stays a stable reconciliation key, and it’s filterable on <code class="language-plaintext highlighter-rouge">GET /v1/entitlements?order_id=…</code>.</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Its one behavioral effect: an Entitlement with <code class="language-plaintext highlighter-rouge">order_id</code> set can’t be hard-deleted (<a href="../../api-reference/entitlements/#delete-v1entitlementsid"><code class="language-plaintext highlighter-rouge">entitlement_order_linked</code></a>), because it represents a real financial event rather than a mistake.</p>
+
+<p>When the developer’s billing changes, for example a refund or a lapsed subscription, <strong>the developer’s backend calls this API</strong> to change the Entitlement: <code class="language-plaintext highlighter-rouge">PATCH /v1/entitlements/{id}</code> with <code class="language-plaintext highlighter-rouge">status: revoked</code>, or by setting <code class="language-plaintext highlighter-rouge">ends_at</code> so it lapses on schedule, using an app-scoped <a href="../../api-reference/api-keys/#app-confined-permissions">API Key</a>. This API never learns about the payment itself. See <a href="../../workflows/#purchase--access">Workflows → Purchase → access</a>.</p>
+<h3 id="billing-system-of-record">
+  
+  
+    <a href="#billing-system-of-record" class="anchor-heading" aria-labelledby="billing-system-of-record"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Billing system of record
+  
+  
+</h3>
+    
+
+<p>Substratal Apps is not a payment processor or marketplace billing engine for any Application, ever, including after the marketplace phase ships. Each Application’s developer owns the billing relationship with their own end users (their own Stripe or equivalent), entirely outside this API, and calls <a href="../../api-reference/entitlements/">Entitlements</a> to reflect the outcome. <code class="language-plaintext highlighter-rouge">Order</code>/<code class="language-plaintext highlighter-rouge">order_id</code> is reference metadata the developer supplies for their own reconciliation. It is never a record that a Substratal-run billing system pushes webhooks about. When the marketplace ships, it makes Applications discoverable, each with its developer’s own pricing and billing. It is not a checkout that Substratal runs.</p>
+
+<p>The <strong>only</strong> payment flow that runs through Substratal Apps itself is its own platform subscription: what an Application owner pays Substratal for Starter/Team/Enterprise. See <a href="../../pricing/#how-the-subscription-is-charged">Pricing → How the subscription is charged</a>.</p><hr />
+<h2 id="audit-event">
+  
+  
+    <a href="#audit-event" class="anchor-heading" aria-labelledby="audit-event"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Audit Event
+  
+  
+</h2>
+    
+
+<p>An immutable record of who changed what access, when. Never edited or deleted through the API, including after the record it describes is itself deleted. Only two scheduled jobs touch an event after it’s written, and both only reduce it to its shape: archival at the end of the hot window, and the erasure cascade’s redaction of <code class="language-plaintext highlighter-rouge">before</code>/<code class="language-plaintext highlighter-rouge">after</code> for a deleted User (see <a href="../../non-functional-requirements/#audit">Non-Functional Requirements → Audit</a>).</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">id</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">evt_</code> prefix.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">action</code></td>
+      <td>string</td>
+      <td>See <a href="#action-catalog">Action catalog</a> below.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">actor</code></td>
+      <td>object</td>
+      <td>Who made the change: <code class="language-plaintext highlighter-rouge">{ "type": "user" \| "api_key" \| "system", "id": "usr_…" \| "key_…" \| "system" }</code>. A change made by a User through an MCP or agent session that used their own token is <code class="language-plaintext highlighter-rouge">type: user</code>; the audit log doesn’t distinguish which client a User’s token was used from. A change made by an API Key is <code class="language-plaintext highlighter-rouge">type: api_key</code>, with the key’s id. System-initiated changes, such as a trial expiring, an erasure cascade, or a Stripe sync, are <code class="language-plaintext highlighter-rouge">type: system</code>, <code class="language-plaintext highlighter-rouge">id: "system"</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">target</code></td>
+      <td>object</td>
+      <td>What changed: <code class="language-plaintext highlighter-rouge">{ "type": "user" \| "entitlement" \| "role" \| "role_assignment" \| "application" \| "organization" \| "tenant" \| "tier_change_request" \| "api_key" \| "webhook", "id": "…" }</code>. <code class="language-plaintext highlighter-rouge">id</code> is the target’s own id, with one exception: a Role assignment has no id of its own, so for <code class="language-plaintext highlighter-rouge">role_assignment</code> it’s the <code class="language-plaintext highlighter-rouge">role_id</code>, and the User is in <code class="language-plaintext highlighter-rouge">target_user_id</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">target_user_id</code></td>
+      <td>string, nullable</td>
+      <td>Whose access or data changed, when there is such a User. It’s <code class="language-plaintext highlighter-rouge">null</code> for events with no user subject, such as <code class="language-plaintext highlighter-rouge">application.updated</code>, <code class="language-plaintext highlighter-rouge">api_key.created</code>, or <code class="language-plaintext highlighter-rouge">tenant.plan_changed</code>. For an org-wide Entitlement change it’s also <code class="language-plaintext highlighter-rouge">null</code>. The per-member effect shows up as <a href="../../api-reference/webhooks/#event-types"><code class="language-plaintext highlighter-rouge">access.*</code> webhooks</a>, not as one Audit Event per member.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application_id</code>, <code class="language-plaintext highlighter-rouge">organization_id</code>, <code class="language-plaintext highlighter-rouge">tenant_id</code></td>
+      <td>string, nullable</td>
+      <td>Scope, where relevant. <code class="language-plaintext highlighter-rouge">tenant_id</code> is the Tenant the change belongs to: denormalized from the Application when there is one, set directly for <code class="language-plaintext highlighter-rouge">tenant.*</code> events, and <code class="language-plaintext highlighter-rouge">null</code> for platform-level events with neither (for example <code class="language-plaintext highlighter-rouge">user.created</code>).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">before</code> / <code class="language-plaintext highlighter-rouge">after</code></td>
+      <td>object, nullable</td>
+      <td>A snapshot of the changed fields only, not the whole record. Secrets and hashes never appear, even as before/after values.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">request_id</code></td>
+      <td>string, nullable</td>
+      <td>The <code class="language-plaintext highlighter-rouge">X-Request-Id</code> of the API call that caused it, or <code class="language-plaintext highlighter-rouge">null</code> for system events. It joins audit to request logs.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">timestamp</code></td>
+      <td>timestamp</td>
+      <td>The commit time of the change.</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3 id="example">
+  
+  
+    <a href="#example" class="anchor-heading" aria-labelledby="example"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Example
+  
+  
+</h3>
+    
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"evt_01JAG7X3P8QY110M9N807P6Q5R"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"entitlement.disabled"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"actor"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG9STAFF000000000000000"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"target"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"entitlement"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ent_01JAG9F4Q1W2E3R4T5Y6V7J809"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"target_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_01JAG3Z9X8QS3F6K2M4N5P6R7S"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"application_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app_invoicer"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"organization_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tnt_01JAG1SYSTEM00000000000000"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"before"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"after"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"disabled"</span><span class="p">,</span><span class="w"> </span><span class="nl">"disabled_reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing_dispute"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_7c1e9a2f4b"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-30T16:22:41Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<h3 id="action-catalog">
+  
+  
+    <a href="#action-catalog" class="anchor-heading" aria-labelledby="action-catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Action catalog
+  
+  
+</h3>
+    
+
+<p>Every value <code class="language-plaintext highlighter-rouge">action</code> can take. It’s mirrored exactly by the <code class="language-plaintext highlighter-rouge">AuditAction</code> enum in <a href="../../openapi.yaml">openapi.yaml</a>, and by the <code class="language-plaintext highlighter-rouge">check</code> constraint on <code class="language-plaintext highlighter-rouge">audit_events.action</code> (see <a href="../database-schema/#audit_events">Database Schema</a>). Entries marked <strong>admin-only</strong> never fire for a self-service change. See <a href="#what-triggers-an-audit-event">What triggers an Audit Event</a> below.</p>
+
+<div class="table-wrapper"><table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Fires when</th>
+      <th><code class="language-plaintext highlighter-rouge">target.type</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.created</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/users</code>, <code class="language-plaintext highlighter-rouge">POST /v1/auth/signup</code>, or an invite via org membership</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.updated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">users.manage</code> activates an <code class="language-plaintext highlighter-rouge">invited</code> User without a password (<code class="language-plaintext highlighter-rouge">PATCH status: active</code>). Suspension, reactivation, restore, email, and deletion each have their own action — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.email_changed</code></td>
+      <td>An email change completes (self, after verification; or admin, immediately)</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.suspended</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/suspend</code>, or <code class="language-plaintext highlighter-rouge">PATCH status: suspended</code> — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.reactivated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH status: active</code> on a <code class="language-plaintext highlighter-rouge">suspended</code> User, or on a soft-deleted one (a restore) — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.deleted</code></td>
+      <td><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}</code>, or the soft-delete step of an erasure request</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.erasure_requested</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/erasure-requests</code></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.erasure_cancelled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/erasure-requests/current</code> — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.erased</code></td>
+      <td>The hard-delete cascade completes (actor <code class="language-plaintext highlighter-rouge">system</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.password_changed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/users/{id}/password</code></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.password_reset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/auth/password/reset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.mfa_enabled</code> / <code class="language-plaintext highlighter-rouge">user.mfa_disabled</code></td>
+      <td>TOTP confirmed / disabled by the user</td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">user.mfa_reset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/mfa/totp</code> — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.granted</code></td>
+      <td>An Entitlement is created, or returns to <code class="language-plaintext highlighter-rouge">active</code></td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.disabled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">status</code> set to <code class="language-plaintext highlighter-rouge">disabled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.revoked</code></td>
+      <td><code class="language-plaintext highlighter-rouge">status</code> set to <code class="language-plaintext highlighter-rouge">revoked</code></td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.expired</code></td>
+      <td>Automatic transition to <code class="language-plaintext highlighter-rouge">expired</code> (actor <code class="language-plaintext highlighter-rouge">system</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.updated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">ends_at</code>, <code class="language-plaintext highlighter-rouge">source</code>, or <code class="language-plaintext highlighter-rouge">order_id</code> changes without a status change</td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.member_scope_changed</code></td>
+      <td>An org grant’s <code class="language-plaintext highlighter-rouge">member_scope</code>/<code class="language-plaintext highlighter-rouge">member_overrides</code> changes — see <a href="../entitlements/#org-wide-entitlements-scoping-members-in-or-out">Entitlements → Org-wide entitlements</a></td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">entitlement.deleted</code></td>
+      <td><code class="language-plaintext highlighter-rouge">DELETE /v1/entitlements/{id}</code> (error correction)</td>
+      <td><code class="language-plaintext highlighter-rouge">entitlement</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role.created</code> / <code class="language-plaintext highlighter-rouge">role.updated</code> / <code class="language-plaintext highlighter-rouge">role.deleted</code></td>
+      <td>Role definition changes, including Roles seeded or removed via an Application’s <code class="language-plaintext highlighter-rouge">available_app_roles</code></td>
+      <td><code class="language-plaintext highlighter-rouge">role</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">role.assigned</code> / <code class="language-plaintext highlighter-rouge">role.removed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST</code>/<code class="language-plaintext highlighter-rouge">DELETE /v1/users/{id}/roles/{roleId}</code> (only when something actually changed)</td>
+      <td><code class="language-plaintext highlighter-rouge">role_assignment</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">profile.updated</code></td>
+      <td>An admin changes another user’s Profile or AppProfile — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">settings.updated</code></td>
+      <td>An admin changes another user’s Settings or AppSettings — <strong>admin-only</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">user</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application.created</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/applications</code></td>
+      <td><code class="language-plaintext highlighter-rouge">application</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application.updated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH /v1/applications/{id}</code> (configuration fields)</td>
+      <td><code class="language-plaintext highlighter-rouge">application</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">application.review_status_changed</code></td>
+      <td>A reviewer approves, rejects, suspends, or reinstates; or a rejected app is resubmitted — see <a href="../applications/#the-review-lifecycle">Applications → The review lifecycle</a></td>
+      <td><code class="language-plaintext highlighter-rouge">application</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">organization.created</code> / <code class="language-plaintext highlighter-rouge">organization.updated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST</code>/<code class="language-plaintext highlighter-rouge">PATCH /v1/organizations…</code></td>
+      <td><code class="language-plaintext highlighter-rouge">organization</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">organization.member_invited</code></td>
+      <td>A <code class="language-plaintext highlighter-rouge">pending</code> membership is created by email; the person hasn’t accepted yet</td>
+      <td><code class="language-plaintext highlighter-rouge">organization</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">organization.member_added</code> / <code class="language-plaintext highlighter-rouge">organization.member_removed</code></td>
+      <td>A membership becomes <code class="language-plaintext highlighter-rouge">active</code> (accepted, or added directly by <code class="language-plaintext highlighter-rouge">organizations.manage</code>), or is removed, including leaving and declining</td>
+      <td><code class="language-plaintext highlighter-rouge">organization</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">organization.member_role_changed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH /v1/organizations/{id}/members/{userId}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">organization</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant.plan_changed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">plan</code> changes via a Stripe sync (actor <code class="language-plaintext highlighter-rouge">system</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">tenant</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant.subscription_status_changed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">subscription_status</code> or <code class="language-plaintext highlighter-rouge">restricted</code> changes via a Stripe sync (actor <code class="language-plaintext highlighter-rouge">system</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">tenant</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant.tier_change_requested</code></td>
+      <td><code class="language-plaintext highlighter-rouge">POST /v1/tenants/{id}/tier-change-requests</code> — the request itself, not yet the migration</td>
+      <td><code class="language-plaintext highlighter-rouge">tier_change_request</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant.tier_change_request_updated</code></td>
+      <td><code class="language-plaintext highlighter-rouge">PATCH</code> on a tier-change request (scheduled, started, cancelled)</td>
+      <td><code class="language-plaintext highlighter-rouge">tier_change_request</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant.tier_changed</code></td>
+      <td>A tier-change request reaches <code class="language-plaintext highlighter-rouge">completed</code>: <code class="language-plaintext highlighter-rouge">tier</code>/<code class="language-plaintext highlighter-rouge">region</code> change and <code class="language-plaintext highlighter-rouge">status</code> returns to <code class="language-plaintext highlighter-rouge">active</code> — see <a href="../tenancy/#how-a-tier-change-happens-today">Tenancy → How a tier change happens today</a></td>
+      <td><code class="language-plaintext highlighter-rouge">tenant</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key.created</code> / <code class="language-plaintext highlighter-rouge">api_key.updated</code> / <code class="language-plaintext highlighter-rouge">api_key.rotated</code> / <code class="language-plaintext highlighter-rouge">api_key.revoked</code></td>
+      <td><a href="../../api-reference/api-keys/">API Key</a> lifecycle</td>
+      <td><code class="language-plaintext highlighter-rouge">api_key</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key.restrict_destructive_disabled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">restrict_destructive</code> explicitly set to <code class="language-plaintext highlighter-rouge">false</code> on an <code class="language-plaintext highlighter-rouge">intended_use: "agent"</code> key (written <em>in addition to</em> <code class="language-plaintext highlighter-rouge">api_key.created</code>/<code class="language-plaintext highlighter-rouge">updated</code>) — see <a href="../../api-reference/api-keys/#agent-keys--restrict_destructive">API Keys → Agent keys</a></td>
+      <td><code class="language-plaintext highlighter-rouge">api_key</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">webhook.created</code> / <code class="language-plaintext highlighter-rouge">webhook.updated</code> / <code class="language-plaintext highlighter-rouge">webhook.deleted</code> / <code class="language-plaintext highlighter-rouge">webhook.secret_rotated</code></td>
+      <td><a href="../../api-reference/webhooks/">Webhook</a> subscription lifecycle</td>
+      <td><code class="language-plaintext highlighter-rouge">webhook</code></td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>This list is the authoritative source for <code class="language-plaintext highlighter-rouge">action</code> values. If an endpoint’s page describes a write that isn’t represented here, that’s a spec bug; file it the same way as any other inconsistency.</p>
+<h3 id="what-triggers-an-audit-event">
+  
+  
+    <a href="#what-triggers-an-audit-event" class="anchor-heading" aria-labelledby="what-triggers-an-audit-event"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> What triggers an Audit Event
+  
+  
+</h3>
+    
+
+<p>Every write to an <a href="../entitlements/">Entitlement</a>, every <a href="../roles-and-permissions/">Role</a> definition or assignment change, every change to a credential (API Key, webhook secret, password, MFA), every Application, Organization, and Tenant change, and every admin-initiated (not self-service) change to a user’s <a href="../profiles/">Profile</a> or <a href="../settings/">Settings</a>. Self-service changes a user makes to their own Profile/Settings aren’t audited at this level of detail. That’s ordinary account activity, not an access-control event.</p>
+
+<p><strong>Not</strong> Audit Events: logins, failed logins, token refreshes, and reads. Those go to the security log (structured application logs with <code class="language-plaintext highlighter-rouge">X-Request-Id</code>, retained 1 year in CloudWatch Logs; see <a href="../../non-functional-requirements/#security-logging">Non-Functional Requirements → Security logging</a>). The Audit log records <em>changes to state</em>, and the security log records <em>access attempts</em>. See <a href="../../non-functional-requirements/#audit">Non-Functional Requirements → Audit</a>.</p>
+
+          
+
+          
+            
+          
+        </main>
+        
+<hr>
+<footer>
+  
+    <p><a href="#top" id="back-to-top">Back to top</a></p>
+  
+
+  <p class="text-small mb-0">Substratal Apps Platform API — living specification. This site is the system of record; see git history for how it has changed over time.</p>
+
+  <div class="d-md-none mt-4 fs-2">
+    
+    
+      This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+    
+  </div>
+</footer>
+
+      </div>
+    </div>
+    
+      
+
+<div class="search-overlay"></div>
+
+    
+  </div>
+
+  
+</body>
+</html>
+
